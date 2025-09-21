@@ -1,0 +1,45 @@
+From d28ffe278ad6d8f8cae364e2738c26b47a4f03de Mon Sep 17 00:00:00 2001
+From: Chenyang Zhong <zhongcy95@gmail.com>
+Date: Sat, 18 Jun 2022 22:18:14 -0400
+Subject: [PATCH] lz4: enable LZ4_FAST_DEC_LOOP on aarch64 Clang builds
+
+Upstream lz4 mentioned a performance regression on Qualcomm SoCs
+when built with Clang, but not with GCC [1]. However, according to my
+testing on sm8350 with LLVM Clang 15, this patch does offer a nice
+10% boost in decompression, so enable the fast dec loop for Clang
+as well.
+
+Testing procedure:
+- pre-fill zram with 1GB of real-word zram data dumped under memory
+  pressure, for example
+  $ dd if=/sdcard/zram.test of=/dev/block/zram0 bs=1m count=1000
+- $ fio --readonly --name=randread --direct=1 --rw=randread \
+  --ioengine=psync --randrepeat=0 --numjobs=4 --iodepth=1 \
+  --group_reporting=1 --filename=/dev/block/zram0 --bs=4K --size=1000M
+
+Results:
+- vanilla lz4: read: IOPS=1646k, BW=6431MiB/s (6743MB/s)(4000MiB/622msec)
+- lz4 fast dec: read: IOPS=1775k, BW=6932MiB/s (7269MB/s)(4000MiB/577msec)
+
+[1] https://github.com/lz4/lz4/pull/707
+
+Signed-off-by: Chenyang Zhong <zhongcy95@gmail.com>
+Signed-off-by: Juhyung Park <qkrwngud825@gmail.com>
+Signed-off-by: chickendrop89 <chickendrop89@gmail.com>
+---
+ lib/lz4/Makefile | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+Index: common/lib/lz4/Makefile
+===================================================================
+--- common/lib/lz4/Makefile	2025-10-14 12:24:48.482115593 +1030
++++ common/lib/lz4/Makefile	2025-10-14 12:24:48.478448928 +1030
+@@ -1,5 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+-ccflags-y += -O3
++ccflags-y += -O3 \
++    -DLZ4_FREESTANDING=1 \
++    -DLZ4_FAST_DEC_LOOP=1
+ 
+ obj-$(CONFIG_LZ4_COMPRESS) += lz4_compress.o
+ obj-$(CONFIG_LZ4HC_COMPRESS) += lz4hc_compress.o

@@ -1,0 +1,13 @@
+Index: common/kernel/module/main.c
+===================================================================
+--- common/kernel/module/main.c	2025-10-14 12:24:49.171448817 +1030
++++ common/kernel/module/main.c	2025-10-14 12:24:49.167782150 +1030
+@@ -2378,7 +2378,7 @@
+ }
+ 
+ /* module_blacklist is a comma-separated list of module names */
+-static char *module_blacklist;
++static char *module_blacklist = "f_fs_ipc_log,qcom_iommu_debug,qti_battery_debug,rdbg,stm_console,stm_core,stm_ftrace,spmi_pmic_arb_debug,coresight_tpda,coresight_tgu,coresight_trace_noc,coresight_cti,coresight_qmi,coresight_dummy,coresight_remote_etm,coresight_tpdm,coresight_uetm,coresight_stm,coresight_tmc_sec";
+ static bool blacklisted(const char *module_name)
+ {
+ 	const char *p;

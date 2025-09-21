@@ -1,0 +1,24 @@
+From cc2b8f5787652872223930e809bbbe991e11fcc1 Mon Sep 17 00:00:00 2001
+From: kdrag0n <dragon@khronodragon.com>
+Date: Thu, 27 Dec 2018 20:52:05 -0800
+Subject: [PATCH] arm64: debug: disable self-hosted debug by default
+
+Signed-off-by: kdrag0n <dragon@khronodragon.com>
+Signed-off-by: celtare21 <celtare21@gmail.com>
+---
+ arch/arm64/kernel/debug-monitors.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: common/arch/arm64/kernel/debug-monitors.c
+===================================================================
+--- common/arch/arm64/kernel/debug-monitors.c	2025-10-14 12:24:34.341110265 +1030
++++ common/arch/arm64/kernel/debug-monitors.c	2025-10-14 12:24:34.337169289 +1030
+@@ -53,7 +53,7 @@
+  * Allow root to disable self-hosted debug from userspace.
+  * This is useful if you want to connect an external JTAG debugger.
+  */
+-static bool debug_enabled = true;
++static bool debug_enabled;
+ 
+ static int create_debug_debugfs_entry(void)
+ {

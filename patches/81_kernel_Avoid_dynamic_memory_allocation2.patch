@@ -1,0 +1,64 @@
+From 57fa02e14057c33052161004ee87444fd57f0e41 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Sat, 27 May 2023 15:09:21 -0700
+Subject: [PATCH] kernel: Eliminate dynamic memory allocation in
+ prctl_set_vma()
+
+ANON_VMA_NAME_MAX_LEN is 256 bytes, which fits on the stack just fine.
+
+Open code strndup_user() without the kmalloc() so we can use an on-stack
+buffer, eliminating the dynamic memory allocation entirely.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ kernel/sys.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
+
+Index: common/kernel/sys.c
+===================================================================
+--- common/kernel/sys.c	2025-10-14 12:24:46.818176416 +1030
++++ common/kernel/sys.c	2025-10-14 12:24:46.814180553 +1030
+@@ -2321,6 +2321,7 @@
+ static int prctl_set_vma(unsigned long opt, unsigned long addr,
+ 			 unsigned long size, unsigned long arg)
+ {
++	char name[ANON_VMA_NAME_MAX_LEN] __aligned(sizeof(long));
+ 	struct mm_struct *mm = current->mm;
+ 	const char __user *uname;
+ 	struct anon_vma_name *anon_name = NULL;
+@@ -2331,21 +2332,27 @@
+ 	case PR_SET_VMA_ANON_NAME:
+ 		uname = (const char __user *)arg;
+ 		if (uname) {
+-			char *name, *pch;
++			char *pch;
++			long len;
+ 
+-			name = strndup_user(uname, ANON_VMA_NAME_MAX_LEN);
+-			if (IS_ERR(name))
+-				return PTR_ERR(name);
++			len = strnlen_user(uname, sizeof(name));
++			if (!len)
++				return -EFAULT;
++
++			if (len > sizeof(name))
++				return -EINVAL;
++
++			if (copy_from_user(name, uname, len))
++				return -EFAULT;
++
++			name[len - 1] = '\0';
+ 
+ 			for (pch = name; *pch != '\0'; pch++) {
+-				if (!is_valid_name_char(*pch)) {
+-					kfree(name);
++				if (!is_valid_name_char(*pch))
+ 					return -EINVAL;
+-				}
+ 			}
+ 			/* anon_vma has its own copy */
+ 			anon_name = anon_vma_name_alloc(name);
+-			kfree(name);
+ 			if (!anon_name)
+ 				return -ENOMEM;
+ 

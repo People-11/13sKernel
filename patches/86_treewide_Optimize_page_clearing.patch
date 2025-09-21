@@ -1,0 +1,98 @@
+From 4624339bcdc4cef0fc17dd288bb338025d8f59bf Mon Sep 17 00:00:00 2001
+From: ztc1997 <dev@ztc1997.com>
+Date: Mon, 13 May 2024 11:58:33 +0800
+Subject: [PATCH] treewide: Optimize page clearing by replacing memset with
+ clear_page
+
+Change-Id: Ife78f503d1e0d97e745a016fe7f033c1d514a723
+---
+ arch/arm64/mm/mmu.c        | 2 +-
+ fs/ext4/super.c            | 2 +-
+ fs/f2fs/segment.c          | 6 +++---
+ fs/f2fs/segment.h          | 2 +-
+ kernel/trace/tracing_map.c | 2 +-
+ 5 files changed, 7 insertions(+), 7 deletions(-)
+
+Index: common/arch/arm64/mm/mmu.c
+===================================================================
+--- common/arch/arm64/mm/mmu.c	2025-10-14 12:24:47.726782383 +1030
++++ common/arch/arm64/mm/mmu.c	2025-10-14 12:24:47.723115717 +1030
+@@ -120,7 +120,7 @@
+ 	 */
+ 	ptr = pte_set_fixmap(phys);
+ 
+-	memset(ptr, 0, PAGE_SIZE);
++	clear_page(ptr);
+ 
+ 	/*
+ 	 * Implicit barriers also ensure the zeroed page is visible to the page
+Index: common/fs/ext4/super.c
+===================================================================
+--- common/fs/ext4/super.c	2025-10-14 12:24:47.726782383 +1030
++++ common/fs/ext4/super.c	2025-10-14 12:24:47.723115717 +1030
+@@ -4229,7 +4229,7 @@
+ 		blks = count_overhead(sb, i, buf);
+ 		overhead += blks;
+ 		if (blks)
+-			memset(buf, 0, PAGE_SIZE);
++			clear_page(buf);
+ 		cond_resched();
+ 	}
+ 
+Index: common/fs/f2fs/segment.c
+===================================================================
+--- common/fs/f2fs/segment.c	2025-10-14 12:24:47.726782383 +1030
++++ common/fs/f2fs/segment.c	2025-10-14 12:24:47.726782383 +1030
+@@ -2637,7 +2637,7 @@
+ 	struct f2fs_summary_block *dst;
+ 
+ 	dst = (struct f2fs_summary_block *)page_address(page);
+-	memset(dst, 0, PAGE_SIZE);
++	clear_page(dst);
+ 
+ 	mutex_lock(&curseg->curseg_mutex);
+ 
+@@ -4285,7 +4285,7 @@
+ 
+ 	page = f2fs_grab_meta_page(sbi, blkaddr++);
+ 	kaddr = (unsigned char *)page_address(page);
+-	memset(kaddr, 0, PAGE_SIZE);
++	clear_page(kaddr);
+ 
+ 	/* Step 1: write nat cache */
+ 	seg_i = CURSEG_I(sbi, CURSEG_HOT_DATA);
+@@ -4304,7 +4304,7 @@
+ 			if (!page) {
+ 				page = f2fs_grab_meta_page(sbi, blkaddr++);
+ 				kaddr = (unsigned char *)page_address(page);
+-				memset(kaddr, 0, PAGE_SIZE);
++				clear_page(kaddr);
+ 				written_size = 0;
+ 			}
+ 			summary = (struct f2fs_summary *)(kaddr + written_size);
+Index: common/fs/f2fs/segment.h
+===================================================================
+--- common/fs/f2fs/segment.h	2025-10-14 12:24:47.726782383 +1030
++++ common/fs/f2fs/segment.h	2025-10-14 12:24:47.726782383 +1030
+@@ -398,7 +398,7 @@
+ 	int i;
+ 
+ 	raw_sit = (struct f2fs_sit_block *)page_address(page);
+-	memset(raw_sit, 0, PAGE_SIZE);
++	clear_page(raw_sit);
+ 	for (i = 0; i < end - start; i++) {
+ 		rs = &raw_sit->entries[i];
+ 		se = get_seg_entry(sbi, start + i);
+Index: common/kernel/trace/tracing_map.c
+===================================================================
+--- common/kernel/trace/tracing_map.c	2025-10-14 12:24:47.726782383 +1030
++++ common/kernel/trace/tracing_map.c	2025-10-14 12:24:47.726782383 +1030
+@@ -292,7 +292,7 @@
+ 		return;
+ 
+ 	for (i = 0; i < a->n_pages; i++)
+-		memset(a->pages[i], 0, PAGE_SIZE);
++		clear_page(a->pages[i]);
+ }
+ 
+ static void tracing_map_array_free(struct tracing_map_array *a)

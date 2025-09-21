@@ -1,0 +1,32 @@
+From 0f81d4c55a4d32e8ceda2133eae3dde78adc49c4 Mon Sep 17 00:00:00 2001
+From: Arjan van de Ven <arjan@linux.intel.com>
+Date: Sun, 18 Feb 2018 23:35:41 +0000
+Subject: [PATCH] locking: rwsem: spin faster
+
+tweak rwsem owner spinning a bit
+---
+ kernel/locking/rwsem.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+Index: common/kernel/locking/rwsem.c
+===================================================================
+--- common/kernel/locking/rwsem.c	2025-10-14 12:24:37.480497381 +1030
++++ common/kernel/locking/rwsem.c	2025-10-14 12:24:37.476497382 +1030
+@@ -772,6 +772,7 @@
+ 	struct task_struct *new, *owner;
+ 	unsigned long flags, new_flags;
+ 	enum owner_state state;
++	int i = 0;
+ 	int cnt = 0;
+ 	bool time_out = false;
+ 
+@@ -813,7 +814,8 @@
+ 			break;
+ 		}
+ 
+-		cpu_relax();
++		if (i++ > 1000)
++			cpu_relax();
+ 	}
+ 
+ 	return state;

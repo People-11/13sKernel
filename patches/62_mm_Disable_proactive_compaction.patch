@@ -1,0 +1,26 @@
+From df35b0b5a9d26a9d1af8a07f65b22732fffcd520 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Sat, 24 Oct 2020 22:17:49 -0700
+Subject: [PATCH] mm: Disable proactive compaction by default
+
+On-demand compaction works fine assuming that you don't have a need to
+spam the page allocator nonstop for large order page allocations.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ mm/compaction.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: common/mm/compaction.c
+===================================================================
+--- common/mm/compaction.c	2025-10-14 12:24:43.189933263 +1030
++++ common/mm/compaction.c	2025-10-14 12:24:43.185937399 +1030
+@@ -1851,7 +1851,7 @@
+  * aggressively the kernel should compact memory in the
+  * background. It takes values in the range [0, 100].
+  */
+-static unsigned int __read_mostly sysctl_compaction_proactiveness = 20;
++static unsigned int __read_mostly sysctl_compaction_proactiveness;
+ static int sysctl_extfrag_threshold = 500;
+ static int __read_mostly sysctl_compact_memory;
+ 

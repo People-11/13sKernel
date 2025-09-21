@@ -1,0 +1,22 @@
+From 76b284848a51a6e28e5a025d0a9fc6c29f92a007 Mon Sep 17 00:00:00 2001
+From: epicmann24 <nickypearson862000@gmail.com>
+Date: Sun, 14 Sep 2025 13:09:32 +0100
+Subject: [PATCH] Reduce vm stat interval
+
+---
+ mm/vmstat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: common/mm/vmstat.c
+===================================================================
+--- common/mm/vmstat.c	2025-10-14 12:24:49.017448840 +1030
++++ common/mm/vmstat.c	2025-10-14 12:24:49.013782174 +1030
+@@ -1875,7 +1875,7 @@
+ 
+ #ifdef CONFIG_SMP
+ static DEFINE_PER_CPU(struct delayed_work, vmstat_work);
+-int sysctl_stat_interval __read_mostly = HZ;
++int sysctl_stat_interval __read_mostly = 60 * HZ;
+ 
+ #ifdef CONFIG_PROC_FS
+ static void refresh_vm_stats(struct work_struct *work)

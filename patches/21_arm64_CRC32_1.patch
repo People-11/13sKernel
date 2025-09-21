@@ -1,0 +1,114 @@
+From aff8fb417f11c6716fb10e0428fc3c0095817d0b Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Fri, 18 Oct 2024 09:53:49 +0200
+Subject: [PATCH] arm64/lib: Handle CRC-32 alternative in C code
+
+In preparation for adding another code path for performing CRC-32, move
+the alternative patching for ARM64_HAS_CRC32 into C code. The logic for
+deciding whether to use this new code path will be implemented in C too.
+
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+ arch/arm64/lib/Makefile     |  2 +-
+ arch/arm64/lib/crc32-glue.c | 34 ++++++++++++++++++++++++++++++++++
+ arch/arm64/lib/crc32.S      | 22 ++++++----------------
+ 3 files changed, 41 insertions(+), 17 deletions(-)
+ create mode 100644 arch/arm64/lib/crc32-glue.c
+
+Index: common/arch/arm64/lib/Makefile
+===================================================================
+--- common/arch/arm64/lib/Makefile	2025-10-14 12:24:34.557863957 +1030
++++ common/arch/arm64/lib/Makefile	2025-10-14 12:24:34.549982005 +1030
+@@ -15,7 +15,7 @@
+ 
+ lib-$(CONFIG_ARCH_HAS_UACCESS_FLUSHCACHE) += uaccess_flushcache.o
+ 
+-obj-$(CONFIG_CRC32) += crc32.o
++obj-$(CONFIG_CRC32) += crc32.o crc32-glue.o
+ 
+ obj-$(CONFIG_FUNCTION_ERROR_INJECTION) += error-inject.o
+ 
+Index: common/arch/arm64/lib/crc32-glue.c
+===================================================================
+--- common//dev/null	1970-01-01 00:00:00.000000000 +0000
++++ common/arch/arm64/lib/crc32-glue.c	2025-10-14 12:24:34.549982005 +1030
+@@ -0,0 +1,34 @@
++// SPDX-License-Identifier: GPL-2.0-only
++
++#include <linux/crc32.h>
++#include <linux/linkage.h>
++
++#include <asm/alternative.h>
++
++asmlinkage u32 crc32_le_arm64(u32 crc, unsigned char const *p, size_t len);
++asmlinkage u32 crc32c_le_arm64(u32 crc, unsigned char const *p, size_t len);
++asmlinkage u32 crc32_be_arm64(u32 crc, unsigned char const *p, size_t len);
++
++u32 __pure crc32_le(u32 crc, unsigned char const *p, size_t len)
++{
++	if (!alternative_has_cap_likely(ARM64_HAS_CRC32))
++		return crc32_le_base(crc, p, len);
++
++	return crc32_le_arm64(crc, p, len);
++}
++
++u32 __pure __crc32c_le(u32 crc, unsigned char const *p, size_t len)
++{
++	if (!alternative_has_cap_likely(ARM64_HAS_CRC32))
++		return __crc32c_le_base(crc, p, len);
++
++	return crc32c_le_arm64(crc, p, len);
++}
++
++u32 __pure crc32_be(u32 crc, unsigned char const *p, size_t len)
++{
++	if (!alternative_has_cap_likely(ARM64_HAS_CRC32))
++		return crc32_be_base(crc, p, len);
++
++	return crc32_be_arm64(crc, p, len);
++}
+Index: common/arch/arm64/lib/crc32.S
+===================================================================
+--- common/arch/arm64/lib/crc32.S	2025-10-14 12:24:34.557863957 +1030
++++ common/arch/arm64/lib/crc32.S	2025-10-14 12:24:34.549982005 +1030
+@@ -6,7 +6,6 @@
+  */
+ 
+ #include <linux/linkage.h>
+-#include <asm/alternative.h>
+ #include <asm/assembler.h>
+ 
+ 	.arch		armv8-a+crc
+@@ -136,25 +135,16 @@
+ 	.endm
+ 
+ 	.align		5
+-SYM_FUNC_START(crc32_le)
+-alternative_if_not ARM64_HAS_CRC32
+-	b		crc32_le_base
+-alternative_else_nop_endif
++SYM_FUNC_START(crc32_le_arm64)
+ 	__crc32
+-SYM_FUNC_END(crc32_le)
++SYM_FUNC_END(crc32_le_arm64)
+ 
+ 	.align		5
+-SYM_FUNC_START(__crc32c_le)
+-alternative_if_not ARM64_HAS_CRC32
+-	b		__crc32c_le_base
+-alternative_else_nop_endif
++SYM_FUNC_START(crc32c_le_arm64)
+ 	__crc32		c
+-SYM_FUNC_END(__crc32c_le)
++SYM_FUNC_END(crc32c_le_arm64)
+ 
+ 	.align		5
+-SYM_FUNC_START(crc32_be)
+-alternative_if_not ARM64_HAS_CRC32
+-	b		crc32_be_base
+-alternative_else_nop_endif
++SYM_FUNC_START(crc32_be_arm64)
+ 	__crc32		be=1
+-SYM_FUNC_END(crc32_be)
++SYM_FUNC_END(crc32_be_arm64)

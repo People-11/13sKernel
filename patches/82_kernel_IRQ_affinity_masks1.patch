@@ -1,0 +1,32 @@
+From 9b3860fc682fca3f8adf097faf09480888e98c79 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Sat, 25 May 2019 22:48:20 -0700
+Subject: [PATCH] kernel: Don't allow IRQ affinity masks to have more than one
+ CPU
+
+Even with an affinity mask that has multiple CPUs set, IRQs always run
+on the first CPU in their affinity mask. Drivers that register an IRQ
+affinity notifier (such as pm_qos) will therefore have an incorrect
+assumption of where an IRQ is affined.
+
+Fix the IRQ affinity mask deception by forcing it to only contain one
+set CPU.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ kernel/irq/manage.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+Index: common/kernel/irq/manage.c
+===================================================================
+--- common/kernel/irq/manage.c	2025-10-14 12:24:46.970019191 +1030
++++ common/kernel/irq/manage.c	2025-10-14 12:24:46.966023328 +1030
+@@ -264,6 +264,8 @@
+ 		else
+ 			prog_mask = &tmp_mask;
+ 	} else {
++		/* IRQs only run on the first CPU in the affinity mask */
++		mask = cpumask_of(cpumask_first(mask));
+ 		prog_mask = mask;
+ 	}
+ 

@@ -1,0 +1,61 @@
+From 71b5a23eabae02dfc49b47b40536c8d211db5599 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Sat, 27 May 2023 15:42:16 -0700
+Subject: [PATCH] kernfs: Avoid dynamic memory allocation for small
+ write_iter() buffers
+
+Most write_iter() buffers are rather small and can fit on the stack,
+eliminating the need to allocate them dynamically. Reserve a 64 B stack
+buffer for this purpose to avoid the overhead of dynamic memory allocation.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ fs/kernfs/file.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
+
+Index: common/fs/kernfs/file.c
+===================================================================
+--- common/fs/kernfs/file.c	2025-10-14 12:24:46.650350191 +1030
++++ common/fs/kernfs/file.c	2025-10-14 12:24:46.646354327 +1030
+@@ -295,6 +295,7 @@
+ 	struct kernfs_open_file *of = kernfs_of(iocb->ki_filp);
+ 	ssize_t len = iov_iter_count(iter);
+ 	const struct kernfs_ops *ops;
++	char buf_onstack[SZ_64] __aligned(sizeof(long));
+ 	char *buf;
+ 
+ 	if (of->atomic_write_len) {
+@@ -304,13 +305,17 @@
+ 		len = min_t(size_t, len, PAGE_SIZE);
+ 	}
+ 
+-	buf = of->prealloc_buf;
+-	if (buf)
+-		mutex_lock(&of->prealloc_mutex);
+-	else
+-		buf = kmalloc(len + 1, GFP_KERNEL);
+-	if (!buf)
+-		return -ENOMEM;
++	if (len < sizeof(buf_onstack)) {
++		buf = buf_onstack;
++	} else {
++		buf = of->prealloc_buf;
++		if (buf)
++			mutex_lock(&of->prealloc_mutex);
++		else
++			buf = kmalloc(len + 1, GFP_KERNEL);
++		if (!buf)
++			return -ENOMEM;
++	}
+ 
+ 	if (copy_from_iter(buf, len, iter) != len) {
+ 		len = -EFAULT;
+@@ -344,7 +349,7 @@
+ out_free:
+ 	if (buf == of->prealloc_buf)
+ 		mutex_unlock(&of->prealloc_mutex);
+-	else
++	else if (buf != buf_onstack)
+ 		kfree(buf);
+ 	return len;
+ }

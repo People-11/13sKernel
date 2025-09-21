@@ -1,0 +1,47 @@
+From 0d74844023caf45d06cdd50cb256682db01f5a12 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Mon, 23 Sep 2024 23:26:03 -0700
+Subject: [PATCH] sched/fair: Iterate in ascending CPU order when doing idle
+ load balance
+
+On asymmetric arm64 systems, CPUs are enumerated by ascending order of
+capacity. Since the idle load balancer doesn't iterate through possible CPU
+candidates starting from the beginning of the idle CPU mask, higher
+capacity CPUs may receive tasks before qualified lower capacity CPUs. This
+results in a small hit to energy efficiency, since higher capacity CPUs are
+typically far less efficient than lower capacity CPUs.
+
+Iterate through the small CPUs first as possible load-balance destination
+CPUs, so that tasks are more likely to be migrated to the lowest capacity
+CPU that fits them, thus saving energy.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ kernel/sched/fair.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+Index: common/kernel/sched/fair.c
+===================================================================
+--- common/kernel/sched/fair.c	2025-10-14 12:24:38.176497267 +1030
++++ common/kernel/sched/fair.c	2025-10-14 12:24:38.172497267 +1030
+@@ -12243,7 +12243,6 @@
+ 	unsigned long next_balance = now + 60*HZ;
+ 	bool has_blocked_load = false;
+ 	int update_next_balance = 0;
+-	int this_cpu = this_rq->cpu;
+ 	int balance_cpu;
+ 	struct rq *rq;
+ 
+@@ -12270,11 +12269,7 @@
+ 	 */
+ 	smp_mb();
+ 
+-	/*
+-	 * Start with the next CPU after this_cpu so we will end with this_cpu and let a
+-	 * chance for other idle cpu to pull load.
+-	 */
+-	for_each_cpu_wrap(balance_cpu,  nohz.idle_cpus_mask, this_cpu+1) {
++	for_each_cpu(balance_cpu, nohz.idle_cpus_mask) {
+ 		if (!idle_cpu(balance_cpu))
+ 			continue;
+ 

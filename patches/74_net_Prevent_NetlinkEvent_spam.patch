@@ -1,0 +1,28 @@
+From b7633abeb33c909f82d706ea3559648485a601fd Mon Sep 17 00:00:00 2001
+From: DennySPb <dennyspb@gmail.com>
+Date: Fri, 11 Jun 2021 15:51:18 +0300
+Subject: [PATCH] net: Prevent useless userpace spam
+
+NetlinkEvent::FindParam(): Parameter '...' not found"
+
+Signed-off-by: DennySPb <dennyspb@gmail.com>
+Signed-off-by: Panchajanya1999 <panchajanya@azure-dev.live>
+Signed-off-by: Forenche <prahul2003@gmail.com>
+---
+ net/netfilter/xt_IDLETIMER.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+Index: common/net/netfilter/xt_IDLETIMER.c
+===================================================================
+--- common/net/netfilter/xt_IDLETIMER.c	2025-10-14 12:24:45.527512827 +1030
++++ common/net/netfilter/xt_IDLETIMER.c	2025-10-14 12:24:45.519521102 +1030
+@@ -393,9 +393,6 @@
+ 		goto out_free_attr;
+ 	}
+ 
+-	/*  notify userspace  */
+-	kobject_uevent(idletimer_tg_kobj,KOBJ_ADD);
+-
+ 	list_add(&info->timer->entry, &idletimer_tg_list);
+ 	pr_debug("timer type value is %u\n", info->timer_type);
+ 	info->timer->timer_type = info->timer_type;

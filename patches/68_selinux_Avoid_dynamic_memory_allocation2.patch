@@ -1,0 +1,61 @@
+From e86c9af9ae82c0c2e11c2581323dcc2b97b09cf6 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Sat, 6 Feb 2021 19:51:14 -0800
+Subject: [PATCH] selinux: Avoid dynamic memory allocation for INITCONTEXTLEN
+ buffers
+
+The default INITCONTEXTLEN-sized buffers can fit on the stack. Do so to
+save a call to kmalloc() in a hot path.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ security/selinux/hooks.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
+
+Index: common/security/selinux/hooks.c
+===================================================================
+--- common/security/selinux/hooks.c	2025-10-14 12:24:44.296787177 +1030
++++ common/security/selinux/hooks.c	2025-10-14 12:24:44.288795451 +1030
+@@ -1346,20 +1346,15 @@
+ 				  u32 def_sid, u32 *sid)
+ {
+ #define INITCONTEXTLEN 255
+-	char *context;
++	char context_onstack[INITCONTEXTLEN + 1] __aligned(sizeof(long));
++	char *context = context_onstack;
+ 	unsigned int len;
+ 	int rc;
+ 
+ 	len = INITCONTEXTLEN;
+-	context = kmalloc(len + 1, GFP_NOFS);
+-	if (!context)
+-		return -ENOMEM;
+-
+ 	context[len] = '\0';
+ 	rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
+ 	if (rc == -ERANGE) {
+-		kfree(context);
+-
+ 		/* Need a larger buffer.  Query for the right size. */
+ 		rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, NULL, 0);
+ 		if (rc < 0)
+@@ -1375,7 +1370,8 @@
+ 				    context, len);
+ 	}
+ 	if (rc < 0) {
+-		kfree(context);
++		if (context != context_onstack)
++			kfree(context);
+ 		if (rc != -ENODATA) {
+ 			pr_warn("SELinux: %s:  getxattr returned %d for dev=%s ino=%ld\n",
+ 				__func__, -rc, inode->i_sb->s_id, inode->i_ino);
+@@ -1399,7 +1395,8 @@
+ 				__func__, context, -rc, dev, ino);
+ 		}
+ 	}
+-	kfree(context);
++	if (context != context_onstack)
++		kfree(context);
+ 	return 0;
+ }
+ 

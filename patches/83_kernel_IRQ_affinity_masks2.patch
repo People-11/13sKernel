@@ -1,0 +1,31 @@
+From 9c0e2f9547f7df06ed42c8cf18806e9d42c02c85 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Fri, 14 Aug 2020 20:11:38 -0700
+Subject: [PATCH] kernel: Only set one CPU in the default IRQ affinity mask
+
+On ARM, IRQs are executed on the first CPU inside the affinity mask, so
+setting an affinity mask with more than one CPU set is deceptive and
+causes issues with pm_qos. To fix this, only set the CPU0 bit inside the
+affinity mask, since that's where IRQs will run by default.
+
+This is a follow-up to "kernel: Don't allow IRQ affinity masks to have
+more than one CPU".
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ kernel/irq/irqdesc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: common/kernel/irq/irqdesc.c
+===================================================================
+--- common/kernel/irq/irqdesc.c	2025-10-14 12:24:47.202449135 +1030
++++ common/kernel/irq/irqdesc.c	2025-10-14 12:24:47.198782469 +1030
+@@ -42,7 +42,7 @@
+ 	if (!cpumask_available(irq_default_affinity))
+ 		zalloc_cpumask_var(&irq_default_affinity, GFP_NOWAIT);
+ 	if (cpumask_empty(irq_default_affinity))
+-		cpumask_setall(irq_default_affinity);
++		cpumask_set_cpu(0, irq_default_affinity);
+ }
+ #else
+ static void __init init_irq_default_affinity(void)

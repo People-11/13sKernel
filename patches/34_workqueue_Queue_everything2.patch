@@ -1,0 +1,49 @@
+From f11d360f2e1a46968572edc73f0802ed356b8af5 Mon Sep 17 00:00:00 2001
+From: freak07 <michalechner92@googlemail.com>
+Date: Fri, 22 Feb 2019 08:35:36 +0100
+Subject: [PATCH] mm: vmstat: use power efficient workingqueues
+
+(cherry picked from commit 52e60a930f0480f2082bc65836c7edb4861de7aa)
+(cherry picked from commit bb05861a4f3bb99b76e7e43ba17f3659fcb12443)
+(cherry picked from commit d92be4aa5222a52104bed81fe60c5c10a091b4c1)
+(cherry picked from commit cc59747fd00d37a9cbcfc3d5175de1a9062dd758)
+(cherry picked from commit 101acdd830d9b9cd02104b7721886ee3d16a3930)
+(cherry picked from commit faf5434d8d14ae88886aa7b21308c68ff2bce208)
+(cherry picked from commit edb793442e06e5499761c40335b109118d13d676)
+(cherry picked from commit 36d9884dd06be11d312174806f5635fad205d96c)
+(cherry picked from commit e70e90b8bd8f7eba350557a51048f6431bd990b6)
+(cherry picked from commit 9eaab60f5360aa13185c63b82231d1f2c814bdcf)
+(cherry picked from commit e51c6715a6110da0697d65530154e44f729d7f70)
+(cherry picked from commit 06c1d2b640eec244403d0c52da508b210af94881)
+(cherry picked from commit 9d1b56fdba1323c41725873e2367b2bdd2693817)
+(cherry picked from commit 7df85bddf4000f0f9146ca72e89da11ea82a0a99)
+(cherry picked from commit 63765755ceb1e0e74b13395a3c3a9d4c9badb1a1)
+(cherry picked from commit 47ba0aaf2ab21b1b1d8c3bb3f651b7254020443d)
+(cherry picked from commit d5a3efc7ea799fd64bae357c4d42d315a14c4909)
+(cherry picked from commit 620d3a3d388d3c8ec1227ba54ef7ec74b240831d)
+---
+ mm/vmstat.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: common/mm/vmstat.c
+===================================================================
+--- common/mm/vmstat.c	2025-10-14 12:24:37.124497440 +1030
++++ common/mm/vmstat.c	2025-10-14 12:24:37.120497440 +1030
+@@ -2050,7 +2050,7 @@
+ 	}
+ 	cpus_read_unlock();
+ 
+-	schedule_delayed_work(&shepherd,
++	queue_delayed_work(system_power_efficient_wq, &shepherd,
+ 		round_jiffies_relative(sysctl_stat_interval));
+ }
+ 
+@@ -2062,7 +2062,7 @@
+ 		INIT_DEFERRABLE_WORK(per_cpu_ptr(&vmstat_work, cpu),
+ 			vmstat_update);
+ 
+-	schedule_delayed_work(&shepherd,
++	queue_delayed_work(system_power_efficient_wq, &shepherd,
+ 		round_jiffies_relative(sysctl_stat_interval));
+ }
+ 

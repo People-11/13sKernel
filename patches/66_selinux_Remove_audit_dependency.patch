@@ -1,0 +1,81 @@
+From c9c8bf24629436c3f3c5d55bfc2ae66afa43e37f Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Sun, 12 Feb 2023 16:34:36 -0800
+Subject: [PATCH] selinux: Remove audit dependency
+
+Auditing comes with a lot of overhead due to string assembly via
+vsnprintf. It isn't actually needed to make SELinux work, so remove
+SELinux's artificial dependency on it to make it possible to use SELinux
+without the unneeded overhead.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ include/linux/audit.h     | 5 +++++
+ include/linux/lsm_audit.h | 8 ++++++++
+ security/Makefile         | 2 +-
+ security/selinux/Kconfig  | 2 +-
+ 4 files changed, 15 insertions(+), 2 deletions(-)
+
+Index: common/include/linux/audit.h
+===================================================================
+--- common/include/linux/audit.h	2025-10-14 12:24:43.877221612 +1030
++++ common/include/linux/audit.h	2025-10-14 12:24:43.865234026 +1030
+@@ -268,6 +268,11 @@
+ 	return 0;
+ }
+ 
++static inline int audit_update_lsm_rules(void)
++{
++	return 0;
++}
++
+ #endif /* CONFIG_AUDIT */
+ 
+ #ifdef CONFIG_AUDIT_COMPAT_GENERIC
+Index: common/include/linux/lsm_audit.h
+===================================================================
+--- common/include/linux/lsm_audit.h	2025-10-14 12:24:43.877221612 +1030
++++ common/include/linux/lsm_audit.h	2025-10-14 12:24:43.865234026 +1030
+@@ -122,8 +122,16 @@
+ int ipv6_skb_to_auditdata(struct sk_buff *skb,
+ 		struct common_audit_data *ad, u8 *proto);
+ 
++#ifdef CONFIG_AUDIT
+ void common_lsm_audit(struct common_audit_data *a,
+ 	void (*pre_audit)(struct audit_buffer *, void *),
+ 	void (*post_audit)(struct audit_buffer *, void *));
++#else
++static inline void common_lsm_audit(struct common_audit_data *a,
++	void (*pre_audit)(struct audit_buffer *, void *),
++	void (*post_audit)(struct audit_buffer *, void *))
++{
++}
++#endif
+ 
+ #endif
+Index: common/security/Makefile
+===================================================================
+--- common/security/Makefile	2025-10-14 12:24:43.877221612 +1030
++++ common/security/Makefile	2025-10-14 12:24:43.869229887 +1030
+@@ -14,7 +14,7 @@
+ obj-$(CONFIG_SECURITYFS)		+= inode.o
+ obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/
+ obj-$(CONFIG_SECURITY_SMACK)		+= smack/
+-obj-$(CONFIG_SECURITY)			+= lsm_audit.o
++obj-$(CONFIG_AUDIT)			+= lsm_audit.o
+ obj-$(CONFIG_SECURITY_TOMOYO)		+= tomoyo/
+ obj-$(CONFIG_SECURITY_APPARMOR)		+= apparmor/
+ obj-$(CONFIG_SECURITY_YAMA)		+= yama/
+Index: common/security/selinux/Kconfig
+===================================================================
+--- common/security/selinux/Kconfig	2025-10-14 12:24:43.877221612 +1030
++++ common/security/selinux/Kconfig	2025-10-14 12:24:43.869229887 +1030
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config SECURITY_SELINUX
+ 	bool "SELinux Support"
+-	depends on SECURITY_NETWORK && AUDIT && NET && INET
++	depends on SECURITY_NETWORK && NET && INET
+ 	select NETWORK_SECMARK
+ 	default n
+ 	help

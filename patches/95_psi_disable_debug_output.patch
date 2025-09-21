@@ -1,0 +1,55 @@
+From e8a8ce7477ee21af79df0bc469848dd787bf2cb9 Mon Sep 17 00:00:00 2001
+From: Kairui Song <ryncsn@gmail.com>
+Date: Wed, 23 Apr 2025 11:43:48 +0800
+Subject: [PATCH] psi: disable psi debug output
+
+Cause who cares?
+
+Change-Id: I49ffcf4d86e392f14547833325bbbf65080ff732
+Signed-off-by: Kairui Song <ryncsn@gmail.com>
+---
+ kernel/sched/psi.c | 18 ------------------
+ 1 file changed, 18 deletions(-)
+
+Index: common/kernel/sched/psi.c
+===================================================================
+--- common/kernel/sched/psi.c	2025-10-14 12:24:49.292448797 +1030
++++ common/kernel/sched/psi.c	2025-10-14 12:24:49.292448797 +1030
+@@ -138,8 +138,6 @@
+  */
+ #include <trace/hooks/psi.h>
+ 
+-static int psi_bug __read_mostly;
+-
+ DEFINE_STATIC_KEY_FALSE(psi_disabled);
+ static DEFINE_STATIC_KEY_TRUE(psi_cgroups_enabled);
+ 
+@@ -831,12 +829,6 @@
+ 			continue;
+ 		if (groupc->tasks[t]) {
+ 			groupc->tasks[t]--;
+-		} else if (!psi_bug) {
+-			printk_deferred(KERN_ERR "psi: task underflow! cpu=%d t=%d tasks=[%u %u %u %u] clear=%x set=%x\n",
+-					cpu, t, groupc->tasks[0],
+-					groupc->tasks[1], groupc->tasks[2],
+-					groupc->tasks[3], clear, set);
+-			psi_bug = 1;
+ 		}
+ 	}
+ 
+@@ -901,15 +893,6 @@
+ 
+ static void psi_flags_change(struct task_struct *task, int clear, int set)
+ {
+-	if (((task->psi_flags & set) ||
+-	     (task->psi_flags & clear) != clear) &&
+-	    !psi_bug) {
+-		printk_deferred(KERN_ERR "psi: inconsistent task state! task=%d:%s cpu=%d psi_flags=%x clear=%x set=%x\n",
+-				task->pid, task->comm, task_cpu(task),
+-				task->psi_flags, clear, set);
+-		psi_bug = 1;
+-	}
+-
+ 	task->psi_flags &= ~clear;
+ 	task->psi_flags |= set;
+ }

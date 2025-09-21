@@ -1,0 +1,28 @@
+From c9847f15f553ced9cb30156d36b8b9c5169f7513 Mon Sep 17 00:00:00 2001
+From: Danny Lin <danny@kdrag0n.dev>
+Date: Sun, 7 Apr 2019 23:39:12 -0700
+Subject: [PATCH] uid_sys_stats: Remove dependency on the profiling subsystem
+
+Now that we have a simple task exit notifier system to notify
+uid_sys_stats when tasks exit independently of the profiling subsystem,
+remove this unnecessary dependency.
+
+Test: /proc/uid_cputime shows valid stats with profiling disabled
+Signed-off-by: Danny Lin <danny@kdrag0n.dev>
+---
+ drivers/misc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: common/drivers/misc/Kconfig
+===================================================================
+--- common/drivers/misc/Kconfig	2025-10-14 12:24:45.095959677 +1030
++++ common/drivers/misc/Kconfig	2025-10-14 12:24:45.091963815 +1030
+@@ -485,7 +485,7 @@
+ 
+ config UID_SYS_STATS
+ 	bool "Per-UID statistics"
+-	depends on PROFILING && TASK_XACCT && TASK_IO_ACCOUNTING
++	depends on TASK_XACCT && TASK_IO_ACCOUNTING
+ 	help
+ 	  Per UID based cpu time statistics exported to /proc/uid_cputime
+ 	  Per UID based io statistics exported to /proc/uid_io

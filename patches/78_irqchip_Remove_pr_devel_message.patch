@@ -1,0 +1,32 @@
+From ab62e1f7b029ca015430c9df6a6137473d915684 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Wed, 20 May 2020 21:02:24 -0700
+Subject: [PATCH] irqchip/gic-v3: Remove pr_devel message containing
+ smp_processor_id()
+
+This call to smp_processor_id() forces gic_raise_softirq() to require
+being called while preemption is disabled, which isn't an actual
+requirement. When called without preemption disabled, smp_processor_id()
+is thus used incorrectly and generates a warning splat with the relevant
+kernel debug options enabled.
+
+Get rid of the useless pr_devel message outright to fix the incorrect
+smp_processor_id() usage.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ drivers/irqchip/irq-gic-v3.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+Index: common/drivers/irqchip/irq-gic-v3.c
+===================================================================
+--- common/drivers/irqchip/irq-gic-v3.c	2025-10-14 12:24:46.186830140 +1030
++++ common/drivers/irqchip/irq-gic-v3.c	2025-10-14 12:24:46.182834278 +1030
+@@ -1352,7 +1352,6 @@
+ 	       MPIDR_TO_SGI_RS(cluster_id)		|
+ 	       tlist << ICC_SGI1R_TARGET_LIST_SHIFT);
+ 
+-	pr_devel("CPU%d: ICC_SGI1R_EL1 %llx\n", smp_processor_id(), val);
+ 	gic_write_sgi1r(val);
+ }
+ 

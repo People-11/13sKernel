@@ -1,0 +1,40 @@
+From 2c2f998079e443a0951d6ae70014268acdefe547 Mon Sep 17 00:00:00 2001
+From: xNombre <linux@andrzejperczak.com>
+Date: Fri, 13 Jan 2023 19:44:01 +0000
+Subject: [PATCH] alarmtimer: Minimize wakeup time
+
+Alarmtimer sets its wakeup timeout to 2s no matter the actual time
+to nearest timer expiration. This can cause device to be awake for more
+than needed.
+
+To fix this set wakeup timeout to min + 1 ms for safety margin.
+
+Tests revealed that average timer expiration is 1150ms in the future
+which suggests there is a room avilable to minimize wakeup times.
+Before this change device would enter sleep not earlier than 2s after
+alarmtimer suspend error (-EBUSY). With this change average suspend
+after alarmtimer suspend error time went down to 1.5s with a minimum of
+0.248ms (after filtering results higher than 2.6s).
+
+This should lead to noticeable power savings as Android uses alarmtimer
+quite frequently.
+
+Signed-off-by: Andrzej Perczak <linux@andrzejperczak.com>
+Signed-off-by: Zlatan Radovanovic <zlatan.radovanovic@fet.ba>
+---
+ kernel/time/alarmtimer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: common/kernel/time/alarmtimer.c
+===================================================================
+--- common/kernel/time/alarmtimer.c	2025-10-14 12:24:45.283765214 +1030
++++ common/kernel/time/alarmtimer.c	2025-10-14 12:24:45.279769352 +1030
+@@ -280,7 +280,7 @@
+ 		return 0;
+ 
+ 	if (ktime_to_ns(min) < 2 * NSEC_PER_SEC) {
+-		pm_wakeup_event(dev, 2 * MSEC_PER_SEC);
++		pm_wakeup_event(dev, ktime_to_ms(min) + 1);
+ 		return -EBUSY;
+ 	}
+ 

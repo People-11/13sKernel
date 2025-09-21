@@ -1,0 +1,74 @@
+From 5fa6240c9b7c9009810b9cec55c5864350cb9f77 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Mon, 23 Sep 2024 23:24:34 -0700
+Subject: [PATCH] sched/fair: Don't needlessly migrate a lone task to a higher
+ capacity CPU
+
+When a CPU has only one running CFS task and there's a higher capacity CPU
+that's idle, that lone task may be migrated to the higher capacity CPU just
+because of RT and IRQ load.
+
+If the CPU running the lone CFS task has sufficient capacity for the task,
+then let it run that task. Migrating the task up to a higher capacity CPU
+causes that CPU to be kicked out of idle and degrades energy efficiency
+without an appreciable performance improvement. The load balancer will take
+care of migrating the task anyway if it becomes a misfit, so this heuristic
+isn't needed.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ kernel/sched/fair.c | 28 ----------------------------
+ 1 file changed, 28 deletions(-)
+
+Index: common/kernel/sched/fair.c
+===================================================================
+--- common/kernel/sched/fair.c	2025-10-14 12:24:38.560422797 +1030
++++ common/kernel/sched/fair.c	2025-10-14 12:24:38.556426934 +1030
+@@ -11270,27 +11270,12 @@
+ 
+ static int need_active_balance(struct lb_env *env)
+ {
+-	struct sched_domain *sd = env->sd;
+-
+ 	if (asym_active_balance(env))
+ 		return 1;
+ 
+ 	if (imbalanced_active_balance(env))
+ 		return 1;
+ 
+-	/*
+-	 * The dst_cpu is idle and the src_cpu CPU has only 1 CFS task.
+-	 * It's worth migrating the task if the src_cpu's capacity is reduced
+-	 * because of other sched_class or IRQs if more capacity stays
+-	 * available on dst_cpu.
+-	 */
+-	if ((env->idle != CPU_NOT_IDLE) &&
+-	    (env->src_rq->cfs.h_nr_running == 1)) {
+-		if ((check_cpu_capacity(env->src_rq, sd)) &&
+-		    (capacity_of(env->src_cpu)*sd->imbalance_pct < capacity_of(env->dst_cpu)*100))
+-			return 1;
+-	}
+-
+ 	if (env->migration_type == migrate_misfit)
+ 		return 1;
+ 
+@@ -12015,19 +12000,6 @@
+ 
+ 	rcu_read_lock();
+ 
+-	sd = rcu_dereference(rq->sd);
+-	if (sd) {
+-		/*
+-		 * If there's a CFS task and the current CPU has reduced
+-		 * capacity; kick the ILB to see if there's a better CPU to run
+-		 * on.
+-		 */
+-		if (rq->cfs.h_nr_running >= 1 && check_cpu_capacity(rq, sd)) {
+-			flags = NOHZ_STATS_KICK | NOHZ_BALANCE_KICK;
+-			goto unlock;
+-		}
+-	}
+-
+ 	sd = rcu_dereference(per_cpu(sd_asym_packing, cpu));
+ 	if (sd) {
+ 		/*

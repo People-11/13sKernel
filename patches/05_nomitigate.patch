@@ -1,0 +1,30 @@
+Index: common/arch/arm64/configs/gki_defconfig
+===================================================================
+--- common/arch/arm64/configs/gki_defconfig	2025-10-14 12:24:31.854354262 +1030
++++ common/arch/arm64/configs/gki_defconfig	2025-10-14 12:24:31.854354262 +1030
+@@ -61,7 +61,8 @@
+ CONFIG_SCHED_MC=y
+ CONFIG_NR_CPUS=32
+ CONFIG_PARAVIRT_TIME_ACCOUNTING=y
+-CONFIG_ARM64_SW_TTBR0_PAN=y
++# CONFIG_UNMAP_KERNEL_AT_EL0 is not set
++# CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY is not set
+ CONFIG_COMPAT=y
+ CONFIG_ARMV8_DEPRECATED=y
+ CONFIG_SWP_EMULATION=y
+Index: common/arch/arm64/include/asm/thread_info.h
+===================================================================
+--- common/arch/arm64/include/asm/thread_info.h	2025-10-14 12:24:31.854354262 +1030
++++ common/arch/arm64/include/asm/thread_info.h	2025-10-14 12:24:31.854354262 +1030
+@@ -23,8 +23,10 @@
+  */
+ struct thread_info {
+ 	unsigned long		flags;		/* low level flags */
+-#ifdef CONFIG_ARM64_SW_TTBR0_PAN
++#if defined(CONFIG_ARM64_SW_TTBR0_PAN) || (!defined(CONFIG_ARM64_SW_TTBR0_PAN) && defined(__GENKSYMS__))
+ 	u64			ttbr0;		/* saved TTBR0_EL1 */
++#else
++	u64			unused;		/* HACK: KABI preservation, DO NOT USE! */
+ #endif
+ 	union {
+ 		u64		preempt_count;	/* 0 => preemptible, <0 => bug */
