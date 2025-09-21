@@ -1,0 +1,66 @@
+From 0271603c3afa56cdc67d249f2bb9daa716a8852d Mon Sep 17 00:00:00 2001
+From: Yu-Jen Chang <arthurchang09@gmail.com>
+Date: Thu, 22 Jan 2026 09:15:15 +0800
+Subject: [PATCH] lib/string.c: Add a macro for memchr_inv()
+
+We add a macro MEMCHR_MASK_GEN() so that both memchr_inv() and memchr() can use it to generate a 8 bytes mask.
+
+Signed-off-by: Yu-Jen Chang <arthurchang09@gmail.com>
+Signed-off-by: Ching-Chun (Jim) Huang <jserv@ccns.ncku.edu.tw>
+Signed-off-by: Samuel Pascua <pascua.samuel.14@gmail.com>
+---
+ lib/string.c | 34 ++++++++++++++++++++++++----------
+ 1 file changed, 24 insertions(+), 10 deletions(-)
+
+diff --git a/lib/string.c b/lib/string.c
+index ec39eee4b60b..ef07d7ef966d 100644
+--- common/lib/string.c
++++ common/lib/string.c
+@@ -1149,6 +1149,29 @@ char *strnstr(const char *s1, const char *s2, size_t len)
+ EXPORT_SYMBOL(strnstr);
+ #endif
+ 
++#if defined(CONFIG_ARCH_HAS_FAST_MULTIPLIER) && BITS_PER_LONG == 64
++
++#define MEMCHR_MASK_GEN(mask) (mask *= 0x0101010101010101ULL)
++
++#elif defined(CONFIG_ARCH_HAS_FAST_MULTIPLIER)
++
++#define MEMCHR_MASK_GEN(mask)                                                  \
++	do {                                                                   \
++		mask *= 0x01010101;                                            \
++		mask |= mask << 32;                                            \
++	} while (0)
++
++#else
++
++#define MEMCHR_MASK_GEN(mask)                                                  \
++	do {                                                                   \
++		mask |= mask << 8;                                             \
++		mask |= mask << 16;                                            \
++		mask |= mask << 32;                                            \
++	} while (0)
++
++#endif
++
+ #ifndef __HAVE_ARCH_MEMCHR
+ /**
+  * memchr - Find a character in an area of memory.
+@@ -1202,16 +1225,7 @@ void *memchr_inv(const void *start, int c, size_t bytes)
+ 		return check_bytes8(start, value, bytes);
+ 
+ 	value64 = value;
+-#if defined(CONFIG_ARCH_HAS_FAST_MULTIPLIER) && BITS_PER_LONG == 64
+-	value64 *= 0x0101010101010101ULL;
+-#elif defined(CONFIG_ARCH_HAS_FAST_MULTIPLIER)
+-	value64 *= 0x01010101;
+-	value64 |= value64 << 32;
+-#else
+-	value64 |= value64 << 8;
+-	value64 |= value64 << 16;
+-	value64 |= value64 << 32;
+-#endif
++	MEMCHR_MASK_GEN(value64);
+ 
+ 	prefix = (unsigned long)start % 8;
+ 	if (prefix) {

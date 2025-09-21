@@ -1,0 +1,123 @@
+From 412749b84c9811ad9c7e226aedaebd827ef471a4 Mon Sep 17 00:00:00 2001
+From: Fengnan Chang <changfengnan@bytedance.com>
+Date: Fri, 14 Nov 2025 17:21:49 +0800
+Subject: [PATCH] block: enable per-cpu bio cache by default
+
+Since after commit 12e4e8c7ab59 ("io_uring/rw: enable bio caches for
+IRQ rw"), bio_put is safe for task and irq context, bio_alloc_bioset is
+safe for task context and no one calls in irq context, so we can enable
+per cpu bio cache by default.
+
+Benchmarked with t/io_uring and ext4+nvme:
+taskset -c 6 /root/fio/t/io_uring  -p0 -d128 -b4096 -s1 -c1 -F1 -B1 -R1
+-X1 -n1 -P1  /mnt/testfile
+base IOPS is 562K, patch IOPS is 574K. The CPU usage of bio_alloc_bioset
+decrease from 1.42% to 1.22%.
+
+The worst case is allocate bio in CPU A but free in CPU B, still use
+t/io_uring and ext4+nvme:
+base IOPS is 648K, patch IOPS is 647K.
+
+Also use fio test ext4/xfs with libaio/sync/io_uring on null_blk and
+nvme, no obvious performance regression.
+
+Signed-off-by: Fengnan Chang <changfengnan@bytedance.com>
+---
+ block/bio.c        | 26 ++++++++++++--------------
+ block/fops.c       |  4 ----
+ include/linux/fs.h |  3 ---
+ io_uring/rw.c      |  1 -
+ 4 files changed, 12 insertions(+), 22 deletions(-)
+
+diff --git a/block/bio.c b/block/bio.c
+index ab418bb7be2c1..4fddce434cada 100644
+--- common/block/bio.c
++++ common/block/bio.c
+@@ -506,20 +506,18 @@ struct bio *bio_alloc_bioset(struct block_device *bdev, unsigned short nr_vecs,
+ 	if (WARN_ON_ONCE(!mempool_initialized(&bs->bvec_pool) && nr_vecs > 0))
+ 		return NULL;
+ 
+-	if (opf & REQ_ALLOC_CACHE) {
+-		if (bs->cache && nr_vecs <= BIO_INLINE_VECS) {
+-			bio = bio_alloc_percpu_cache(bdev, nr_vecs, opf,
+-						     gfp_mask, bs);
+-			if (bio)
+-				return bio;
+-			/*
+-			 * No cached bio available, bio returned below marked with
+-			 * REQ_ALLOC_CACHE to particpate in per-cpu alloc cache.
+-			 */
+-		} else {
+-			opf &= ~REQ_ALLOC_CACHE;
+-		}
+-	}
++	if (bs->cache && nr_vecs <= BIO_INLINE_VECS) {
++		opf |= REQ_ALLOC_CACHE;
++		bio = bio_alloc_percpu_cache(bdev, nr_vecs, opf,
++					     gfp_mask, bs);
++		if (bio)
++			return bio;
++		/*
++		 * No cached bio available, bio returned below marked with
++		 * REQ_ALLOC_CACHE to participate in per-cpu alloc cache.
++		 */
++	} else
++		opf &= ~REQ_ALLOC_CACHE;
+ 
+ 	/*
+ 	 * submit_bio_noacct() converts recursion to iteration; this means if
+diff --git a/block/fops.c b/block/fops.c
+index b91cb52991132..6b1aecd91f321 100644
+--- common/block/fops.c
++++ common/block/fops.c
+@@ -175,8 +175,6 @@ static ssize_t __blkdev_direct_IO(struct kiocb *iocb, struct iov_iter *iter,
+ 	if (blkdev_dio_unaligned(bdev, pos, iter))
+ 		return -EINVAL;
+ 
+-	if (iocb->ki_flags & IOCB_ALLOC_CACHE)
+-		opf |= REQ_ALLOC_CACHE;
+ 	bio = bio_alloc_bioset(bdev, nr_pages, opf, GFP_KERNEL,
+ 			       &blkdev_dio_pool);
+ 	dio = container_of(bio, struct blkdev_dio, bio);
+@@ -315,8 +313,6 @@ static ssize_t __blkdev_direct_IO_async(struct kiocb *iocb,
+ 	if (blkdev_dio_unaligned(bdev, pos, iter))
+ 		return -EINVAL;
+ 
+-	if (iocb->ki_flags & IOCB_ALLOC_CACHE)
+-		opf |= REQ_ALLOC_CACHE;
+ 	bio = bio_alloc_bioset(bdev, nr_pages, opf, GFP_KERNEL,
+ 			       &blkdev_dio_pool);
+ 	dio = container_of(bio, struct blkdev_dio, bio);
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 9768bacda09fc..a66f4b9d404d9 100644
+--- common/include/linux/fs.h
++++ common/include/linux/fs.h
+@@ -324,8 +324,6 @@ struct readahead_control;
+ /* iocb->ki_waitq is valid */
+ #define IOCB_WAITQ		(1 << 19)
+ #define IOCB_NOIO		(1 << 20)
+-/* can use bio alloc cache */
+-#define IOCB_ALLOC_CACHE	(1 << 21)
+ /*
+  * IOCB_DIO_CALLER_COMP can be set by the iocb owner, to indicate that the
+  * iocb completion can be passed back to the owner for execution from a safe
+@@ -355,7 +353,6 @@ struct readahead_control;
+ 	{ IOCB_WRITE,		"WRITE" }, \
+ 	{ IOCB_WAITQ,		"WAITQ" }, \
+ 	{ IOCB_NOIO,		"NOIO" }, \
+-	{ IOCB_ALLOC_CACHE,	"ALLOC_CACHE" }, \
+ 	{ IOCB_DIO_CALLER_COMP,	"CALLER_COMP" }
+ 
+ struct kiocb {
+diff --git a/io_uring/rw.c b/io_uring/rw.c
+index 4ff3442ac2eee..b91edfe10c50a 100644
+--- common/io_uring/rw.c
++++ common/io_uring/rw.c
+@@ -688,7 +688,6 @@ static int io_rw_init_file(struct io_kiocb *req, fmode_t mode)
+ 	ret = kiocb_set_rw_flags(kiocb, rw->flags);
+ 	if (unlikely(ret))
+ 		return ret;
+-	kiocb->ki_flags |= IOCB_ALLOC_CACHE;
+ 
+ 	/*
+ 	 * If the file is marked O_NONBLOCK, still allow retry for it if it

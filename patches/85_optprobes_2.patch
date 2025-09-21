@@ -1,0 +1,161 @@
+From ba8de1b7e86006cd8c8ca1c85d44fffb86c918bb Mon Sep 17 00:00:00 2001
+From: Janet Liu <janet.liu@unisoc.com>
+Date: Fri, 29 Oct 2021 20:27:45 +0800
+Subject: [PATCH] arm64: kprobes: add support for KPROBES_ON_FTRACE
+
+This patch allow kprobes on ftrace call sites. This optimization
+avoids use of a trap with regular kprobes.
+
+This depends on HAVE_DYNAMIC_FTRACE_WITH_REGS which depends on
+"patchable-function-entry" options which is only implemented with newer
+toolchains.
+
+Signed-off-by: Janet Liu <janet.liu@unisoc.com>
+---
+ arch/arm64/Kconfig                 |  1 +
+ arch/arm64/kernel/probes/Makefile  |  1 +
+ arch/arm64/kernel/probes/ftrace.c  | 73 ++++++++++++++++++++++++++++++
+ arch/arm64/kernel/probes/kprobes.c | 27 +++++++++++
+ 4 files changed, 102 insertions(+)
+ create mode 100644 arch/arm64/kernel/probes/ftrace.c
+
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index fcb65083f9aec..cb700a8ed3170 100644
+--- common/arch/arm64/Kconfig
++++ common/arch/arm64/Kconfig
+@@ -235,6 +235,7 @@ config ARM64
+ 	select HAVE_SYSCALL_TRACEPOINTS
+ 	select HAVE_KPROBES
+ 	select HAVE_OPTPROBES
++	select HAVE_KPROBES_ON_FTRACE
+ 	select HAVE_KRETPROBES
+ 	select HAVE_GENERIC_VDSO
+ 	select HOTPLUG_CORE_SYNC_DEAD if HOTPLUG_CPU
+diff --git a/arch/arm64/kernel/probes/Makefile b/arch/arm64/kernel/probes/Makefile
+index c77c92ac95fd7..d9b204f4795a3 100644
+--- common/arch/arm64/kernel/probes/Makefile
++++ common/arch/arm64/kernel/probes/Makefile
+@@ -3,5 +3,6 @@ obj-$(CONFIG_KPROBES)		+= kprobes.o decode-insn.o	\
+ 				   kprobes_trampoline.o		\
+ 				   simulate-insn.o
+ obj-$(CONFIG_OPTPROBES) 	+= opt.o opt_head.o
++obj-$(CONFIG_KPROBES_ON_FTRACE) += ftrace.o
+ obj-$(CONFIG_UPROBES)		+= uprobes.o decode-insn.o	\
+ 				   simulate-insn.o
+diff --git a/arch/arm64/kernel/probes/ftrace.c b/arch/arm64/kernel/probes/ftrace.c
+new file mode 100644
+index 0000000000000..46ea92eb552f1
+--- /dev/null
++++ common/arch/arm64/kernel/probes/ftrace.c
+@@ -0,0 +1,73 @@
++// SPDX-License-Identifier: GPL-2.0-only
++//
++// Dynamic Ftrace based Kprobes Optimization
++//
++// Copyright (C) 2021, Unisoc Inc.
++// Author: Janet Liu <janet.liu@unisoc.com>
++#include <linux/kprobes.h>
++#include <linux/ptrace.h>
++#include <linux/hardirq.h>
++#include <linux/preempt.h>
++#include <linux/ftrace.h>
++
++
++/* Ftrace callback handler for kprobes*/
++void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
++			   struct ftrace_ops *ops, struct ftrace_regs *fregs)
++{
++	struct kprobe *p;
++	struct kprobe_ctlblk *kcb;
++	struct pt_regs *regs = ftrace_get_regs(fregs);
++	int bit;
++
++	bit = ftrace_test_recursion_trylock(ip, parent_ip);
++	if (bit < 0)
++		return;
++
++	preempt_disable_notrace();
++	p = get_kprobe((kprobe_opcode_t *)ip);
++	if (unlikely(!p) || kprobe_disabled(p))
++		goto end;
++
++	kcb = get_kprobe_ctlblk();
++	if (kprobe_running()) {
++		kprobes_inc_nmissed_count(p);
++	} else {
++		unsigned long orig_ip = instruction_pointer(regs);
++
++		instruction_pointer_set(regs, ip);
++
++		__this_cpu_write(current_kprobe, p);
++		kcb->kprobe_status = KPROBE_HIT_ACTIVE;
++		if (!p->pre_handler || !p->pre_handler(p, regs)) {
++			/*
++			 *Emulate singlestep (and also recover regs->pc)
++			 *as if there is a nop
++			 */
++			instruction_pointer_set(regs,
++					(unsigned long)p->addr + MCOUNT_INSN_SIZE);
++			if (unlikely(p->post_handler)) {
++				kcb->kprobe_status = KPROBE_HIT_SSDONE;
++				p->post_handler(p, regs, 0);
++			}
++			instruction_pointer_set(regs, orig_ip);
++		}
++
++		/*
++		 * If pre_handler returns !0,it changes regs->pc. We have to
++		 * skip emulating post_handler.
++		 */
++		__this_cpu_write(current_kprobe, NULL);
++	}
++end:
++	preempt_enable_notrace();
++	ftrace_test_recursion_unlock(bit);
++}
++NOKPROBE_SYMBOL(kprobe_ftrace_handler);
++
++int arch_prepare_kprobe_ftrace(struct kprobe *p)
++{
++	p->ainsn.api.insn = NULL;
++	p->ainsn.api.restore = 0;
++	return 0;
++}
+diff --git a/arch/arm64/kernel/probes/kprobes.c b/arch/arm64/kernel/probes/kprobes.c
+index 70b91a8c6bb3f..4f754d55e54dd 100644
+--- common/arch/arm64/kernel/probes/kprobes.c
++++ common/arch/arm64/kernel/probes/kprobes.c
+@@ -416,6 +416,33 @@ int __kprobes arch_trampoline_kprobe(struct kprobe *p)
+ 	return 0;
+ }
+ 
++kprobe_opcode_t __kprobes *kprobe_lookup_name(const char *name, unsigned int offset)
++{
++	kprobe_opcode_t *addr;
++
++	addr = (kprobe_opcode_t *)kallsyms_lookup_name(name);
++#ifdef CONFIG_KPROBES_ON_FTRACE
++	if (addr && !offset) {
++		unsigned long faddr;
++
++		faddr = ftrace_location_range((unsigned long)addr,
++					      (unsigned long)addr + 8);
++		if (faddr)
++			addr = (kprobe_opcode_t *)faddr;
++	}
++#endif
++	return addr;
++}
++
++bool __kprobes arch_kprobe_on_func_entry(unsigned long offset)
++{
++#ifdef CONFIG_KPROBES_ON_FTRACE
++	return offset <= 8;
++#else
++	return !offset;
++#endif
++}
++
+ int __init arch_init_kprobes(void)
+ {
+ 	register_kernel_break_hook(&kprobes_break_hook);

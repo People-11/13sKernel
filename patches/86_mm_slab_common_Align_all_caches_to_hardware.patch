@@ -1,0 +1,31 @@
+From 2e83bac5a6f7fd4787ef088ee9adb7de3a8b64f2 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Thu, 22 Jan 2026 08:49:55 +0800
+Subject: [PATCH] mm/slab_common: Align all caches' objects to hardware
+ cachelines
+
+This only increases the memory used by all caches by about 10%, which is
+relatively very little for the performance benefit of cacheline
+alignment.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+Signed-off-by: Tashfin Shakeer Rhythm <tashfinshakeerrhythm@gmail.com>
+Signed-off-by: Samuel Pascua <pascua.samuel.14@gmail.com>
+---
+ mm/slab_common.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/mm/slab_common.c b/mm/slab_common.c
+index 29d574c5d83d..73537026af97 100644
+--- common/mm/slab_common.c
++++ common/mm/slab_common.c
+@@ -348,6 +348,9 @@ kmem_cache_create_usercopy(const char *name,
+ 	 */
+ 	flags &= CACHE_CREATE_MASK;
+ 
++	/* Embrace davem */
++	flags |= SLAB_HWCACHE_ALIGN;	
++
+ 	/* Fail closed on bad usersize of useroffset values. */
+ 	if (WARN_ON(!usersize && useroffset) ||
+ 	    WARN_ON(size < usersize || size - usersize < useroffset))

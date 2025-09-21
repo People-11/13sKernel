@@ -1,0 +1,84 @@
+From 396b1e9f8b97baf2612c06e15bf4588b3cbbca1a Mon Sep 17 00:00:00 2001
+From: brokestar233 <3765589194@qq.com>
+Date: Sat, 27 Dec 2025 18:21:13 +0800
+Subject: [PATCH] arm64/kprobes: Support optimized probes with multiple
+ instruction slots
+
+The previous optimized kprobes implementation on arm64 only supported a
+single 4KB slot page for detour code, severely limiting the number of
+simultaneously active optimized probes (often just one or a few, depending
+on code size).
+
+This patch expands the allocation to support up to 16 pages (64KB total),
+allowing many more optimized probes to be active concurrently without
+falling back to unoptimized mode.
+
+Changes:
+- Increase optinsn_slot from 4KB to 64KB and align it to 64KB boundary
+  (align 12).
+- Replace the single-page boolean tracker with a counter
+  (optinsn_pages_allocated).
+- Modify alloc_optinsn_page() to return successive page-aligned offsets
+  within the 64KB slot and stop allocating once 16 pages are used.
+- Make free_optinsn_page() a no-op since we now use pre-reserved static
+  storage instead of dynamic allocation.
+
+This keeps the implementation simple and avoids dynamic page allocation
+overhead while providing sufficient capacity for typical workloads.
+
+Change-Id: I61e2108ff488c190625d5212abbc07cdac862f9f
+Signed-off-by: brokestar233 <3765589194@qq.com>
+---
+ arch/arm64/kernel/probes/opt.c      | 13 ++++++++-----
+ arch/arm64/kernel/probes/opt_head.S |  4 ++--
+ 2 files changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm64/kernel/probes/opt.c b/arch/arm64/kernel/probes/opt.c
+index 206c1bc334a7..8ce0bbe02f6f 100644
+--- common/arch/arm64/kernel/probes/opt.c
++++ common/arch/arm64/kernel/probes/opt.c
+@@ -27,19 +27,22 @@
+ 	- (kprobe_opcode_t *)&optprobe_template_entry)
+ 
+ 
+-static bool optinsn_page_in_use;
++#define MAX_OPTINSN_PAGES 16  /* 64KB / 4KB(PAGE_SIZE) = 16页 */
++static int optinsn_pages_allocated = 0;
+ 
+ void *alloc_optinsn_page(void)
+ {
+-	if (optinsn_page_in_use)
++    /* 如果已经分配了超过16页，就停止分配 */
++	if (optinsn_pages_allocated >= MAX_OPTINSN_PAGES)
+ 		return NULL;
+-	optinsn_page_in_use = true;
+-	return &optinsn_slot;
++
++    /* 每次返回 &optinsn_slot 起始地址 + 偏移量 */
++	return (void *)((unsigned long)&optinsn_slot + (optinsn_pages_allocated++ * PAGE_SIZE));
+ }
+ 
+ void free_optinsn_page(void *page __maybe_unused)
+ {
+-	optinsn_page_in_use = false;
++	return;
+ }
+ 
+ int arch_prepared_optinsn(struct arch_optimized_insn *optinsn)
+diff --git a/arch/arm64/kernel/probes/opt_head.S b/arch/arm64/kernel/probes/opt_head.S
+index 0b437c38cc9d..f36d00cf69f9 100644
+--- common/arch/arm64/kernel/probes/opt_head.S
++++ common/arch/arm64/kernel/probes/opt_head.S
+@@ -5,10 +5,10 @@
+ #include <asm/asm-offsets.h>
+ #include <asm/assembler.h>
+ #include "base_regs.h"
+-	.align 2
++	.align 12
+ 	.global optinsn_slot
+ 	optinsn_slot:
+-	.space  4096
++	.space  65536
+ 	.global optprobe_template_entry
+ 	optprobe_template_entry:
+ 

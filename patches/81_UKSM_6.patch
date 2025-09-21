@@ -1,0 +1,42 @@
+From 24c928639684af1bae06f05d8b535fc3001680ff Mon Sep 17 00:00:00 2001
+From: brokestar233 <3765589194@qq.com>
+Date: Wed, 30 Jul 2025 00:24:22 +0800
+Subject: [PATCH] mm: uksm: Add NULL checks in rung_rm_slot to prevent crashes
+
+In the rung_rm_slot function, add NULL pointer checks for the slot and
+slot->rung to avoid potential null pointer dereferences. If either slot
+or slot->rung is NULL, log an error using pr_err and return early to
+prevent undefined behavior. This improves the robustness of the UKSM
+(Ultra KSM) module by handling edge cases more safely.
+
+Signed-off-by: brokestar233 <3765589194@qq.com>
+---
+ mm/uksm.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+Index: common/mm/uksm.c
+===================================================================
+--- common/mm/uksm.c	2025-11-01 01:23:12.274769555 +1030
++++ common/mm/uksm.c	2025-11-01 01:23:12.274769555 +1030
+@@ -3698,9 +3698,20 @@
+ 
+ static inline void rung_rm_slot(struct vma_slot *slot)
+ {
+-	struct scan_rung *rung = slot->rung;
++	struct scan_rung *rung;
+ 	struct sradix_tree_root *root;
+ 
++	if (!slot) {
++		pr_err("UKSM: rung_rm_slot: slot is NULL\n");
++		return;
++	}
++
++	rung = slot->rung;
++	if (!rung) {
++		pr_err("UKSM: rung_rm_slot: slot->rung is NULL for slot %p\n", slot);
++		return;
++	}
++
+ 	if (rung->current_scan == slot)
+ 		advance_current_scan(rung);
+ 
