@@ -1,0 +1,84 @@
+From 3c39e9ccfbe67dd2bc96818614564f35bc754a41 Mon Sep 17 00:00:00 2001
+From: Dark-Matter7232 <me@const.eu.org>
+Date: Tue, 9 Jul 2024 14:02:38 +0530
+Subject: [PATCH] f2fs: Use copy_page for full page copy
+
+Some architectures have implemented optimized copy_page for full page
+copying, such as arm.
+
+On my arm platform, use the copy_page helper for single page copying is
+about 10 percent faster than memcpy.
+
+Change-Id: Ie28de9ef5954d0c232b418f382471bc7c125563f
+Signed-off-by: Dark-Matter7232 <me@const.eu.org>
+Signed-off-by: Richard Raya <rdxzv.dev@gmail.com>
+---
+ fs/f2fs/checkpoint.c | 2 +-
+ fs/f2fs/compress.c   | 6 +++---
+ fs/f2fs/node.c       | 2 +-
+ fs/f2fs/segment.c    | 2 +-
+ 4 files changed, 6 insertions(+), 6 deletions(-)
+
+Index: common/fs/f2fs/checkpoint.c
+===================================================================
+--- common/fs/f2fs/checkpoint.c	2025-10-07 00:24:02.371724179 +1030
++++ common/fs/f2fs/checkpoint.c	2025-10-07 00:24:02.361724179 +1030
+@@ -1437,7 +1437,7 @@
+ 
+ 	f2fs_wait_on_page_writeback(page, META, true, true);
+ 
+-	memcpy(page_address(page), src, PAGE_SIZE);
++	copy_page(page_address(page), src);
+ 
+ 	set_page_dirty(page);
+ 	if (unlikely(!clear_page_dirty_for_io(page)))
+Index: common/fs/f2fs/compress.c
+===================================================================
+--- common/fs/f2fs/compress.c	2025-10-07 00:24:02.371724179 +1030
++++ common/fs/f2fs/compress.c	2025-10-07 00:24:02.361724179 +1030
+@@ -1944,7 +1944,7 @@
+ 
+ 	set_page_private_data(cpage, ino);
+ 
+-	memcpy(page_address(cpage), page_address(page), PAGE_SIZE);
++	copy_page(page_address(cpage), page_address(page));
+ 	SetPageUptodate(cpage);
+ 	f2fs_put_page(cpage, 1);
+ }
+@@ -1963,8 +1963,8 @@
+ 	if (cpage) {
+ 		if (PageUptodate(cpage)) {
+ 			atomic_inc(&sbi->compress_page_hit);
+-			memcpy(page_address(page),
+-				page_address(cpage), PAGE_SIZE);
++			copy_page(page_address(page),
++				page_address(cpage));
+ 			hitted = true;
+ 		}
+ 		f2fs_put_page(cpage, 1);
+Index: common/fs/f2fs/node.c
+===================================================================
+--- common/fs/f2fs/node.c	2025-10-07 00:24:02.371724179 +1030
++++ common/fs/f2fs/node.c	2025-10-07 00:24:02.371724179 +1030
+@@ -155,7 +155,7 @@
+ 
+ 	src_addr = page_address(src_page);
+ 	dst_addr = page_address(dst_page);
+-	memcpy(dst_addr, src_addr, PAGE_SIZE);
++	copy_page(dst_addr, src_addr);
+ 	set_page_dirty(dst_page);
+ 	f2fs_put_page(src_page, 1);
+ 
+Index: common/fs/f2fs/segment.c
+===================================================================
+--- common/fs/f2fs/segment.c	2025-10-07 00:24:02.371724179 +1030
++++ common/fs/f2fs/segment.c	2025-10-07 00:24:02.371724179 +1030
+@@ -2617,7 +2617,7 @@
+ {
+ 	struct page *page = f2fs_grab_meta_page(sbi, blk_addr);
+ 
+-	memcpy(page_address(page), src, PAGE_SIZE);
++	copy_page(page_address(page), src);
+ 	set_page_dirty(page);
+ 	f2fs_put_page(page, 1);
+ }

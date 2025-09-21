@@ -1,0 +1,39 @@
+From f01ffa7684e213fcddd5befbae95b71da47cbda0 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Tue, 19 Apr 2022 23:32:22 -0700
+Subject: [PATCH] rcu: Make the grace period workers unbound again
+
+After a dedicated grace-period workqueue was added to RCU in order to
+benefit from rescuer threads, the relevant workers were moved to the new
+workqueue away from system_power_efficient_wq. The old workqueue was
+unbound, which is desirable for performance reasons. Making the workers
+bound measurably regressed performance, so make them unbound again.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ kernel/rcu/tree.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+Index: common/kernel/rcu/tree.c
+===================================================================
+--- common/kernel/rcu/tree.c	2025-10-07 00:24:06.021724185 +1030
++++ common/kernel/rcu/tree.c	2025-10-07 00:24:06.021724185 +1030
+@@ -4711,7 +4711,8 @@
+ 
+ static inline void rcu_alloc_par_gp_wq(void)
+ {
+-	rcu_par_gp_wq = alloc_workqueue("rcu_par_gp", WQ_MEM_RECLAIM, 0);
++	rcu_par_gp_wq = alloc_workqueue("rcu_par_gp",
++					WQ_MEM_RECLAIM | WQ_UNBOUND, 0);
+ 	WARN_ON(!rcu_par_gp_wq);
+ }
+ #endif /* CONFIG_RCU_EXP_KTHREAD */
+@@ -5081,7 +5082,7 @@
+ 	rcutree_online_cpu(cpu);
+ 
+ 	/* Create workqueue for Tree SRCU and for expedited GPs. */
+-	rcu_gp_wq = alloc_workqueue("rcu_gp", WQ_MEM_RECLAIM, 0);
++	rcu_gp_wq = alloc_workqueue("rcu_gp", WQ_MEM_RECLAIM | WQ_UNBOUND, 0);
+ 	WARN_ON(!rcu_gp_wq);
+ 	rcu_alloc_par_gp_wq();
+ 

@@ -1,0 +1,13 @@
+--- common/block/Makefile     2025-10-07 11:35:34.162791900 +1030
++++ common/block/Makefile    2025-10-07 11:36:43.687775800 +1030
+@@ -21,10 +21,6 @@
+ obj-$(CONFIG_BLK_CGROUP_IOPRIO)   += blk-ioprio.o
+ obj-$(CONFIG_BLK_CGROUP_IOLATENCY)       += blk-iolatency.o
+ obj-$(CONFIG_BLK_CGROUP_IOCOST)   += blk-iocost.o
+-obj-$(CONFIG_MQ_IOSCHED_DEADLINE) += mq-deadline.o
+-obj-$(CONFIG_MQ_IOSCHED_KYBER)    += kyber-iosched.o
+-bfq-y                      := bfq-iosched.o bfq-wf2q.o bfq-cgroup.o
+-obj-$(CONFIG_IOSCHED_BFQ)  += bfq.o
+ 
+ obj-$(CONFIG_BLK_DEV_INTEGRITY) += bio-integrity.o blk-integrity.o
+ obj-$(CONFIG_BLK_DEV_INTEGRITY_T10)      += t10-pi.o

@@ -1,0 +1,44 @@
+From 31ff814b2406128e67e1a3671dffd75f6e1fbc2c Mon Sep 17 00:00:00 2001
+From: David Vernet <void@manifault.com>
+Date: Mon, 5 Feb 2024 22:39:19 -0600
+Subject: [PATCH] sched/fair: Remove unnecessary goto in update_sd_lb_stats()
+
+In update_sd_lb_stats(), when we're iterating over the sched groups that
+comprise a sched domain, we're skipping the call to
+update_sd_pick_busiest() for the sched group that contains the local /
+destination CPU. We use a goto to skip the call, but we could just as
+easily check !local_group, as there's no other logic that we need to
+skip with the goto. Let's remove the goto, and check for !local_group in
+the if statement instead.
+
+Signed-off-by: David Vernet <void@manifault.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Reviewed-by: Valentin Schneider <vschneid@redhat.com>
+Link: https://lore.kernel.org/r/20240206043921.850302-2-void@manifault.com
+---
+ kernel/sched/fair.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+Index: common/kernel/sched/fair.c
+===================================================================
+--- common/kernel/sched/fair.c	2025-10-07 00:24:03.781724182 +1030
++++ common/kernel/sched/fair.c	2025-10-07 00:24:03.781724182 +1030
+@@ -10681,16 +10681,11 @@
+ 
+ 		update_sg_lb_stats(env, sds, sg, sgs, &sg_status);
+ 
+-		if (local_group)
+-			goto next_group;
+-
+-
+-		if (update_sd_pick_busiest(env, sds, sg, sgs)) {
++		if (!local_group && update_sd_pick_busiest(env, sds, sg, sgs)) {
+ 			sds->busiest = sg;
+ 			sds->busiest_stat = *sgs;
+ 		}
+ 
+-next_group:
+ 		/* Now, start updating sd_lb_stats */
+ 		sds->total_load += sgs->group_load;
+ 		sds->total_capacity += sgs->group_capacity;

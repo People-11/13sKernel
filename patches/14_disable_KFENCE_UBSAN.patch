@@ -1,0 +1,38 @@
+From 67f0680a50beee652b757803f48c84c5242e6e7c Mon Sep 17 00:00:00 2001
+From: Kairui Song <ryncsn@gmail.com>
+Date: Wed, 23 Apr 2025 17:55:01 +0800
+Subject: [PATCH] config: disable KFENCE and UBSAN
+
+Cause yeah.
+
+Change-Id: I42e9129d3d5e984f7fd4e1a3ae3ef9489b7bd11d
+Signed-off-by: Kairui Song <ryncsn@gmail.com>
+---
+ arch/arm64/configs/gki_defconfig | 10 ----------
+ 1 file changed, 10 deletions(-)
+
+Index: common/arch/arm64/configs/gki_defconfig
+===================================================================
+--- common/arch/arm64/configs/gki_defconfig	2025-10-07 00:24:01.711724178 +1030
++++ common/arch/arm64/configs/gki_defconfig	2025-10-07 00:24:01.711724178 +1030
+@@ -762,20 +762,11 @@
+ CONFIG_HEADERS_INSTALL=y
+ # CONFIG_SECTION_MISMATCH_WARN_ONLY is not set
+ CONFIG_MAGIC_SYSRQ=y
+-CONFIG_UBSAN=y
+-CONFIG_UBSAN_TRAP=y
+-# CONFIG_UBSAN_SHIFT is not set
+-# CONFIG_UBSAN_BOOL is not set
+-# CONFIG_UBSAN_ENUM is not set
+ CONFIG_PAGE_OWNER=y
+ CONFIG_PAGE_PINNER=y
+ CONFIG_DEBUG_MEMORY_INIT=y
+ CONFIG_KASAN=y
+ CONFIG_KASAN_HW_TAGS=y
+-CONFIG_KFENCE=y
+-CONFIG_KFENCE_SAMPLE_INTERVAL=500
+-CONFIG_KFENCE_NUM_OBJECTS=63
+-CONFIG_KFENCE_STATIC_KEYS=y
+ CONFIG_PANIC_ON_OOPS=y
+ CONFIG_PANIC_TIMEOUT=-1
+ CONFIG_SOFTLOCKUP_DETECTOR=y

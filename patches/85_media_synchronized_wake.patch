@@ -1,0 +1,32 @@
+From 3743997be00cb470de873253e3dd652a7c355b24 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Tue, 11 Jun 2024 21:58:20 -0700
+Subject: [PATCH] media: videobuf2: Perform a synchronized wake for waiting
+ processes
+
+Processes waiting to consume buffers are handed off buffers from the kernel
+with the kernel's producer often going to sleep right after. This matches a
+synchronized wake pattern and can benefit from improved scheduling by
+making the scheduler aware of it via a sync wake.
+
+Perform a synchronized wake in vb2_buffer_done() so waiting processes can
+be scheduled in sync with kernel-side buffer producers.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ drivers/media/common/videobuf2/videobuf2-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: common/drivers/media/common/videobuf2/videobuf2-core.c
+===================================================================
+--- common/drivers/media/common/videobuf2/videobuf2-core.c	2025-10-07 00:24:06.761724187 +1030
++++ common/drivers/media/common/videobuf2/videobuf2-core.c	2025-10-07 00:24:06.761724187 +1030
+@@ -1091,7 +1091,7 @@
+ 		return;
+ 	default:
+ 		/* Inform any processes that may be waiting for buffers */
+-		wake_up(&q->done_wq);
++		wake_up_sync(&q->done_wq);
+ 		break;
+ 	}
+ }

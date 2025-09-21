@@ -1,0 +1,27 @@
+From afcf1b93948c18645801b63fdf7501718a8c41c5 Mon Sep 17 00:00:00 2001
+From: brokestar233 <3765589194@qq.com>
+Date: Sat, 13 Sep 2025 17:37:35 +0800
+Subject: [PATCH] loop: Add WQ_HIGHPRI to loop device workqueue
+
+Prioritize the loop device's workqueue by adding the WQ_HIGHPRI flag to
+alloc_workqueue. This ensures that loop device tasks are processed with
+higher priority, improving performance for critical I/O operations.
+
+Signed-off-by: brokestar233 <3765589194@qq.com>
+---
+ drivers/block/loop.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: common/drivers/block/loop.c
+===================================================================
+--- common/drivers/block/loop.c	2025-10-07 00:24:06.891724187 +1030
++++ common/drivers/block/loop.c	2025-10-07 00:24:06.891724187 +1030
+@@ -1051,7 +1051,7 @@
+ 
+ 	if (!lo->workqueue) {
+ 		lo->workqueue = alloc_workqueue("loop%d",
+-						WQ_UNBOUND | WQ_FREEZABLE,
++						WQ_UNBOUND | WQ_FREEZABLE | WQ_HIGHPRI,
+ 						0, lo->lo_number);
+ 		if (!lo->workqueue) {
+ 			error = -ENOMEM;

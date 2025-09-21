@@ -1,0 +1,56 @@
+From dacaf3abb058ac47e527e2e3f7e0860327a61c94 Mon Sep 17 00:00:00 2001
+From: Tyler Nijmeh <tylernij@gmail.com>
+Date: Thu, 4 Feb 2021 18:42:17 +0300
+Subject: [PATCH] mm: Do not reserve memory for admins
+
+Android systems don't need protected memory for admin logins.
+
+Signed-off-by: Tyler Nijmeh <tylernij@gmail.com>
+---
+ mm/mmap.c | 5 -----
+ mm/util.c | 2 +-
+ 2 files changed, 1 insertion(+), 6 deletions(-)
+
+Index: common/mm/mmap.c
+===================================================================
+--- common/mm/mmap.c	2025-10-07 00:24:04.951724184 +1030
++++ common/mm/mmap.c	2025-10-07 00:24:04.941724184 +1030
+@@ -3886,11 +3886,6 @@
+  */
+ static int init_user_reserve(void)
+ {
+-	unsigned long free_kbytes;
+-
+-	free_kbytes = K(global_zone_page_state(NR_FREE_PAGES));
+-
+-	sysctl_user_reserve_kbytes = min(free_kbytes / 32, 1UL << 17);
+ 	return 0;
+ }
+ subsys_initcall(init_user_reserve);
+@@ -3907,11 +3902,6 @@
+  */
+ static int init_admin_reserve(void)
+ {
+-	unsigned long free_kbytes;
+-
+-	free_kbytes = K(global_zone_page_state(NR_FREE_PAGES));
+-
+-	sysctl_admin_reserve_kbytes = min(free_kbytes / 32, 1UL << 13);
+ 	return 0;
+ }
+ subsys_initcall(init_admin_reserve);
+Index: common/mm/util.c
+===================================================================
+--- common/mm/util.c	2025-10-07 00:24:04.951724184 +1030
++++ common/mm/util.c	2025-10-07 00:24:04.941724184 +1030
+@@ -827,8 +827,8 @@
+ int sysctl_overcommit_ratio __read_mostly = 50;
+ unsigned long sysctl_overcommit_kbytes __read_mostly;
+ int sysctl_max_map_count __read_mostly = DEFAULT_MAX_MAP_COUNT;
+-unsigned long sysctl_user_reserve_kbytes __read_mostly = 1UL << 17; /* 128MB */
+-unsigned long sysctl_admin_reserve_kbytes __read_mostly = 1UL << 13; /* 8MB */
++unsigned long sysctl_user_reserve_kbytes __read_mostly; /* 0MB */
++unsigned long sysctl_admin_reserve_kbytes __read_mostly; /* 0MB */
+ 
+ int overcommit_ratio_handler(struct ctl_table *table, int write, void *buffer,
+ 		size_t *lenp, loff_t *ppos)

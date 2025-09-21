@@ -1,0 +1,42 @@
+From 7f6c798bf3d23fe16ae0d9819f7fb1fce6535245 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Fri, 28 Feb 2020 12:43:54 -0800
+Subject: [PATCH] mm: vmpressure: Don't exclude any allocation types
+
+Although userspace processes can't directly help with kernel memory
+pressure, killing userspace processes can relieve kernel memory if they
+are responsible for that pressure in the first place. It doesn't make
+sense to exclude any allocation types knowing that userspace can indeed
+affect all memory pressure, so don't exclude any allocation types from
+the pressure calculations.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ mm/vmpressure.c | 14 --------------
+ 1 file changed, 14 deletions(-)
+
+Index: common/mm/vmpressure.c
+===================================================================
+--- common/mm/vmpressure.c	2025-10-07 00:24:04.881724183 +1030
++++ common/mm/vmpressure.c	2025-10-07 00:24:04.881724183 +1030
+@@ -255,20 +255,6 @@
+ 	vmpr = memcg_to_vmpressure(memcg);
+ 
+ 	/*
+-	 * Here we only want to account pressure that userland is able to
+-	 * help us with. For example, suppose that DMA zone is under
+-	 * pressure; if we notify userland about that kind of pressure,
+-	 * then it will be mostly a waste as it will trigger unnecessary
+-	 * freeing of memory by userland (since userland is more likely to
+-	 * have HIGHMEM/MOVABLE pages instead of the DMA fallback). That
+-	 * is why we include only movable, highmem and FS/IO pages.
+-	 * Indirect reclaim (kswapd) sets sc->gfp_mask to GFP_KERNEL, so
+-	 * we account it too.
+-	 */
+-	if (!(gfp & (__GFP_HIGHMEM | __GFP_MOVABLE | __GFP_IO | __GFP_FS)))
+-		return;
+-
+-	/*
+ 	 * If we got here with no pages scanned, then that is an indicator
+ 	 * that reclaimer was unable to find any shrinkable LRUs at the
+ 	 * current scanning depth. But it does not mean that we should

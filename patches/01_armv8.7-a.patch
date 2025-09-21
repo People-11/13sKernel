@@ -1,0 +1,13 @@
+Index: common/build.config.common
+===================================================================
+--- common/build.config.common	2025-10-07 00:24:00.771724176 +1030
++++ common/build.config.common	2025-10-07 00:24:00.771724176 +1030
+@@ -14,7 +14,7 @@
+     echo "${ROOT_DIR}/${BUILDTOOLS_PREBUILT_BIN}/dtc";
+ })
+ 
+-KCFLAGS="${KCFLAGS} -D__ANDROID_COMMON_KERNEL__"
++KCFLAGS="${KCFLAGS} -march=armv8.7-a+crc+crypto+lse+bf16+i8mm+dotprod+rcpc+pauth+bti -mtune=generic -D__ANDROID_COMMON_KERNEL__"
+ EXTRA_CMDS=''
+ STOP_SHIP_TRACEPRINTK=1
+ IN_KERNEL_MODULES=1

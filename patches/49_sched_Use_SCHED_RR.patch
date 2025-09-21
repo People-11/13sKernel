@@ -1,0 +1,33 @@
+From fd68d2f28c578ba8f4133c5a5b42b91fee3d9c04 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Tue, 26 Jan 2021 22:05:53 -0800
+Subject: [PATCH] sched/core: Use SCHED_RR in place of SCHED_FIFO for all users
+
+Although SCHED_FIFO is a real-time scheduling policy, it can have bad
+results on system latency, since each SCHED_FIFO task will run to
+completion before yielding to another task. This can result in visible
+micro-stalls when a SCHED_FIFO task hogs the CPU for too long. On a
+system where latency is favored over throughput, using SCHED_RR is a
+better choice than SCHED_FIFO.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+Signed-off-by: Oktapra Amtono <oktapra.amtono@gmail.com>
+Signed-off-by: CloudedQuartz <ravenklawasd@gmail.com>
+---
+ kernel/sched/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+Index: common/kernel/sched/core.c
+===================================================================
+--- common/kernel/sched/core.c	2025-10-07 00:24:04.181724182 +1030
++++ common/kernel/sched/core.c	2025-10-07 00:24:04.181724182 +1030
+@@ -7740,7 +7740,8 @@
+ 	if (policy == SETPARAM_POLICY)
+ 		policy = p->policy;
+ 
+-	p->policy = policy;
++	/* Replace SCHED_FIFO with SCHED_RR to reduce latency */
++	p->policy = policy == SCHED_FIFO ? SCHED_RR : policy;
+ 
+ 	if (dl_policy(policy))
+ 		__setparam_dl(p, attr);

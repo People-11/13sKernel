@@ -1,0 +1,62 @@
+From 0a053390b57aaea49be9d96d671c9f240842d91f Mon Sep 17 00:00:00 2001
+From: K Prateek Nayak <kprateek.nayak@amd.com>
+Date: Mon, 23 Dec 2024 04:34:05 +0000
+Subject: [PATCH] sched/fair: Do not compute NUMA Balancing stats unnecessarily
+ during lb
+
+Aggregate nr_numa_running and nr_preferred_running when load balancing
+at NUMA domains only. While at it, also move the aggregation below the
+idle_cpu() check since an idle CPU cannot have any preferred tasks.
+
+Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/20241223043407.1611-7-kprateek.nayak@amd.com
+---
+ kernel/sched/fair.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+Index: common/kernel/sched/fair.c
+===================================================================
+--- common/kernel/sched/fair.c	2025-10-07 00:24:03.981724182 +1030
++++ common/kernel/sched/fair.c	2025-10-07 00:24:03.981724182 +1030
+@@ -9983,7 +9983,7 @@
+ 				      struct sg_lb_stats *sgs,
+ 				      int *sg_status)
+ {
+-	int i, nr_running, local_group;
++	int i, nr_running, local_group, sd_flags = env->sd->flags;
+ 
+ 	memset(sgs, 0, sizeof(*sgs));
+ 
+@@ -10007,10 +10007,6 @@
+ 		if (cpu_overutilized(i))
+ 			*sg_status |= SG_OVERUTILIZED;
+ 
+-#ifdef CONFIG_NUMA_BALANCING
+-		sgs->nr_numa_running += rq->nr_numa_running;
+-		sgs->nr_preferred_running += rq->nr_preferred_running;
+-#endif
+ 		/*
+ 		 * No need to call idle_cpu() if nr_running is not 0
+ 		 */
+@@ -10020,10 +10016,17 @@
+ 			continue;
+ 		}
+ 
++#ifdef CONFIG_NUMA_BALANCING
++		/* Only fbq_classify_group() uses this to classify NUMA groups */
++		if (sd_flags & SD_NUMA) {
++			sgs->nr_numa_running += rq->nr_numa_running;
++			sgs->nr_preferred_running += rq->nr_preferred_running;
++		}
++#endif
+ 		if (local_group)
+ 			continue;
+ 
+-		if (env->sd->flags & SD_ASYM_CPUCAPACITY) {
++		if (sd_flags & SD_ASYM_CPUCAPACITY) {
+ 			/* Check for a misfit task on the cpu */
+ 			if (sgs->group_misfit_task_load < rq->misfit_task_load) {
+ 				sgs->group_misfit_task_load = rq->misfit_task_load;

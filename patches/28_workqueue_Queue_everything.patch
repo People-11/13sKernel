@@ -1,0 +1,33 @@
+From 3b0ce734e90e110ae8f032663ce6f46cc4f6886f Mon Sep 17 00:00:00 2001
+From: Demon000 <demonsingur@gmail.com>
+Date: Fri, 16 Jul 2021 02:09:59 +0530
+Subject: [PATCH] workqueue: Queue everything on system's power efficient wq
+
+Change-Id: I7e79ec7217af748a777ed8689aebb36d83015a8d
+Signed-off-by: Richard Raya <rdxzv.dev@gmail.com>
+---
+ include/linux/workqueue.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: common/include/linux/workqueue.h
+===================================================================
+--- common/include/linux/workqueue.h	2025-10-07 00:24:02.721724180 +1030
++++ common/include/linux/workqueue.h	2025-10-07 00:24:02.721724180 +1030
+@@ -680,7 +680,7 @@
+ static inline bool schedule_delayed_work_on(int cpu, struct delayed_work *dwork,
+ 					    unsigned long delay)
+ {
+-	return queue_delayed_work_on(cpu, system_wq, dwork, delay);
++	return queue_delayed_work_on(cpu, system_power_efficient_wq, dwork, delay);
+ }
+ 
+ /**
+@@ -694,7 +694,7 @@
+ static inline bool schedule_delayed_work(struct delayed_work *dwork,
+ 					 unsigned long delay)
+ {
+-	return queue_delayed_work(system_wq, dwork, delay);
++	return queue_delayed_work(system_power_efficient_wq, dwork, delay);
+ }
+ 
+ #ifndef CONFIG_SMP

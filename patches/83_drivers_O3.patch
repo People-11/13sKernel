@@ -1,0 +1,195 @@
+From a108b6e64e48efd09999e254180b3f6cd7c84f5a Mon Sep 17 00:00:00 2001
+From: epicmann24 <nickypearson862000@gmail.com>
+Date: Sat, 5 Jul 2025 21:38:23 +0800
+Subject: [PATCH] drivers: O3 Build optimizations
+
+---
+ Makefile                   |  7 +++----
+ arch/arm64/Makefile        | 13 ++++++++++++-
+ arch/arm64/kernel/Makefile |  2 +-
+ arch/arm64/lib/Makefile    |  1 +
+ block/Makefile             |  2 +-
+ crypto/Makefile            |  2 +-
+ drivers/Makefile           |  1 +
+ fs/Makefile                |  2 +-
+ lib/Makefile               |  2 +-
+ mm/Makefile                |  2 +-
+ net/Makefile               |  2 +-
+ 11 files changed, 24 insertions(+), 12 deletions(-)
+
+Index: common/Makefile
+===================================================================
+--- common/Makefile	2025-10-07 00:24:06.591724186 +1030
++++ common/Makefile	2025-10-07 00:24:06.591724186 +1030
+@@ -467,7 +467,7 @@
+ HOSTPKG_CONFIG	= pkg-config
+ 
+ KBUILD_USERHOSTCFLAGS := -Wall -Wmissing-prototypes -Wstrict-prototypes \
+-			 -O2 -fomit-frame-pointer -std=gnu11
++			 -O3 -fomit-frame-pointer -std=gnu11
+ KBUILD_USERCFLAGS  := $(KBUILD_USERHOSTCFLAGS) $(USERCFLAGS)
+ KBUILD_USERLDFLAGS := $(USERLDFLAGS)
+ 
+@@ -489,7 +489,7 @@
+ 			    -Wclippy::dbg_macro
+ 
+ KBUILD_HOSTCFLAGS   := $(KBUILD_USERHOSTCFLAGS) $(HOST_LFS_CFLAGS) $(HOSTCFLAGS)
+-KBUILD_HOSTCXXFLAGS := -Wall -O2 $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
++KBUILD_HOSTCXXFLAGS := -Wall -O3 $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
+ KBUILD_HOSTRUSTFLAGS := $(rust_common_flags) -O -Cstrip=debuginfo \
+ 			-Zallow-features= $(HOSTRUSTFLAGS)
+ KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS) $(HOSTLDFLAGS)
+@@ -838,7 +838,7 @@
+ 
+ ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE
+ KBUILD_CFLAGS += -O2
+-KBUILD_RUSTFLAGS += -Copt-level=2
++KBUILD_RUSTFLAGS += -Copt-level=3
+ else ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+ KBUILD_CFLAGS += -Os
+ KBUILD_RUSTFLAGS += -Copt-level=s
+@@ -1117,7 +1117,6 @@
+ 
+ # make the checker run with the right architecture
+ CHECKFLAGS += --arch=$(ARCH)
+-
+ # insure the checker run with the right endianness
+ CHECKFLAGS += $(if $(CONFIG_CPU_BIG_ENDIAN),-mbig-endian,-mlittle-endian)
+ 
+Index: common/arch/arm64/Makefile
+===================================================================
+--- common/arch/arm64/Makefile	2025-10-07 00:24:06.591724186 +1030
++++ common/arch/arm64/Makefile	2025-10-07 00:24:06.591724186 +1030
+@@ -100,7 +100,18 @@
+ KBUILD_CFLAGS	+= -Wa,-march=$(asm-arch) \
+ 		   -DARM64_ASM_ARCH='"$(asm-arch)"'
+ endif
+-
++KBUILD_CFLAGS   += $(call cc-option,-frename-registers)
++KBUILD_CFLAGS   += $(call cc-option,-fsched-interblock)
++KBUILD_CFLAGS   += $(call cc-option,-fgcse-after-reload)
++KBUILD_CFLAGS   += $(call cc-option,-fuse-ld=lld)
++KBUILD_CFLAGS   += $(call cc-disable-warning,maybe-uninitialized)
++KBUILD_CFLAGS   += -ffp-contract=fast -g0
++KBUILD_CFLAGS += $(call cc-option,-floop-unroll-and-jam)
++KBUILD_CFLAGS += $(call cc-option,-fpeel-loops)
++KBUILD_CFLAGS += $(call cc-option,-fprefetch-loop-arrays)
++KBUILD_CFLAGS += $(call cc-option,-fno-semantic-interposition)
++KBUILD_CFLAGS += $(call cc-option,-fno-math-errno)
++KBUILD_CFLAGS += $(call cc-option,-fschedule-insns2)
+ ifeq ($(CONFIG_SHADOW_CALL_STACK), y)
+ KBUILD_CFLAGS	+= -ffixed-x18
+ endif
+Index: common/arch/arm64/kernel/Makefile
+===================================================================
+--- common/arch/arm64/kernel/Makefile	2025-10-07 00:24:06.591724186 +1030
++++ common/arch/arm64/kernel/Makefile	2025-10-07 00:24:06.591724186 +1030
+@@ -2,7 +2,7 @@
+ #
+ # Makefile for the linux kernel.
+ #
+-
++ccflags-y += -O3 -ffast-math
+ CFLAGS_armv8_deprecated.o := -I$(src)
+ 
+ CFLAGS_REMOVE_ftrace.o = $(CC_FLAGS_FTRACE)
+Index: common/arch/arm64/lib/Makefile
+===================================================================
+--- common/arch/arm64/lib/Makefile	2025-10-07 00:24:06.591724186 +1030
++++ common/arch/arm64/lib/Makefile	2025-10-07 00:24:06.591724186 +1030
+@@ -1,4 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
++ccflags-y += -O3 -ffast-math
+ lib-y		:= clear_user.o delay.o copy_from_user.o		\
+ 		   copy_to_user.o copy_page.o				\
+ 		   clear_page.o csum.o insn.o memchr.o memcpy.o		\
+Index: common/block/Makefile
+===================================================================
+--- common/block/Makefile	2025-10-07 00:24:06.591724186 +1030
++++ common/block/Makefile	2025-10-07 00:24:06.591724186 +1030
+@@ -2,7 +2,7 @@
+ #
+ # Makefile for the kernel block layer
+ #
+-
++ccflags-y += -O3 -ffast-math
+ obj-y		:= bdev.o fops.o bio.o elevator.o blk-core.o blk-sysfs.o \
+ 			blk-flush.o blk-settings.o blk-ioc.o blk-map.o \
+ 			blk-merge.o blk-timeout.o \
+Index: common/crypto/Makefile
+===================================================================
+--- common/crypto/Makefile	2025-10-07 00:24:06.591724186 +1030
++++ common/crypto/Makefile	2025-10-07 00:24:06.591724186 +1030
+@@ -2,7 +2,7 @@
+ #
+ # Cryptographic API
+ #
+-
++ccflags-y += -O3
+ obj-$(CONFIG_CRYPTO) += crypto.o
+ crypto-y := api.o cipher.o compress.o
+ 
+Index: common/drivers/Makefile
+===================================================================
+--- common/drivers/Makefile	2025-10-07 00:24:06.591724186 +1030
++++ common/drivers/Makefile	2025-10-07 00:24:06.591724186 +1030
+@@ -7,6 +7,7 @@
+ #
+ 
+ # Some driver Makefiles miss $(srctree)/ for include directive.
++ccflags-y += -O3 -ffast-math
+ ifdef building_out_of_srctree
+ MAKEFLAGS += --include-dir=$(srctree)
+ endif
+Index: common/fs/Makefile
+===================================================================
+--- common/fs/Makefile	2025-10-07 00:24:06.591724186 +1030
++++ common/fs/Makefile	2025-10-07 00:24:06.591724186 +1030
+@@ -5,7 +5,7 @@
+ # 14 Sep 2000, Christoph Hellwig <hch@infradead.org>
+ # Rewritten to use lists instead of if-statements.
+ # 
+-
++ccflags-y += -O3 -ffast-math
+ ifdef CONFIG_GKI_HACKS_TO_FIX
+ subdir-ccflags-y += -DANDROID_GKI_VFS_EXPORT_ONLY=VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver
+ else
+Index: common/lib/Makefile
+===================================================================
+--- common/lib/Makefile	2025-10-07 00:24:06.591724186 +1030
++++ common/lib/Makefile	2025-10-07 00:24:06.591724186 +1030
+@@ -2,7 +2,7 @@
+ #
+ # Makefile for some libs needed in the kernel.
+ #
+-
++ccflags-y += -O3 -ffast-math
+ ccflags-remove-$(CONFIG_FUNCTION_TRACER) += $(CC_FLAGS_FTRACE)
+ 
+ # These files are disabled because they produce lots of non-interesting and/or
+Index: common/mm/Makefile
+===================================================================
+--- common/mm/Makefile	2025-10-07 00:24:06.591724186 +1030
++++ common/mm/Makefile	2025-10-07 00:24:06.591724186 +1030
+@@ -2,7 +2,7 @@
+ #
+ # Makefile for the linux memory manager.
+ #
+-
++ccflags-y += -O3 -ffast-math
+ KASAN_SANITIZE_slab_common.o := n
+ KASAN_SANITIZE_slab.o := n
+ KASAN_SANITIZE_slub.o := n
+Index: common/net/Makefile
+===================================================================
+--- common/net/Makefile	2025-10-07 00:24:06.591724186 +1030
++++ common/net/Makefile	2025-10-07 00:24:06.591724186 +1030
+@@ -5,7 +5,7 @@
+ # 2 Sep 2000, Christoph Hellwig <hch@infradead.org>
+ # Rewritten to use lists instead of if-statements.
+ #
+-
++ccflags-y += -O3 -ffast-math
+ obj-y				:= devres.o socket.o core/
+ 
+ obj-$(CONFIG_COMPAT)		+= compat.o

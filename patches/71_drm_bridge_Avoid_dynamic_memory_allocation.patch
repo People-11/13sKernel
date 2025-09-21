@@ -1,0 +1,49 @@
+From 1ac3b4a7d82490ad9d73eef82c56116e266302b2 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Sat, 27 May 2023 15:15:54 -0700
+Subject: [PATCH] drm/bridge: Eliminate dynamic memory allocation for one out
+ bus format
+
+When there's only one out bus format, there's no need to allocate memory
+dynamically from drm_atomic_bridge_chain_select_bus_fmts(). Use an on-stack
+buffer in this case to eliminate the dynamic memory allocation, as this is
+a hot path.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ drivers/gpu/drm/drm_bridge.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+Index: common/drivers/gpu/drm/drm_bridge.c
+===================================================================
+--- common/drivers/gpu/drm/drm_bridge.c	2025-10-07 00:24:05.741724185 +1030
++++ common/drivers/gpu/drm/drm_bridge.c	2025-10-07 00:24:05.741724185 +1030
+@@ -1006,6 +1006,7 @@
+ 	struct drm_bridge_state *last_bridge_state;
+ 	unsigned int i, num_out_bus_fmts = 0;
+ 	struct drm_bridge *last_bridge;
++	u32 out_bus_fmts_onstack;
+ 	u32 *out_bus_fmts;
+ 	int ret = 0;
+ 
+@@ -1035,9 +1036,7 @@
+ 			return -ENOMEM;
+ 	} else {
+ 		num_out_bus_fmts = 1;
+-		out_bus_fmts = kmalloc(sizeof(*out_bus_fmts), GFP_KERNEL);
+-		if (!out_bus_fmts)
+-			return -ENOMEM;
++		out_bus_fmts = &out_bus_fmts_onstack;
+ 
+ 		if (conn->display_info.num_bus_formats &&
+ 		    conn->display_info.bus_formats)
+@@ -1053,7 +1052,8 @@
+ 			break;
+ 	}
+ 
+-	kfree(out_bus_fmts);
++	if (out_bus_fmts != &out_bus_fmts_onstack)
++		kfree(out_bus_fmts);
+ 
+ 	return ret;
+ }

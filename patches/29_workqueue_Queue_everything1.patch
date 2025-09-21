@@ -1,0 +1,91 @@
+From b0ff035103d870b2e837d540878750b9fb0f70b2 Mon Sep 17 00:00:00 2001
+From: freak07 <michalechner92@googlemail.com>
+Date: Sat, 8 May 2021 14:42:35 +0200
+Subject: [PATCH] treewide: use power efficient workingqueues
+
+(cherry picked from commit 8ddf75b4fb1d7b54a795c1dc70bf480a5f049603)
+(cherry picked from commit dbf96ce6987d4361b4135124b81cb40b269366c5)
+(cherry picked from commit 3291d145fade85cef2830b9d28fe1c90e154ba9c)
+---
+ fs/fs-writeback.c    | 4 ++--
+ fs/incfs/data_mgmt.c | 2 +-
+ kernel/sched/psi.c   | 4 ++--
+ mm/page_reporting.c  | 4 ++--
+ 4 files changed, 7 insertions(+), 7 deletions(-)
+
+Index: common/fs/fs-writeback.c
+===================================================================
+--- common/fs/fs-writeback.c	2025-10-07 00:24:02.791724180 +1030
++++ common/fs/fs-writeback.c	2025-10-07 00:24:02.791724180 +1030
+@@ -2372,12 +2372,12 @@
+ 				wb_wakeup(wb);
+ 	}
+ 	rcu_read_unlock();
+-	schedule_delayed_work(&dirtytime_work, dirtytime_expire_interval * HZ);
++	queue_delayed_work(system_power_efficient_wq, &dirtytime_work, dirtytime_expire_interval * HZ);
+ }
+ 
+ static int __init start_dirtytime_writeback(void)
+ {
+-	schedule_delayed_work(&dirtytime_work, dirtytime_expire_interval * HZ);
++	queue_delayed_work(system_power_efficient_wq, &dirtytime_work, dirtytime_expire_interval * HZ);
+ 	return 0;
+ }
+ __initcall(start_dirtytime_writeback);
+Index: common/fs/incfs/data_mgmt.c
+===================================================================
+--- common/fs/incfs/data_mgmt.c	2025-10-07 00:24:02.791724180 +1030
++++ common/fs/incfs/data_mgmt.c	2025-10-07 00:24:02.791724180 +1030
+@@ -661,7 +661,7 @@
+ 	++head->current_record_no;
+ 
+ 	spin_unlock(&log->rl_lock);
+-	schedule_delayed_work(&log->ml_wakeup_work, msecs_to_jiffies(16));
++	queue_delayed_work(system_power_efficient_wq, &log->ml_wakeup_work, msecs_to_jiffies(16));
+ }
+ 
+ static int validate_hash_tree(struct backing_file_context *bfc, struct file *f,
+Index: common/kernel/sched/psi.c
+===================================================================
+--- common/kernel/sched/psi.c	2025-10-07 00:24:02.791724180 +1030
++++ common/kernel/sched/psi.c	2025-10-07 00:24:02.791724180 +1030
+@@ -595,7 +595,7 @@
+ 	}
+ 
+ 	if (changed_states & PSI_STATE_RESCHEDULE) {
+-		schedule_delayed_work(dwork, nsecs_to_jiffies(
++		queue_delayed_work(system_power_efficient_wq, dwork, nsecs_to_jiffies(
+ 				group->avg_next_update - now) + 1);
+ 	}
+ 
+@@ -887,7 +887,7 @@
+ 		psi_schedule_rtpoll_work(group, 1, false);
+ 
+ 	if (wake_clock && !delayed_work_pending(&group->avgs_work))
+-		schedule_delayed_work(&group->avgs_work, PSI_FREQ);
++		queue_delayed_work(system_power_efficient_wq, &group->avgs_work, PSI_FREQ);
+ }
+ 
+ static inline struct psi_group *task_psi_group(struct task_struct *task)
+Index: common/mm/page_reporting.c
+===================================================================
+--- common/mm/page_reporting.c	2025-10-07 00:24:02.791724180 +1030
++++ common/mm/page_reporting.c	2025-10-07 00:24:02.791724180 +1030
+@@ -81,7 +81,7 @@
+ 	 * now we are limiting this to running no more than once every
+ 	 * couple of seconds.
+ 	 */
+-	schedule_delayed_work(&prdev->work, PAGE_REPORTING_DELAY);
++	queue_delayed_work(system_power_efficient_wq, &prdev->work, PAGE_REPORTING_DELAY);
+ }
+ 
+ /* notify prdev of free page reporting request */
+@@ -348,7 +348,7 @@
+ 	 */
+ 	state = atomic_cmpxchg(&prdev->state, state, PAGE_REPORTING_IDLE);
+ 	if (state == PAGE_REPORTING_REQUESTED)
+-		schedule_delayed_work(&prdev->work, PAGE_REPORTING_DELAY);
++		queue_delayed_work(system_power_efficient_wq, &prdev->work, PAGE_REPORTING_DELAY);
+ }
+ 
+ static DEFINE_MUTEX(page_reporting_mutex);

@@ -1,0 +1,103 @@
+From 15dffc53a1a1fd3561416dcd222f99966088bc9e Mon Sep 17 00:00:00 2001
+From: Danny Lin <danny@kdrag0n.dev>
+Date: Sun, 7 Apr 2019 23:34:36 -0700
+Subject: [PATCH] profiling: Implement a simple task exit notifier when
+ disabled
+
+Some kernel code currently depends on the profiling subsystem solely for
+its task exit notifier. The rest of the profiling subsystem is left
+unused.
+
+Add a simple task exit notifier implemented in kernel/exit.c to make
+such code work properly even when profiling is disabled. This will allow
+unnecessary profiling code to be disabled without breakage.
+
+Signed-off-by: Danny Lin <danny@kdrag0n.dev>
+---
+ include/linux/profile.h | 23 ++++++-----------------
+ kernel/exit.c           | 26 ++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+), 17 deletions(-)
+
+Index: common/include/linux/profile.h
+===================================================================
+--- common/include/linux/profile.h	2025-10-07 00:24:05.411724184 +1030
++++ common/include/linux/profile.h	2025-10-07 00:24:05.401724184 +1030
+@@ -65,15 +65,9 @@
+ struct task_struct;
+ struct mm_struct;
+ 
+-/* task is in do_exit() */
+-void profile_task_exit(struct task_struct * task);
+-
+ /* sys_munmap */
+ void profile_munmap(unsigned long addr);
+ 
+-int profile_event_register(enum profile_type, struct notifier_block * n);
+-int profile_event_unregister(enum profile_type, struct notifier_block * n);
+-
+ #else
+ 
+ #define prof_on 0
+@@ -98,19 +92,14 @@
+ 	return;
+ }
+ 
+-static inline int profile_event_register(enum profile_type t, struct notifier_block * n)
+-{
+-	return -ENOSYS;
+-}
+-
+-static inline int profile_event_unregister(enum profile_type t, struct notifier_block * n)
+-{
+-	return -ENOSYS;
+-}
+-
+-#define profile_task_exit(a) do { } while (0)
+ #define profile_munmap(a) do { } while (0)
+ 
+ #endif /* CONFIG_PROFILING */
+ 
++/* task is in do_exit() */
++void profile_task_exit(struct task_struct * task);
++
++int profile_event_register(enum profile_type, struct notifier_block * n);
++int profile_event_unregister(enum profile_type, struct notifier_block * n);
++
+ #endif /* _LINUX_PROFILE_H */
+Index: common/kernel/exit.c
+===================================================================
+--- common/kernel/exit.c	2025-10-07 00:24:05.411724184 +1030
++++ common/kernel/exit.c	2025-10-07 00:24:05.401724184 +1030
+@@ -795,6 +795,32 @@
+ static inline void check_stack_usage(void) {}
+ #endif
+ 
++#ifndef CONFIG_PROFILING
++static BLOCKING_NOTIFIER_HEAD(task_exit_notifier);
++
++int profile_event_register(enum profile_type t, struct notifier_block *n)
++{
++	if (t == PROFILE_TASK_EXIT)
++		return blocking_notifier_chain_register(&task_exit_notifier, n);
++
++	return -ENOSYS;
++}
++
++int profile_event_unregister(enum profile_type t, struct notifier_block *n)
++{
++	if (t == PROFILE_TASK_EXIT)
++		return blocking_notifier_chain_unregister(&task_exit_notifier,
++							  n);
++
++	return -ENOSYS;
++}
++
++void profile_task_exit(struct task_struct *tsk)
++{
++	blocking_notifier_call_chain(&task_exit_notifier, 0, tsk);
++}
++#endif
++
+ static void synchronize_group_exit(struct task_struct *tsk, long code)
+ {
+ 	struct sighand_struct *sighand = tsk->sighand;

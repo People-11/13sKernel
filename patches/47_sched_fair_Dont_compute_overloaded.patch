@@ -1,0 +1,53 @@
+From f739100cbea0babf626de29d47e5205f00707ed7 Mon Sep 17 00:00:00 2001
+From: K Prateek Nayak <kprateek.nayak@amd.com>
+Date: Mon, 23 Dec 2024 04:34:06 +0000
+Subject: [PATCH] sched/fair: Do not compute overloaded status unnecessarily
+ during lb
+
+Only set sg_overloaded when computing sg_lb_stats() at the highest sched
+domain since rd->overloaded status is updated only when load balancing
+at the highest domain. While at it, move setting of sg_overloaded below
+idle_cpu() check since an idle CPU can never be overloaded.
+
+Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+Link: https://lore.kernel.org/r/20241223043407.1611-8-kprateek.nayak@amd.com
+---
+ kernel/sched/fair.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+Index: common/kernel/sched/fair.c
+===================================================================
+--- common/kernel/sched/fair.c	2025-10-07 00:24:04.051724182 +1030
++++ common/kernel/sched/fair.c	2025-10-07 00:24:04.051724182 +1030
+@@ -9984,6 +9984,7 @@
+ 				      int *sg_status)
+ {
+ 	int i, nr_running, local_group, sd_flags = env->sd->flags;
++	bool balancing_at_rd = !env->sd->parent;
+ 
+ 	memset(sgs, 0, sizeof(*sgs));
+ 
+@@ -10001,9 +10002,6 @@
+ 		nr_running = rq->nr_running;
+ 		sgs->sum_nr_running += nr_running;
+ 
+-		if (nr_running > 1)
+-			*sg_status |= SG_OVERLOAD;
+-
+ 		if (cpu_overutilized(i))
+ 			*sg_status |= SG_OVERUTILIZED;
+ 
+@@ -10016,6 +10014,10 @@
+ 			continue;
+ 		}
+ 
++		/* Overload indicator is only updated at root domain */
++		if (balancing_at_rd && nr_running > 1)
++			*sg_status |= SG_OVERLOAD;
++
+ #ifdef CONFIG_NUMA_BALANCING
+ 		/* Only fbq_classify_group() uses this to classify NUMA groups */
+ 		if (sd_flags & SD_NUMA) {

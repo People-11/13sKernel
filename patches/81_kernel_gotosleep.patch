@@ -1,0 +1,40 @@
+From 1b1dc4a05add7e82f81b564edd180b2109c5c75d Mon Sep 17 00:00:00 2001
+From: "env." <162432464+belowzeroiq@users.noreply.github.com>
+Date: Thu, 14 Aug 2025 12:21:15 +0700
+Subject: [PATCH] kernel: power: faster deepsleep
+
+---
+ kernel/power/process.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+Index: common/kernel/power/process.c
+===================================================================
+--- common/kernel/power/process.c	2025-10-07 00:24:06.441724186 +1030
++++ common/kernel/power/process.c	2025-10-07 00:24:06.441724186 +1030
+@@ -25,7 +25,7 @@
+ /*
+  * Timeout for stopping processes
+  */
+-unsigned int __read_mostly freeze_timeout_msecs = MSEC_PER_SEC;
++unsigned int __read_mostly freeze_timeout_msecs = 500; // 0.5s for Android
+ 
+ static int try_to_freeze_tasks(bool user_only)
+ {
+@@ -38,7 +38,7 @@
+ 	ktime_t start, end, elapsed;
+ 	unsigned int elapsed_msecs;
+ 	bool wakeup = false;
+-	int sleep_usecs = USEC_PER_MSEC;
++	int sleep_usecs = USEC_PER_MSEC / 2; // Start with 0.5ms
+ 
+ 	pr_info("Freezing %s\n", what);
+ 
+@@ -79,7 +79,7 @@
+ 		 * 1 ms sleep followed by exponential backoff until 8 ms.
+ 		 */
+ 		usleep_range(sleep_usecs / 2, sleep_usecs);
+-		if (sleep_usecs < 8 * USEC_PER_MSEC)
++		if (sleep_usecs < 2 * USEC_PER_MSEC) // Cap at 2ms
+ 			sleep_usecs *= 2;
+ 	}
+ 

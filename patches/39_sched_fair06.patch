@@ -1,0 +1,35 @@
+From d4388210bdce5aab19d481ccc00159f099c3982a Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Fri, 24 Nov 2023 21:10:37 -0800
+Subject: [PATCH] sched/fair: Set migration cost to zero to leverage DynamIQ
+ Shared Unit
+
+Within a DynamIQ Shared Unit (DSU), task migration cost is optimized
+through L2 and L3 cache sharing. When a task is migrated between CPUs
+within the same DSU cluster, there is no loss of L2$ and L3$ locality.
+
+Since all CPU cores are tightly interconnected within a DSU, set the task
+migration cost to zero knowing that the DSU will facilitate L$ sharing via
+snooping.
+
+This leverages the DSU to improve power consumption and performance on
+systems which contain a single DSU cluster.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ kernel/sched/fair.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: common/kernel/sched/fair.c
+===================================================================
+--- common/kernel/sched/fair.c	2025-10-07 00:24:03.491724181 +1030
++++ common/kernel/sched/fair.c	2025-10-07 00:24:03.491724181 +1030
+@@ -105,7 +105,7 @@
+  */
+ unsigned int sysctl_sched_child_runs_first __read_mostly;
+ 
+-const_debug unsigned int sysctl_sched_migration_cost	= 500000UL;
++const_debug unsigned int sysctl_sched_migration_cost	= 75000UL;
+ 
+ int sched_thermal_decay_shift;
+ static int __init setup_sched_thermal_decay_shift(char *str)

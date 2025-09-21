@@ -1,0 +1,116 @@
+From 01ad5067733010d7199ba837fe1e3969cacf8f6d Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Sat, 24 Apr 2021 13:55:58 +0200
+Subject: [PATCH] kernel: Fix cpufreq times memory leaks
+
+The segregation between cpufreq_task_times_init and cpufreq_task_times_alloc
+is unnecessary and is causing memory leaks to occur since
+cpufreq_task_times_init wipes out allocated pointers when idle threads
+are created.
+
+To fix the leaks, just use a single cpufreq_task_times_init that handles
+allocating memory for the cpufreq times at the moment that a task struct
+is duplicated.
+
+This fixes the following leaks:
+unreferenced object 0xffffffd6f6d37580 (size 128):
+  comm "swapper/0", pid 1, jiffies 4294877304 (age 54.670s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffff9681bfb81c>] __kmalloc+0x1a4/0x2f8
+    [<ffffff9682521748>] cpufreq_task_times_alloc+0x80/0xe8
+    [<ffffff9681adaf80>] sched_fork+0x50/0x2c0
+    [<ffffff9681aa4a64>] copy_process.isra.7.part.8+0x354/0x14a0
+    [<ffffff9681aa5c1c>] fork_idle+0x3c/0x88
+    [<ffffff9683a0a544>] idle_threads_init+0x9c/0xe0
+    [<ffffff9683a11bac>] smp_init+0x3c/0xe8
+    [<ffffff9683a00f40>] kernel_init_freeable+0xd0/0x21c
+    [<ffffff9682d27eb4>] kernel_init+0x10/0xf4
+    [<ffffff9681a82ef0>] ret_from_fork+0x10/0x20
+    [<ffffffffffffffff>] 0xffffffffffffffff
+
+unreferenced object 0xffffffd6f6d37600 (size 128):
+  comm "swapper/0", pid 1, jiffies 4294877304 (age 54.670s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffff9681bfb81c>] __kmalloc+0x1a4/0x2f8
+    [<ffffff968252177c>] cpufreq_task_times_alloc+0xb4/0xe8
+    [<ffffff9681adaf80>] sched_fork+0x50/0x2c0
+    [<ffffff9681aa4a64>] copy_process.isra.7.part.8+0x354/0x14a0
+    [<ffffff9681aa5c1c>] fork_idle+0x3c/0x88
+    [<ffffff9683a0a544>] idle_threads_init+0x9c/0xe0
+    [<ffffff9683a11bac>] smp_init+0x3c/0xe8
+    [<ffffff9683a00f40>] kernel_init_freeable+0xd0/0x21c
+    [<ffffff9682d27eb4>] kernel_init+0x10/0xf4
+    [<ffffff9681a82ef0>] ret_from_fork+0x10/0x20
+    [<ffffffffffffffff>] 0xffffffffffffffff
+
+Change-Id: I86dbf840d83ba702cf8b1bb441befe260e4c0673
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+Signed-off-by: Tiktodz <ewprjkt@proton.me>
+Signed-off-by: Kneba <abenkenary3@gmail.com>
+Signed-off-by: dotkit <ewprjkt@proton.me>
+---
+ drivers/cpufreq/cpufreq_times.c | 10 ----------
+ include/linux/cpufreq_times.h   |  2 --
+ kernel/fork.c                   |  2 --
+ 3 files changed, 14 deletions(-)
+
+Index: common/drivers/cpufreq/cpufreq_times.c
+===================================================================
+--- common/drivers/cpufreq/cpufreq_times.c	2025-10-07 00:24:06.361724186 +1030
++++ common/drivers/cpufreq/cpufreq_times.c	2025-10-07 00:24:06.361724186 +1030
+@@ -45,16 +45,6 @@
+ 
+ void cpufreq_task_times_init(struct task_struct *p)
+ {
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&task_time_in_state_lock, flags);
+-	p->time_in_state = NULL;
+-	spin_unlock_irqrestore(&task_time_in_state_lock, flags);
+-	p->max_state = 0;
+-}
+-
+-void cpufreq_task_times_alloc(struct task_struct *p)
+-{
+ 	void *temp;
+ 	unsigned long flags;
+ 	unsigned int max_state = READ_ONCE(next_offset);
+Index: common/include/linux/cpufreq_times.h
+===================================================================
+--- common/include/linux/cpufreq_times.h	2025-10-07 00:24:06.361724186 +1030
++++ common/include/linux/cpufreq_times.h	2025-10-07 00:24:06.361724186 +1030
+@@ -21,7 +21,6 @@
+ 
+ #ifdef CONFIG_CPU_FREQ_TIMES
+ void cpufreq_task_times_init(struct task_struct *p);
+-void cpufreq_task_times_alloc(struct task_struct *p);
+ void cpufreq_task_times_exit(struct task_struct *p);
+ int proc_time_in_state_show(struct seq_file *m, struct pid_namespace *ns,
+ 			    struct pid *pid, struct task_struct *p);
+@@ -31,7 +30,6 @@
+                                      unsigned int new_freq);
+ #else
+ static inline void cpufreq_task_times_init(struct task_struct *p) {}
+-static inline void cpufreq_task_times_alloc(struct task_struct *p) {}
+ static inline void cpufreq_task_times_exit(struct task_struct *p) {}
+ static inline void cpufreq_acct_update_power(struct task_struct *p,
+ 					     u64 cputime) {}
+Index: common/kernel/fork.c
+===================================================================
+--- common/kernel/fork.c	2025-10-07 00:24:06.361724186 +1030
++++ common/kernel/fork.c	2025-10-07 00:24:06.361724186 +1030
+@@ -2952,8 +2952,6 @@
+ 	if (IS_ERR(p))
+ 		return PTR_ERR(p);
+ 
+-	cpufreq_task_times_alloc(p);
+-
+ 	/*
+ 	 * Do this prior waking up the new thread - the thread pointer
+ 	 * might get invalid after that point, if the thread exits quickly.
