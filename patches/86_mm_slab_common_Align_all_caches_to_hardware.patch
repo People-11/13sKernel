@@ -15,11 +15,11 @@ Signed-off-by: Samuel Pascua <pascua.samuel.14@gmail.com>
  mm/slab_common.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/mm/slab_common.c b/mm/slab_common.c
-index 29d574c5d83d..73537026af97 100644
+Index: common/mm/slab_common.c
+===================================================================
 --- common/mm/slab_common.c
 +++ common/mm/slab_common.c
-@@ -348,6 +348,9 @@ kmem_cache_create_usercopy(const char *name,
+@@ -322,6 +322,9 @@ kmem_cache_create_usercopy(const char *n
  	 */
  	flags &= CACHE_CREATE_MASK;
  
@@ -27,5 +27,5 @@ index 29d574c5d83d..73537026af97 100644
 +	flags |= SLAB_HWCACHE_ALIGN;	
 +
  	/* Fail closed on bad usersize of useroffset values. */
- 	if (WARN_ON(!usersize && useroffset) ||
- 	    WARN_ON(size < usersize || size - usersize < useroffset))
+ 	if (!IS_ENABLED(CONFIG_HARDENED_USERCOPY) ||
+ 	    WARN_ON(!usersize && useroffset) ||

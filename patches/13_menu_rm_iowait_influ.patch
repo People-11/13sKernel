@@ -36,8 +36,8 @@ Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
 Index: common/drivers/cpuidle/governors/menu.c
 ===================================================================
---- common/drivers/cpuidle/governors/menu.c	2025-11-01 01:23:02.268528613 +1030
-+++ common/drivers/cpuidle/governors/menu.c	2025-11-01 01:23:02.268528613 +1030
+--- common/drivers/cpuidle/governors/menu.c
++++ common/drivers/cpuidle/governors/menu.c
 @@ -19,7 +19,7 @@
  
  #include "gov.h"
@@ -94,7 +94,7 @@ Index: common/drivers/cpuidle/governors/menu.c
   */
  
  struct menu_device {
-@@ -112,19 +87,10 @@
+@@ -112,19 +87,10 @@ struct menu_device {
  	int		interval_ptr;
  };
  
@@ -115,7 +115,7 @@ Index: common/drivers/cpuidle/governors/menu.c
  	if (duration_ns < 10ULL * NSEC_PER_USEC)
  		return bucket;
  	if (duration_ns < 100ULL * NSEC_PER_USEC)
-@@ -138,19 +104,6 @@
+@@ -138,19 +104,6 @@ static inline int which_bucket(u64 durat
  	return bucket + 5;
  }
  
@@ -135,7 +135,7 @@ Index: common/drivers/cpuidle/governors/menu.c
  static DEFINE_PER_CPU(struct menu_device, menu_devices);
  
  static void menu_update(struct cpuidle_driver *drv, struct cpuidle_device *dev);
-@@ -258,8 +211,6 @@
+@@ -258,8 +211,6 @@ static int menu_select(struct cpuidle_dr
  	struct menu_device *data = this_cpu_ptr(&menu_devices);
  	s64 latency_req = cpuidle_governor_latency_req(dev->cpu);
  	u64 predicted_ns;
@@ -144,7 +144,7 @@ Index: common/drivers/cpuidle/governors/menu.c
  	ktime_t delta, delta_tick;
  	int i, idx;
  
-@@ -268,8 +219,6 @@
+@@ -268,8 +219,6 @@ static int menu_select(struct cpuidle_dr
  		data->needs_update = 0;
  	}
  
@@ -153,7 +153,7 @@ Index: common/drivers/cpuidle/governors/menu.c
  	/* Find the shortest expected idle interval. */
  	predicted_ns = get_typical_interval(data) * NSEC_PER_USEC;
  	if (predicted_ns > RESIDENCY_THRESHOLD_NS) {
-@@ -283,7 +232,7 @@
+@@ -283,7 +232,7 @@ static int menu_select(struct cpuidle_dr
  		}
  
  		data->next_timer_ns = delta;
@@ -162,7 +162,7 @@ Index: common/drivers/cpuidle/governors/menu.c
  
  		/* Round up the result for half microseconds. */
  		timer_us = div_u64((RESOLUTION * DECAY * NSEC_PER_USEC) / 2 +
-@@ -301,7 +250,7 @@
+@@ -301,7 +250,7 @@ static int menu_select(struct cpuidle_dr
  		 */
  		data->next_timer_ns = KTIME_MAX;
  		delta_tick = TICK_NSEC / 2;
@@ -171,7 +171,7 @@ Index: common/drivers/cpuidle/governors/menu.c
  	}
  
  	if (unlikely(drv->state_count <= 1 || latency_req == 0) ||
-@@ -328,15 +277,8 @@
+@@ -328,15 +277,8 @@ static int menu_select(struct cpuidle_dr
  		 */
  		if (predicted_ns < TICK_NSEC)
  			predicted_ns = data->next_timer_ns;

@@ -1,8 +1,8 @@
 Index: common/arch/arm64/configs/gki_defconfig
 ===================================================================
---- common/arch/arm64/configs/gki_defconfig	2025-11-01 01:23:01.536739673 +1030
-+++ common/arch/arm64/configs/gki_defconfig	2025-11-01 01:23:01.532908314 +1030
-@@ -61,7 +61,8 @@
+--- common/arch/arm64/configs/gki_defconfig
++++ common/arch/arm64/configs/gki_defconfig
+@@ -61,7 +61,8 @@ CONFIG_ARCH_TEGRA=y
  CONFIG_SCHED_MC=y
  CONFIG_NR_CPUS=32
  CONFIG_PARAVIRT_TIME_ACCOUNTING=y
@@ -14,9 +14,9 @@ Index: common/arch/arm64/configs/gki_defconfig
  CONFIG_SWP_EMULATION=y
 Index: common/arch/arm64/include/asm/thread_info.h
 ===================================================================
---- common/arch/arm64/include/asm/thread_info.h	2025-11-01 01:23:01.536739673 +1030
-+++ common/arch/arm64/include/asm/thread_info.h	2025-11-01 01:23:01.532908314 +1030
-@@ -23,8 +23,10 @@
+--- common/arch/arm64/include/asm/thread_info.h
++++ common/arch/arm64/include/asm/thread_info.h
+@@ -23,8 +23,10 @@ struct task_struct;
   */
  struct thread_info {
  	unsigned long		flags;		/* low level flags */

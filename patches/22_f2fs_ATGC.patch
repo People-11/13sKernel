@@ -21,9 +21,9 @@ Signed-off-by: brokestar233 <3765589194@qq.com>
 
 Index: common/fs/f2fs/super.c
 ===================================================================
---- common/fs/f2fs/super.c	2025-11-01 01:23:03.398776413 +1030
-+++ common/fs/f2fs/super.c	2025-11-01 01:23:03.398776413 +1030
-@@ -2157,6 +2157,8 @@
+--- common/fs/f2fs/super.c
++++ common/fs/f2fs/super.c
+@@ -2157,6 +2157,8 @@ static void default_options(struct f2fs_
  	F2FS_OPTION(sbi).memory_mode = MEMORY_MODE_NORMAL;
  	F2FS_OPTION(sbi).errors = MOUNT_ERRORS_CONTINUE;
  

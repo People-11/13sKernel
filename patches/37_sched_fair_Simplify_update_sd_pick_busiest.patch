@@ -30,9 +30,9 @@ Link: https://lore.kernel.org/r/20240206043921.850302-4-void@manifault.com
 
 Index: common/kernel/sched/fair.c
 ===================================================================
---- common/kernel/sched/fair.c	2025-11-01 01:23:05.743561680 +1030
-+++ common/kernel/sched/fair.c	2025-11-01 01:23:05.739730332 +1030
-@@ -10122,9 +10122,7 @@
+--- common/kernel/sched/fair.c
++++ common/kernel/sched/fair.c
+@@ -10128,9 +10128,7 @@ static bool update_sd_pick_busiest(struc
  	switch (sgs->group_type) {
  	case group_overloaded:
  		/* Select the overloaded group with highest avg_load. */
@@ -43,7 +43,7 @@ Index: common/kernel/sched/fair.c
  
  	case group_imbalanced:
  		/*
-@@ -10135,18 +10133,14 @@
+@@ -10141,18 +10139,14 @@ static bool update_sd_pick_busiest(struc
  
  	case group_asym_packing:
  		/* Prefer to move from lowest priority CPU's work */

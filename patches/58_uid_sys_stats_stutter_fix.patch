@@ -55,8 +55,8 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/drivers/misc/uid_sys_stats.c
 ===================================================================
---- common/drivers/misc/uid_sys_stats.c	2025-11-01 01:23:07.781839069 +1030
-+++ common/drivers/misc/uid_sys_stats.c	2025-11-01 01:23:07.774176372 +1030
+--- common/drivers/misc/uid_sys_stats.c
++++ common/drivers/misc/uid_sys_stats.c
 @@ -23,17 +23,17 @@
  #include <linux/mm.h>
  #include <linux/proc_fs.h>
@@ -77,7 +77,7 @@ Index: common/drivers/misc/uid_sys_stats.c
  
  #define for_each_bkt(bkt) \
  	for (bkt = 0; bkt < HASH_SIZE(hash_table); bkt++)
-@@ -88,7 +88,7 @@
+@@ -88,7 +88,7 @@ static void init_hash_table_and_lock(voi
  
  	hash_init(hash_table);
  	for (i = 0; i < UID_HASH_NUMS; i++)
@@ -86,7 +86,7 @@ Index: common/drivers/misc/uid_sys_stats.c
  }
  
  static inline int uid_to_bkt(uid_t uid)
-@@ -98,27 +98,27 @@
+@@ -98,27 +98,27 @@ static inline int uid_to_bkt(uid_t uid)
  
  static inline int trylock_uid(uid_t uid)
  {

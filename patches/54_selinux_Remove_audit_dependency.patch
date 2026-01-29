@@ -18,9 +18,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/include/linux/audit.h
 ===================================================================
---- common/include/linux/audit.h	2025-11-01 01:23:07.295257813 +1030
-+++ common/include/linux/audit.h	2025-11-01 01:23:07.295257813 +1030
-@@ -268,6 +268,11 @@
+--- common/include/linux/audit.h
++++ common/include/linux/audit.h
+@@ -268,6 +268,11 @@ static inline int audit_signal_info(int
  	return 0;
  }
  
@@ -34,9 +34,9 @@ Index: common/include/linux/audit.h
  #ifdef CONFIG_AUDIT_COMPAT_GENERIC
 Index: common/include/linux/lsm_audit.h
 ===================================================================
---- common/include/linux/lsm_audit.h	2025-11-01 01:23:07.295257813 +1030
-+++ common/include/linux/lsm_audit.h	2025-11-01 01:23:07.295257813 +1030
-@@ -122,8 +122,16 @@
+--- common/include/linux/lsm_audit.h
++++ common/include/linux/lsm_audit.h
+@@ -122,8 +122,16 @@ int ipv4_skb_to_auditdata(struct sk_buff
  int ipv6_skb_to_auditdata(struct sk_buff *skb,
  		struct common_audit_data *ad, u8 *proto);
  
@@ -55,9 +55,9 @@ Index: common/include/linux/lsm_audit.h
  #endif
 Index: common/security/Makefile
 ===================================================================
---- common/security/Makefile	2025-11-01 01:23:07.295257813 +1030
-+++ common/security/Makefile	2025-11-01 01:23:07.295257813 +1030
-@@ -14,7 +14,7 @@
+--- common/security/Makefile
++++ common/security/Makefile
+@@ -14,7 +14,7 @@ obj-$(CONFIG_SECURITY)			+= security.o
  obj-$(CONFIG_SECURITYFS)		+= inode.o
  obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/
  obj-$(CONFIG_SECURITY_SMACK)		+= smack/
@@ -68,8 +68,8 @@ Index: common/security/Makefile
  obj-$(CONFIG_SECURITY_YAMA)		+= yama/
 Index: common/security/selinux/Kconfig
 ===================================================================
---- common/security/selinux/Kconfig	2025-11-01 01:23:07.295257813 +1030
-+++ common/security/selinux/Kconfig	2025-11-01 01:23:07.295257813 +1030
+--- common/security/selinux/Kconfig
++++ common/security/selinux/Kconfig
 @@ -1,7 +1,7 @@
  # SPDX-License-Identifier: GPL-2.0-only
  config SECURITY_SELINUX

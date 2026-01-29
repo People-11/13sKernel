@@ -9,9 +9,9 @@ Subject: [PATCH] Reduce vm stat interval
 
 Index: common/mm/vmstat.c
 ===================================================================
---- common/mm/vmstat.c	2025-11-01 01:23:11.221114884 +1030
-+++ common/mm/vmstat.c	2025-11-01 01:23:11.221114884 +1030
-@@ -1879,7 +1879,7 @@
+--- common/mm/vmstat.c
++++ common/mm/vmstat.c
+@@ -1879,7 +1879,7 @@ static const struct seq_operations vmsta
  
  #ifdef CONFIG_SMP
  static DEFINE_PER_CPU(struct delayed_work, vmstat_work);

@@ -13,9 +13,9 @@ Signed-off-by: Forenche <prahul2003@gmail.com>
 
 Index: common/include/linux/fs.h
 ===================================================================
---- common/include/linux/fs.h	2025-11-01 01:23:04.061599699 +1030
-+++ common/include/linux/fs.h	2025-11-01 01:23:04.057768350 +1030
-@@ -1021,7 +1021,7 @@
+--- common/include/linux/fs.h
++++ common/include/linux/fs.h
+@@ -1021,7 +1021,7 @@ struct file {
  	ANDROID_KABI_RESERVE(1);
  	ANDROID_KABI_RESERVE(2);
  } __randomize_layout

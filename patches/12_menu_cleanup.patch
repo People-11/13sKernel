@@ -16,8 +16,8 @@ Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
 Index: common/drivers/cpuidle/governors/menu.c
 ===================================================================
---- common/drivers/cpuidle/governors/menu.c	2025-11-01 01:23:02.180407598 +1030
-+++ common/drivers/cpuidle/governors/menu.c	2025-11-01 01:23:02.176576249 +1030
+--- common/drivers/cpuidle/governors/menu.c
++++ common/drivers/cpuidle/governors/menu.c
 @@ -14,8 +14,6 @@
  #include <linux/ktime.h>
  #include <linux/hrtimer.h>

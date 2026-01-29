@@ -19,9 +19,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/kernel/irq/manage.c
 ===================================================================
---- common/kernel/irq/manage.c	2025-11-01 01:23:08.697531354 +1030
-+++ common/kernel/irq/manage.c	2025-11-01 01:23:08.693700006 +1030
-@@ -264,6 +264,8 @@
+--- common/kernel/irq/manage.c
++++ common/kernel/irq/manage.c
+@@ -264,6 +264,8 @@ int irq_do_set_affinity(struct irq_data
  		else
  			prog_mask = &tmp_mask;
  	} else {

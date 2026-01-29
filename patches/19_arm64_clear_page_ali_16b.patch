@@ -15,8 +15,8 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/arch/arm64/lib/clear_page.S
 ===================================================================
---- common/arch/arm64/lib/clear_page.S	2025-11-01 01:23:02.919857853 +1030
-+++ common/arch/arm64/lib/clear_page.S	2025-11-01 01:23:02.919857853 +1030
+--- common/arch/arm64/lib/clear_page.S
++++ common/arch/arm64/lib/clear_page.S
 @@ -14,6 +14,7 @@
   * Parameters:
   *	x0 - dest

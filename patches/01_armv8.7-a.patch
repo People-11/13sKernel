@@ -1,8 +1,8 @@
 Index: common/build.config.common
 ===================================================================
---- common/build.config.common	2025-11-01 01:23:01.099964680 +1030
-+++ common/build.config.common	2025-11-01 01:23:01.096133321 +1030
-@@ -14,7 +14,7 @@
+--- common/build.config.common
++++ common/build.config.common
+@@ -14,7 +14,7 @@ DTC=$(command -v dtc || { echo "WARNING:
      echo "${ROOT_DIR}/${BUILDTOOLS_PREBUILT_BIN}/dtc";
  })
  

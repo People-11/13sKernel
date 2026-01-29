@@ -13,9 +13,9 @@ Signed-off-by: Tyler Nijmeh <tylernij@gmail.com>
 
 Index: common/mm/mmap.c
 ===================================================================
---- common/mm/mmap.c	2025-11-01 01:23:07.119015783 +1030
-+++ common/mm/mmap.c	2025-11-01 01:23:07.115184434 +1030
-@@ -3920,11 +3920,6 @@
+--- common/mm/mmap.c
++++ common/mm/mmap.c
+@@ -3920,11 +3920,6 @@ void __init mmap_init(void)
   */
  static int init_user_reserve(void)
  {
@@ -27,7 +27,7 @@ Index: common/mm/mmap.c
  	return 0;
  }
  subsys_initcall(init_user_reserve);
-@@ -3941,11 +3936,6 @@
+@@ -3941,11 +3936,6 @@ subsys_initcall(init_user_reserve);
   */
  static int init_admin_reserve(void)
  {
@@ -41,9 +41,9 @@ Index: common/mm/mmap.c
  subsys_initcall(init_admin_reserve);
 Index: common/mm/util.c
 ===================================================================
---- common/mm/util.c	2025-11-01 01:23:07.119015783 +1030
-+++ common/mm/util.c	2025-11-01 01:23:07.115184434 +1030
-@@ -827,8 +827,8 @@
+--- common/mm/util.c
++++ common/mm/util.c
+@@ -827,8 +827,8 @@ int sysctl_overcommit_memory __read_most
  int sysctl_overcommit_ratio __read_mostly = 50;
  unsigned long sysctl_overcommit_kbytes __read_mostly;
  int sysctl_max_map_count __read_mostly = DEFAULT_MAX_MAP_COUNT;

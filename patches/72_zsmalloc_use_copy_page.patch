@@ -23,9 +23,9 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
 Index: common/mm/zsmalloc.c
 ===================================================================
---- common/mm/zsmalloc.c	2025-11-01 01:23:10.769015765 +1030
-+++ common/mm/zsmalloc.c	2025-11-01 01:23:10.765184416 +1030
-@@ -1840,7 +1840,7 @@
+--- common/mm/zsmalloc.c
++++ common/mm/zsmalloc.c
+@@ -1840,7 +1840,7 @@ static int zs_page_migrate(struct page *
  	 * Here, any user cannot access all objects in the zspage so let's move.
  	 */
  	d_addr = kmap_atomic(newpage);

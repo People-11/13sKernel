@@ -14,9 +14,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/security/selinux/hooks.c
 ===================================================================
---- common/security/selinux/hooks.c	2025-11-01 01:23:07.494487933 +1030
-+++ common/security/selinux/hooks.c	2025-11-01 01:23:07.490656584 +1030
-@@ -1346,20 +1346,15 @@
+--- common/security/selinux/hooks.c
++++ common/security/selinux/hooks.c
+@@ -1346,20 +1346,15 @@ static int inode_doinit_use_xattr(struct
  				  u32 def_sid, u32 *sid)
  {
  #define INITCONTEXTLEN 255
@@ -39,7 +39,7 @@ Index: common/security/selinux/hooks.c
  		/* Need a larger buffer.  Query for the right size. */
  		rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, NULL, 0);
  		if (rc < 0)
-@@ -1375,7 +1370,8 @@
+@@ -1375,7 +1370,8 @@ static int inode_doinit_use_xattr(struct
  				    context, len);
  	}
  	if (rc < 0) {
@@ -49,7 +49,7 @@ Index: common/security/selinux/hooks.c
  		if (rc != -ENODATA) {
  			pr_warn("SELinux: %s:  getxattr returned %d for dev=%s ino=%ld\n",
  				__func__, -rc, inode->i_sb->s_id, inode->i_ino);
-@@ -1399,7 +1395,8 @@
+@@ -1399,7 +1395,8 @@ static int inode_doinit_use_xattr(struct
  				__func__, context, -rc, dev, ino);
  		}
  	}

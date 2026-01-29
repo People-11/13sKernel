@@ -29,11 +29,11 @@ Signed-off-by: Fengnan Chang <changfengnan@bytedance.com>
  io_uring/rw.c      |  1 -
  4 files changed, 12 insertions(+), 22 deletions(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index ab418bb7be2c1..4fddce434cada 100644
+Index: common/block/bio.c
+===================================================================
 --- common/block/bio.c
 +++ common/block/bio.c
-@@ -506,20 +506,18 @@ struct bio *bio_alloc_bioset(struct block_device *bdev, unsigned short nr_vecs,
+@@ -505,20 +505,18 @@ struct bio *bio_alloc_bioset(struct bloc
  	if (WARN_ON_ONCE(!mempool_initialized(&bs->bvec_pool) && nr_vecs > 0))
  		return NULL;
  
@@ -66,11 +66,11 @@ index ab418bb7be2c1..4fddce434cada 100644
  
  	/*
  	 * submit_bio_noacct() converts recursion to iteration; this means if
-diff --git a/block/fops.c b/block/fops.c
-index b91cb52991132..6b1aecd91f321 100644
+Index: common/block/fops.c
+===================================================================
 --- common/block/fops.c
 +++ common/block/fops.c
-@@ -175,8 +175,6 @@ static ssize_t __blkdev_direct_IO(struct kiocb *iocb, struct iov_iter *iter,
+@@ -175,8 +175,6 @@ static ssize_t __blkdev_direct_IO(struct
  	if (blkdev_dio_unaligned(bdev, pos, iter))
  		return -EINVAL;
  
@@ -79,7 +79,7 @@ index b91cb52991132..6b1aecd91f321 100644
  	bio = bio_alloc_bioset(bdev, nr_pages, opf, GFP_KERNEL,
  			       &blkdev_dio_pool);
  	dio = container_of(bio, struct blkdev_dio, bio);
-@@ -315,8 +313,6 @@ static ssize_t __blkdev_direct_IO_async(struct kiocb *iocb,
+@@ -315,8 +313,6 @@ static ssize_t __blkdev_direct_IO_async(
  	if (blkdev_dio_unaligned(bdev, pos, iter))
  		return -EINVAL;
  
@@ -88,8 +88,8 @@ index b91cb52991132..6b1aecd91f321 100644
  	bio = bio_alloc_bioset(bdev, nr_pages, opf, GFP_KERNEL,
  			       &blkdev_dio_pool);
  	dio = container_of(bio, struct blkdev_dio, bio);
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 9768bacda09fc..a66f4b9d404d9 100644
+Index: common/include/linux/fs.h
+===================================================================
 --- common/include/linux/fs.h
 +++ common/include/linux/fs.h
 @@ -324,8 +324,6 @@ struct readahead_control;
@@ -109,11 +109,11 @@ index 9768bacda09fc..a66f4b9d404d9 100644
  	{ IOCB_DIO_CALLER_COMP,	"CALLER_COMP" }
  
  struct kiocb {
-diff --git a/io_uring/rw.c b/io_uring/rw.c
-index 4ff3442ac2eee..b91edfe10c50a 100644
+Index: common/io_uring/rw.c
+===================================================================
 --- common/io_uring/rw.c
 +++ common/io_uring/rw.c
-@@ -688,7 +688,6 @@ static int io_rw_init_file(struct io_kiocb *req, fmode_t mode)
+@@ -678,7 +678,6 @@ static int io_rw_init_file(struct io_kio
  	ret = kiocb_set_rw_flags(kiocb, rw->flags);
  	if (unlikely(ret))
  		return ret;

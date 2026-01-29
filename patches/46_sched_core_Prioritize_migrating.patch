@@ -80,9 +80,9 @@ Link: https://lkml.kernel.org/r/20241223091446.90208-1-jiahao.kernel@gmail.com
 
 Index: common/kernel/sched/fair.c
 ===================================================================
---- common/kernel/sched/fair.c	2025-11-01 01:23:06.571132951 +1030
-+++ common/kernel/sched/fair.c	2025-11-01 01:23:06.571132951 +1030
-@@ -8994,6 +8994,30 @@
+--- common/kernel/sched/fair.c
++++ common/kernel/sched/fair.c
+@@ -9000,6 +9000,30 @@ static inline int migrate_degrades_local
  #endif
  
  /*
@@ -113,7 +113,7 @@ Index: common/kernel/sched/fair.c
   * can_migrate_task - may task p from runqueue rq be migrated to this_cpu?
   */
  static
-@@ -9018,7 +9042,17 @@
+@@ -9024,7 +9048,17 @@ int can_migrate_task(struct task_struct
  	if (throttled_lb_pair(task_group(p), env->src_cpu, env->dst_cpu))
  		return 0;
  

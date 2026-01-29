@@ -18,9 +18,9 @@ Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 
 Index: common/arch/arm64/lib/Makefile
 ===================================================================
---- common/arch/arm64/lib/Makefile	2025-11-01 01:23:03.103762580 +1030
-+++ common/arch/arm64/lib/Makefile	2025-11-01 01:23:03.099931232 +1030
-@@ -15,7 +15,7 @@
+--- common/arch/arm64/lib/Makefile
++++ common/arch/arm64/lib/Makefile
+@@ -15,7 +15,7 @@ endif
  
  lib-$(CONFIG_ARCH_HAS_UACCESS_FLUSHCACHE) += uaccess_flushcache.o
  
@@ -31,7 +31,8 @@ Index: common/arch/arm64/lib/Makefile
  
 Index: common/arch/arm64/lib/crc32-glue.c
 ===================================================================
-+++ common/arch/arm64/lib/crc32-glue.c	2025-11-01 01:23:03.099931232 +1030
+--- /dev/null
++++ common/arch/arm64/lib/crc32-glue.c
 @@ -0,0 +1,34 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
@@ -69,8 +70,8 @@ Index: common/arch/arm64/lib/crc32-glue.c
 +}
 Index: common/arch/arm64/lib/crc32.S
 ===================================================================
---- common/arch/arm64/lib/crc32.S	2025-11-01 01:23:03.103762580 +1030
-+++ common/arch/arm64/lib/crc32.S	2025-11-01 01:23:03.103762580 +1030
+--- common/arch/arm64/lib/crc32.S
++++ common/arch/arm64/lib/crc32.S
 @@ -6,7 +6,6 @@
   */
  
@@ -79,7 +80,7 @@ Index: common/arch/arm64/lib/crc32.S
  #include <asm/assembler.h>
  
  	.arch		armv8-a+crc
-@@ -136,25 +135,16 @@
+@@ -136,25 +135,16 @@ CPU_BE( rev16		\reg, \reg	)
  	.endm
  
  	.align		5

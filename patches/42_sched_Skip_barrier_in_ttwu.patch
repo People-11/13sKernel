@@ -15,9 +15,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/kernel/sched/core.c
 ===================================================================
---- common/kernel/sched/core.c	2025-11-01 01:23:06.203323497 +1030
-+++ common/kernel/sched/core.c	2025-11-01 01:23:06.203323497 +1030
-@@ -4411,39 +4411,43 @@
+--- common/kernel/sched/core.c
++++ common/kernel/sched/core.c
+@@ -4411,39 +4411,43 @@ int try_to_wake_up(struct task_struct *p
  		 * A similar smb_rmb() lives in try_invoke_on_locked_down_task().
  		 */
  		smp_rmb();

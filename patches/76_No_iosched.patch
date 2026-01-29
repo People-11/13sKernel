@@ -1,8 +1,8 @@
 Index: common/block/Makefile
 ===================================================================
---- common/block/Makefile	2025-11-01 01:23:11.132993869 +1030
-+++ common/block/Makefile	2025-11-01 01:23:11.129162521 +1030
-@@ -21,10 +21,6 @@
+--- common/block/Makefile
++++ common/block/Makefile
+@@ -21,10 +21,6 @@ obj-$(CONFIG_BLK_DEV_THROTTLING)	+= blk-
  obj-$(CONFIG_BLK_CGROUP_IOPRIO)	+= blk-ioprio.o
  obj-$(CONFIG_BLK_CGROUP_IOLATENCY)	+= blk-iolatency.o
  obj-$(CONFIG_BLK_CGROUP_IOCOST)	+= blk-iocost.o

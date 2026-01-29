@@ -20,9 +20,9 @@ Signed-off-by: Danny Lin <danny@kdrag0n.dev>
 
 Index: common/include/linux/profile.h
 ===================================================================
---- common/include/linux/profile.h	2025-11-01 01:23:07.678392659 +1030
-+++ common/include/linux/profile.h	2025-11-01 01:23:07.678392659 +1030
-@@ -65,15 +65,9 @@
+--- common/include/linux/profile.h
++++ common/include/linux/profile.h
+@@ -65,15 +65,9 @@ static inline void profile_hit(int type,
  struct task_struct;
  struct mm_struct;
  
@@ -38,7 +38,7 @@ Index: common/include/linux/profile.h
  #else
  
  #define prof_on 0
-@@ -98,19 +92,14 @@
+@@ -98,19 +92,14 @@ static inline void profile_hit(int type,
  	return;
  }
  
@@ -66,9 +66,9 @@ Index: common/include/linux/profile.h
  #endif /* _LINUX_PROFILE_H */
 Index: common/kernel/exit.c
 ===================================================================
---- common/kernel/exit.c	2025-11-01 01:23:07.678392659 +1030
-+++ common/kernel/exit.c	2025-11-01 01:23:07.678392659 +1030
-@@ -795,6 +795,32 @@
+--- common/kernel/exit.c
++++ common/kernel/exit.c
+@@ -795,6 +795,32 @@ static void check_stack_usage(void)
  static inline void check_stack_usage(void) {}
  #endif
  

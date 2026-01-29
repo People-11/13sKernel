@@ -19,9 +19,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/drivers/media/common/videobuf2/videobuf2-core.c
 ===================================================================
---- common/drivers/media/common/videobuf2/videobuf2-core.c	2025-11-01 01:23:10.860968127 +1030
-+++ common/drivers/media/common/videobuf2/videobuf2-core.c	2025-11-01 01:23:10.857136779 +1030
-@@ -1095,7 +1095,7 @@
+--- common/drivers/media/common/videobuf2/videobuf2-core.c
++++ common/drivers/media/common/videobuf2/videobuf2-core.c
+@@ -1095,7 +1095,7 @@ void vb2_buffer_done(struct vb2_buffer *
  		return;
  	default:
  		/* Inform any processes that may be waiting for buffers */

@@ -15,9 +15,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/include/linux/cpuidle.h
 ===================================================================
---- common/include/linux/cpuidle.h	2025-11-01 01:23:01.728307653 +1030
-+++ common/include/linux/cpuidle.h	2025-11-01 01:23:01.728307653 +1030
-@@ -316,7 +316,9 @@
+--- common/include/linux/cpuidle.h
++++ common/include/linux/cpuidle.h
+@@ -316,7 +316,9 @@ extern s64 cpuidle_governor_latency_req(
  ({									\
  	int __ret = 0;							\
  									\

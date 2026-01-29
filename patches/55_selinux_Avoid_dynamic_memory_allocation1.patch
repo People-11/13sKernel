@@ -16,9 +16,9 @@ Signed-off-by: Richard Raya <rdxzv.dev@gmail.com>
 
 Index: common/security/selinux/ss/services.c
 ===================================================================
---- common/security/selinux/ss/services.c	2025-11-01 01:23:07.402535569 +1030
-+++ common/security/selinux/ss/services.c	2025-11-01 01:23:07.398704221 +1030
-@@ -1503,6 +1503,8 @@
+--- common/security/selinux/ss/services.c
++++ common/security/selinux/ss/services.c
+@@ -1503,6 +1503,8 @@ static int security_context_to_sid_core(
  	struct selinux_policy *policy;
  	struct policydb *policydb;
  	struct sidtab *sidtab;
@@ -27,7 +27,7 @@ Index: common/security/selinux/ss/services.c
  	char *scontext2, *str = NULL;
  	struct context context;
  	int rc = 0;
-@@ -1512,9 +1514,15 @@
+@@ -1512,9 +1514,15 @@ static int security_context_to_sid_core(
  		return -EINVAL;
  
  	/* Copy the string to allow changes and ensure a NUL terminator */
@@ -46,7 +46,7 @@ Index: common/security/selinux/ss/services.c
  
  	if (!selinux_initialized()) {
  		u32 i;
-@@ -1534,10 +1542,16 @@
+@@ -1534,10 +1542,16 @@ static int security_context_to_sid_core(
  
  	if (force) {
  		/* Save another copy for storing in uninterpreted form */
@@ -67,7 +67,7 @@ Index: common/security/selinux/ss/services.c
  	}
  retry:
  	rcu_read_lock();
-@@ -1548,11 +1562,15 @@
+@@ -1548,11 +1562,15 @@ retry:
  				      &context, def_sid);
  	if (rc == -EINVAL && force) {
  		context.str = str;
@@ -84,7 +84,7 @@ Index: common/security/selinux/ss/services.c
  	if (rc == -ESTALE) {
  		rcu_read_unlock();
  		if (context.str) {
-@@ -1566,8 +1584,10 @@
+@@ -1566,8 +1584,10 @@ retry:
  out_unlock:
  	rcu_read_unlock();
  out:

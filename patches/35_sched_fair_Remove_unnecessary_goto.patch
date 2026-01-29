@@ -22,9 +22,9 @@ Link: https://lore.kernel.org/r/20240206043921.850302-2-void@manifault.com
 
 Index: common/kernel/sched/fair.c
 ===================================================================
---- common/kernel/sched/fair.c	2025-11-01 01:23:05.563488302 +1030
-+++ common/kernel/sched/fair.c	2025-11-01 01:23:05.559656954 +1030
-@@ -10691,16 +10691,11 @@
+--- common/kernel/sched/fair.c
++++ common/kernel/sched/fair.c
+@@ -10708,16 +10708,11 @@ static inline void update_sd_lb_stats(st
  
  		update_sg_lb_stats(env, sds, sg, sgs, &sg_status);
  

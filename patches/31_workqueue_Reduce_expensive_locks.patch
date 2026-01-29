@@ -34,9 +34,9 @@ Signed-off-by: Tejun Heo <tj@kernel.org>
 
 Index: common/kernel/workqueue.c
 ===================================================================
---- common/kernel/workqueue.c	2025-11-01 01:23:04.452397243 +1030
-+++ common/kernel/workqueue.c	2025-11-01 01:23:04.448565895 +1030
-@@ -3119,16 +3119,28 @@
+--- common/kernel/workqueue.c
++++ common/kernel/workqueue.c
+@@ -3119,16 +3119,28 @@ static bool flush_workqueue_prep_pwqs(st
  {
  	bool wait = false;
  	struct pool_workqueue *pwq;
@@ -68,7 +68,7 @@ Index: common/kernel/workqueue.c
  
  		if (flush_color >= 0) {
  			WARN_ON_ONCE(pwq->flush_color != -1);
-@@ -3145,9 +3157,11 @@
+@@ -3145,9 +3157,11 @@ static bool flush_workqueue_prep_pwqs(st
  			pwq->work_color = work_color;
  		}
  

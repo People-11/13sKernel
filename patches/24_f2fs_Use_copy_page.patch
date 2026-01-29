@@ -21,9 +21,9 @@ Signed-off-by: Richard Raya <rdxzv.dev@gmail.com>
 
 Index: common/fs/f2fs/checkpoint.c
 ===================================================================
---- common/fs/f2fs/checkpoint.c	2025-11-01 01:23:03.586512488 +1030
-+++ common/fs/f2fs/checkpoint.c	2025-11-01 01:23:03.582681140 +1030
-@@ -1431,7 +1431,7 @@
+--- common/fs/f2fs/checkpoint.c
++++ common/fs/f2fs/checkpoint.c
+@@ -1431,7 +1431,7 @@ static void commit_checkpoint(struct f2f
  
  	f2fs_wait_on_page_writeback(page, META, true, true);
  
@@ -34,9 +34,9 @@ Index: common/fs/f2fs/checkpoint.c
  	if (unlikely(!clear_page_dirty_for_io(page)))
 Index: common/fs/f2fs/compress.c
 ===================================================================
---- common/fs/f2fs/compress.c	2025-11-01 01:23:03.586512488 +1030
-+++ common/fs/f2fs/compress.c	2025-11-01 01:23:03.582681140 +1030
-@@ -1952,7 +1952,7 @@
+--- common/fs/f2fs/compress.c
++++ common/fs/f2fs/compress.c
+@@ -1952,7 +1952,7 @@ void f2fs_cache_compressed_page(struct f
  
  	set_page_private_data(cpage, ino);
  
@@ -45,7 +45,7 @@ Index: common/fs/f2fs/compress.c
  	SetPageUptodate(cpage);
  	f2fs_put_page(cpage, 1);
  }
-@@ -1971,8 +1971,8 @@
+@@ -1971,8 +1971,8 @@ bool f2fs_load_compressed_page(struct f2
  	if (cpage) {
  		if (PageUptodate(cpage)) {
  			atomic_inc(&sbi->compress_page_hit);
@@ -58,9 +58,9 @@ Index: common/fs/f2fs/compress.c
  		f2fs_put_page(cpage, 1);
 Index: common/fs/f2fs/node.c
 ===================================================================
---- common/fs/f2fs/node.c	2025-11-01 01:23:03.586512488 +1030
-+++ common/fs/f2fs/node.c	2025-11-01 01:23:03.582681140 +1030
-@@ -155,7 +155,7 @@
+--- common/fs/f2fs/node.c
++++ common/fs/f2fs/node.c
+@@ -155,7 +155,7 @@ static struct page *get_next_nat_page(st
  
  	src_addr = page_address(src_page);
  	dst_addr = page_address(dst_page);
@@ -71,9 +71,9 @@ Index: common/fs/f2fs/node.c
  
 Index: common/fs/f2fs/segment.c
 ===================================================================
---- common/fs/f2fs/segment.c	2025-11-01 01:23:03.586512488 +1030
-+++ common/fs/f2fs/segment.c	2025-11-01 01:23:03.582681140 +1030
-@@ -2682,7 +2682,7 @@
+--- common/fs/f2fs/segment.c
++++ common/fs/f2fs/segment.c
+@@ -2682,7 +2682,7 @@ void f2fs_update_meta_page(struct f2fs_s
  {
  	struct page *page = f2fs_grab_meta_page(sbi, blk_addr);
  

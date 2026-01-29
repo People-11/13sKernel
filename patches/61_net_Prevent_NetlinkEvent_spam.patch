@@ -14,9 +14,9 @@ Signed-off-by: Forenche <prahul2003@gmail.com>
 
 Index: common/net/netfilter/xt_IDLETIMER.c
 ===================================================================
---- common/net/netfilter/xt_IDLETIMER.c	2025-11-01 01:23:08.050033462 +1030
-+++ common/net/netfilter/xt_IDLETIMER.c	2025-11-01 01:23:08.050033462 +1030
-@@ -393,9 +393,6 @@
+--- common/net/netfilter/xt_IDLETIMER.c
++++ common/net/netfilter/xt_IDLETIMER.c
+@@ -393,9 +393,6 @@ static int idletimer_tg_create_v1(struct
  		goto out_free_attr;
  	}
  

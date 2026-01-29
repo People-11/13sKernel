@@ -15,9 +15,9 @@ Change-Id: Ife78f503d1e0d97e745a016fe7f033c1d514a723
 
 Index: common/arch/arm64/mm/mmu.c
 ===================================================================
---- common/arch/arm64/mm/mmu.c	2025-11-01 01:23:09.076834854 +1030
-+++ common/arch/arm64/mm/mmu.c	2025-11-01 01:23:09.073003505 +1030
-@@ -120,7 +120,7 @@
+--- common/arch/arm64/mm/mmu.c
++++ common/arch/arm64/mm/mmu.c
+@@ -120,7 +120,7 @@ static phys_addr_t __init early_pgtable_
  	 */
  	ptr = pte_set_fixmap(phys);
  
@@ -28,9 +28,9 @@ Index: common/arch/arm64/mm/mmu.c
  	 * Implicit barriers also ensure the zeroed page is visible to the page
 Index: common/fs/ext4/super.c
 ===================================================================
---- common/fs/ext4/super.c	2025-11-01 01:23:09.076834854 +1030
-+++ common/fs/ext4/super.c	2025-11-01 01:23:09.076834854 +1030
-@@ -4237,7 +4237,7 @@
+--- common/fs/ext4/super.c
++++ common/fs/ext4/super.c
+@@ -4237,7 +4237,7 @@ int ext4_calculate_overhead(struct super
  		blks = count_overhead(sb, i, buf);
  		overhead += blks;
  		if (blks)
@@ -41,9 +41,9 @@ Index: common/fs/ext4/super.c
  
 Index: common/fs/f2fs/segment.c
 ===================================================================
---- common/fs/f2fs/segment.c	2025-11-01 01:23:09.076834854 +1030
-+++ common/fs/f2fs/segment.c	2025-11-01 01:23:09.076834854 +1030
-@@ -2702,7 +2702,7 @@
+--- common/fs/f2fs/segment.c
++++ common/fs/f2fs/segment.c
+@@ -2702,7 +2702,7 @@ static void write_current_sum_page(struc
  	struct f2fs_summary_block *dst;
  
  	dst = (struct f2fs_summary_block *)page_address(page);
@@ -52,7 +52,7 @@ Index: common/fs/f2fs/segment.c
  
  	mutex_lock(&curseg->curseg_mutex);
  
-@@ -4394,7 +4394,7 @@
+@@ -4394,7 +4394,7 @@ static void write_compacted_summaries(st
  
  	page = f2fs_grab_meta_page(sbi, blkaddr++);
  	kaddr = (unsigned char *)page_address(page);
@@ -61,7 +61,7 @@ Index: common/fs/f2fs/segment.c
  
  	/* Step 1: write nat cache */
  	seg_i = CURSEG_I(sbi, CURSEG_HOT_DATA);
-@@ -4413,7 +4413,7 @@
+@@ -4413,7 +4413,7 @@ static void write_compacted_summaries(st
  			if (!page) {
  				page = f2fs_grab_meta_page(sbi, blkaddr++);
  				kaddr = (unsigned char *)page_address(page);
@@ -72,9 +72,9 @@ Index: common/fs/f2fs/segment.c
  			summary = (struct f2fs_summary *)(kaddr + written_size);
 Index: common/fs/f2fs/segment.h
 ===================================================================
---- common/fs/f2fs/segment.h	2025-11-01 01:23:09.076834854 +1030
-+++ common/fs/f2fs/segment.h	2025-11-01 01:23:09.076834854 +1030
-@@ -396,7 +396,7 @@
+--- common/fs/f2fs/segment.h
++++ common/fs/f2fs/segment.h
+@@ -396,7 +396,7 @@ static inline void seg_info_to_sit_page(
  	int i;
  
  	raw_sit = (struct f2fs_sit_block *)page_address(page);
@@ -85,9 +85,9 @@ Index: common/fs/f2fs/segment.h
  		se = get_seg_entry(sbi, start + i);
 Index: common/kernel/trace/tracing_map.c
 ===================================================================
---- common/kernel/trace/tracing_map.c	2025-11-01 01:23:09.076834854 +1030
-+++ common/kernel/trace/tracing_map.c	2025-11-01 01:23:09.076834854 +1030
-@@ -292,7 +292,7 @@
+--- common/kernel/trace/tracing_map.c
++++ common/kernel/trace/tracing_map.c
+@@ -292,7 +292,7 @@ static void tracing_map_array_clear(stru
  		return;
  
  	for (i = 0; i < a->n_pages; i++)

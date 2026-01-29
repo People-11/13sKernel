@@ -13,9 +13,9 @@ Signed-off-by: Kairui Song <ryncsn@gmail.com>
 
 Index: common/arch/arm64/configs/gki_defconfig
 ===================================================================
---- common/arch/arm64/configs/gki_defconfig	2025-11-01 01:23:02.364312325 +1030
-+++ common/arch/arm64/configs/gki_defconfig	2025-11-01 01:23:02.364312325 +1030
-@@ -765,19 +765,11 @@
+--- common/arch/arm64/configs/gki_defconfig
++++ common/arch/arm64/configs/gki_defconfig
+@@ -765,19 +765,11 @@ CONFIG_MODULE_ALLOW_BTF_MISMATCH=y
  CONFIG_HEADERS_INSTALL=y
  # CONFIG_SECTION_MISMATCH_WARN_ONLY is not set
  CONFIG_MAGIC_SYSRQ=y

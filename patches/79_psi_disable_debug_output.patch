@@ -13,8 +13,8 @@ Signed-off-by: Kairui Song <ryncsn@gmail.com>
 
 Index: common/kernel/sched/psi.c
 ===================================================================
---- common/kernel/sched/psi.c	2025-11-01 01:23:11.408850959 +1030
-+++ common/kernel/sched/psi.c	2025-11-01 01:23:11.405019611 +1030
+--- common/kernel/sched/psi.c
++++ common/kernel/sched/psi.c
 @@ -138,8 +138,6 @@
   */
  #include <trace/hooks/psi.h>
@@ -24,7 +24,7 @@ Index: common/kernel/sched/psi.c
  DEFINE_STATIC_KEY_FALSE(psi_disabled);
  static DEFINE_STATIC_KEY_TRUE(psi_cgroups_enabled);
  
-@@ -831,12 +829,6 @@
+@@ -831,12 +829,6 @@ static void psi_group_change(struct psi_
  			continue;
  		if (groupc->tasks[t]) {
  			groupc->tasks[t]--;
@@ -37,7 +37,7 @@ Index: common/kernel/sched/psi.c
  		}
  	}
  
-@@ -901,15 +893,6 @@
+@@ -901,15 +893,6 @@ static inline struct psi_group *task_psi
  
  static void psi_flags_change(struct task_struct *task, int clear, int set)
  {

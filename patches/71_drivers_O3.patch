@@ -19,9 +19,9 @@ Subject: [PATCH] drivers: O3 Build optimizations
 
 Index: common/Makefile
 ===================================================================
---- common/Makefile	2025-11-01 01:23:10.619593174 +1030
-+++ common/Makefile	2025-11-01 01:23:10.611930477 +1030
-@@ -467,7 +467,7 @@
+--- common/Makefile
++++ common/Makefile
+@@ -467,7 +467,7 @@ HOSTRUSTC = rustc
  HOSTPKG_CONFIG	= pkg-config
  
  KBUILD_USERHOSTCFLAGS := -Wall -Wmissing-prototypes -Wstrict-prototypes \
@@ -30,7 +30,7 @@ Index: common/Makefile
  KBUILD_USERCFLAGS  := $(KBUILD_USERHOSTCFLAGS) $(USERCFLAGS)
  KBUILD_USERLDFLAGS := $(USERLDFLAGS)
  
-@@ -489,7 +489,7 @@
+@@ -489,7 +489,7 @@ export rust_common_flags := --edition=20
  			    -Wclippy::dbg_macro
  
  KBUILD_HOSTCFLAGS   := $(KBUILD_USERHOSTCFLAGS) $(HOST_LFS_CFLAGS) $(HOSTCFLAGS)
@@ -39,7 +39,7 @@ Index: common/Makefile
  KBUILD_HOSTRUSTFLAGS := $(rust_common_flags) -O -Cstrip=debuginfo \
  			-Zallow-features= $(HOSTRUSTFLAGS)
  KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS) $(HOSTLDFLAGS)
-@@ -838,7 +838,7 @@
+@@ -838,7 +838,7 @@ KBUILD_CFLAGS	+= -fno-delete-null-pointe
  
  ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE
  KBUILD_CFLAGS += -O2
@@ -48,7 +48,7 @@ Index: common/Makefile
  else ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
  KBUILD_CFLAGS += -Os
  KBUILD_RUSTFLAGS += -Copt-level=s
-@@ -1126,7 +1126,6 @@
+@@ -1126,7 +1126,6 @@ endif
  
  # make the checker run with the right architecture
  CHECKFLAGS += --arch=$(ARCH)
@@ -58,9 +58,9 @@ Index: common/Makefile
  
 Index: common/arch/arm64/Makefile
 ===================================================================
---- common/arch/arm64/Makefile	2025-11-01 01:23:10.619593174 +1030
-+++ common/arch/arm64/Makefile	2025-11-01 01:23:10.611930477 +1030
-@@ -100,7 +100,18 @@
+--- common/arch/arm64/Makefile
++++ common/arch/arm64/Makefile
+@@ -100,7 +100,18 @@ ifdef asm-arch
  KBUILD_CFLAGS	+= -Wa,-march=$(asm-arch) \
  		   -DARM64_ASM_ARCH='"$(asm-arch)"'
  endif
@@ -82,8 +82,8 @@ Index: common/arch/arm64/Makefile
  endif
 Index: common/arch/arm64/kernel/Makefile
 ===================================================================
---- common/arch/arm64/kernel/Makefile	2025-11-01 01:23:10.619593174 +1030
-+++ common/arch/arm64/kernel/Makefile	2025-11-01 01:23:10.615761826 +1030
+--- common/arch/arm64/kernel/Makefile
++++ common/arch/arm64/kernel/Makefile
 @@ -2,7 +2,7 @@
  #
  # Makefile for the linux kernel.
@@ -95,8 +95,8 @@ Index: common/arch/arm64/kernel/Makefile
  CFLAGS_REMOVE_ftrace.o = $(CC_FLAGS_FTRACE)
 Index: common/arch/arm64/lib/Makefile
 ===================================================================
---- common/arch/arm64/lib/Makefile	2025-11-01 01:23:10.619593174 +1030
-+++ common/arch/arm64/lib/Makefile	2025-11-01 01:23:10.615761826 +1030
+--- common/arch/arm64/lib/Makefile
++++ common/arch/arm64/lib/Makefile
 @@ -1,4 +1,5 @@
  # SPDX-License-Identifier: GPL-2.0
 +ccflags-y += -O3 -ffast-math
@@ -105,8 +105,8 @@ Index: common/arch/arm64/lib/Makefile
  		   clear_page.o csum.o insn.o memchr.o memcpy.o		\
 Index: common/block/Makefile
 ===================================================================
---- common/block/Makefile	2025-11-01 01:23:10.619593174 +1030
-+++ common/block/Makefile	2025-11-01 01:23:10.615761826 +1030
+--- common/block/Makefile
++++ common/block/Makefile
 @@ -2,7 +2,7 @@
  #
  # Makefile for the kernel block layer
@@ -118,8 +118,8 @@ Index: common/block/Makefile
  			blk-merge.o blk-timeout.o \
 Index: common/crypto/Makefile
 ===================================================================
---- common/crypto/Makefile	2025-11-01 01:23:10.619593174 +1030
-+++ common/crypto/Makefile	2025-11-01 01:23:10.615761826 +1030
+--- common/crypto/Makefile
++++ common/crypto/Makefile
 @@ -2,7 +2,7 @@
  #
  # Cryptographic API
@@ -131,8 +131,8 @@ Index: common/crypto/Makefile
  
 Index: common/drivers/Makefile
 ===================================================================
---- common/drivers/Makefile	2025-11-01 01:23:10.619593174 +1030
-+++ common/drivers/Makefile	2025-11-01 01:23:10.615761826 +1030
+--- common/drivers/Makefile
++++ common/drivers/Makefile
 @@ -7,6 +7,7 @@
  #
  
@@ -143,8 +143,8 @@ Index: common/drivers/Makefile
  endif
 Index: common/fs/Makefile
 ===================================================================
---- common/fs/Makefile	2025-11-01 01:23:10.619593174 +1030
-+++ common/fs/Makefile	2025-11-01 01:23:10.615761826 +1030
+--- common/fs/Makefile
++++ common/fs/Makefile
 @@ -5,7 +5,7 @@
  # 14 Sep 2000, Christoph Hellwig <hch@infradead.org>
  # Rewritten to use lists instead of if-statements.
@@ -156,8 +156,8 @@ Index: common/fs/Makefile
  else
 Index: common/lib/Makefile
 ===================================================================
---- common/lib/Makefile	2025-11-01 01:23:10.619593174 +1030
-+++ common/lib/Makefile	2025-11-01 01:23:10.615761826 +1030
+--- common/lib/Makefile
++++ common/lib/Makefile
 @@ -2,7 +2,7 @@
  #
  # Makefile for some libs needed in the kernel.
@@ -169,8 +169,8 @@ Index: common/lib/Makefile
  # These files are disabled because they produce lots of non-interesting and/or
 Index: common/mm/Makefile
 ===================================================================
---- common/mm/Makefile	2025-11-01 01:23:10.619593174 +1030
-+++ common/mm/Makefile	2025-11-01 01:23:10.615761826 +1030
+--- common/mm/Makefile
++++ common/mm/Makefile
 @@ -2,7 +2,7 @@
  #
  # Makefile for the linux memory manager.
@@ -182,8 +182,8 @@ Index: common/mm/Makefile
  KASAN_SANITIZE_slub.o := n
 Index: common/net/Makefile
 ===================================================================
---- common/net/Makefile	2025-11-01 01:23:10.619593174 +1030
-+++ common/net/Makefile	2025-11-01 01:23:10.615761826 +1030
+--- common/net/Makefile
++++ common/net/Makefile
 @@ -5,7 +5,7 @@
  # 2 Sep 2000, Christoph Hellwig <hch@infradead.org>
  # Rewritten to use lists instead of if-statements.

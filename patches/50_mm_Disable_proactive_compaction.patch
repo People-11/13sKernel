@@ -13,9 +13,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/mm/compaction.c
 ===================================================================
---- common/mm/compaction.c	2025-11-01 01:23:06.935111056 +1030
-+++ common/mm/compaction.c	2025-11-01 01:23:06.935111056 +1030
-@@ -1852,7 +1852,7 @@
+--- common/mm/compaction.c
++++ common/mm/compaction.c
+@@ -1852,7 +1852,7 @@ static int sysctl_compact_unevictable_al
   * aggressively the kernel should compact memory in the
   * background. It takes values in the range [0, 100].
   */

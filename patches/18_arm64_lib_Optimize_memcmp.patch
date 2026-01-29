@@ -16,8 +16,8 @@ Signed-off-by: Forenche <prahul2003@gmail.com>
 
 Index: common/arch/arm64/lib/memcmp.S
 ===================================================================
---- common/arch/arm64/lib/memcmp.S	2025-11-01 01:23:02.827905490 +1030
-+++ common/arch/arm64/lib/memcmp.S	2025-11-01 01:23:02.824074141 +1030
+--- common/arch/arm64/lib/memcmp.S
++++ common/arch/arm64/lib/memcmp.S
 @@ -3,7 +3,7 @@
   * Copyright (c) 2013-2021, Arm Limited.
   *
@@ -170,7 +170,7 @@ Index: common/arch/arm64/lib/memcmp.S
  
  	/* Compare data bytes and set return value to 0, -1 or 1.  */
  L(return):
-@@ -108,31 +88,104 @@
+@@ -108,31 +88,104 @@ L(return):
  	rev	data2, data2
  #endif
  	cmp	data1, data2

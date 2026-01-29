@@ -47,9 +47,9 @@ Signed-off-by: brokestar233 <3765589194@qq.com>
 
 Index: common/Makefile
 ===================================================================
---- common/Makefile	2025-11-01 01:23:01.337508975 +1030
-+++ common/Makefile	2025-11-01 01:23:01.333677615 +1030
-@@ -849,6 +849,35 @@
+--- common/Makefile
++++ common/Makefile
+@@ -849,6 +849,35 @@ endif
  KBUILD_RUSTFLAGS += -Cdebug-assertions=$(if $(CONFIG_RUST_DEBUG_ASSERTIONS),y,n)
  KBUILD_RUSTFLAGS += -Coverflow-checks=$(if $(CONFIG_RUST_OVERFLOW_CHECKS),y,n)
  
@@ -87,9 +87,9 @@ Index: common/Makefile
  # gcc-10 renamed --param=allow-store-data-races=0 to
 Index: common/arch/Kconfig
 ===================================================================
---- common/arch/Kconfig	2025-11-01 01:23:01.337508975 +1030
-+++ common/arch/Kconfig	2025-11-01 01:23:01.337508975 +1030
-@@ -851,6 +851,14 @@
+--- common/arch/Kconfig
++++ common/arch/Kconfig
+@@ -851,6 +851,14 @@ config CFI_PERMISSIVE
  
  	  If unsure, say N.
  
@@ -106,9 +106,9 @@ Index: common/arch/Kconfig
  	help
 Index: common/arch/arm64/configs/gki_defconfig
 ===================================================================
---- common/arch/arm64/configs/gki_defconfig	2025-11-01 01:23:01.337508975 +1030
-+++ common/arch/arm64/configs/gki_defconfig	2025-11-01 01:23:01.337508975 +1030
-@@ -787,3 +787,5 @@
+--- common/arch/arm64/configs/gki_defconfig
++++ common/arch/arm64/configs/gki_defconfig
+@@ -787,3 +787,5 @@ CONFIG_KUNIT_TEST=m
  CONFIG_KUNIT_EXAMPLE_TEST=m
  # CONFIG_KUNIT_DEFAULT_ENABLED is not set
  # CONFIG_RUNTIME_TESTING_MENU is not set

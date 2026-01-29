@@ -17,11 +17,11 @@ Signed-off-by: Samuel Pascua <pascua.samuel.14@gmail.com>
  lib/string.c | 28 +++++++++++++++++++++-------
  1 file changed, 21 insertions(+), 7 deletions(-)
 
-diff --git a/lib/string.c b/lib/string.c
-index ef07d7ef966d..59de2640c009 100644
+Index: common/lib/string.c
+===================================================================
 --- common/lib/string.c
 +++ common/lib/string.c
-@@ -1175,21 +1175,35 @@ EXPORT_SYMBOL(strnstr);
+@@ -823,21 +823,35 @@ EXPORT_SYMBOL(strnstr);
  #ifndef __HAVE_ARCH_MEMCHR
  /**
   * memchr - Find a character in an area of memory.

@@ -13,8 +13,8 @@ Signed-off-by: brokestar233 <3765589194@qq.com>
 
 Index: common/fs/f2fs/gc.c
 ===================================================================
---- common/fs/f2fs/gc.c	2025-11-01 01:23:03.881526321 +1030
-+++ common/fs/f2fs/gc.c	2025-11-01 01:23:03.877694972 +1030
+--- common/fs/f2fs/gc.c
++++ common/fs/f2fs/gc.c
 @@ -13,6 +13,7 @@
  #include <linux/delay.h>
  #include <linux/freezer.h>
@@ -23,7 +23,7 @@ Index: common/fs/f2fs/gc.c
  #include <linux/random.h>
  #include <linux/sched/mm.h>
  
-@@ -191,6 +192,7 @@
+@@ -191,6 +192,7 @@ next:
  
  int f2fs_start_gc_thread(struct f2fs_sb_info *sbi)
  {
@@ -31,7 +31,7 @@ Index: common/fs/f2fs/gc.c
  	struct f2fs_gc_kthread *gc_th;
  	dev_t dev = sbi->sb->s_bdev->bd_dev;
  
-@@ -229,6 +231,7 @@
+@@ -229,6 +231,7 @@ int f2fs_start_gc_thread(struct f2fs_sb_
  		sbi->gc_thread = NULL;
  		return err;
  	}

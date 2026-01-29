@@ -32,8 +32,8 @@ Signed-off-by: chickendrop89 <chickendrop89@gmail.com>
 
 Index: common/lib/lz4/Makefile
 ===================================================================
---- common/lib/lz4/Makefile	2025-11-01 01:23:10.949089142 +1030
-+++ common/lib/lz4/Makefile	2025-11-01 01:23:10.945257793 +1030
+--- common/lib/lz4/Makefile
++++ common/lib/lz4/Makefile
 @@ -1,5 +1,7 @@
  # SPDX-License-Identifier: GPL-2.0-only
 -ccflags-y += -O3

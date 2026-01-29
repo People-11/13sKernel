@@ -152,9 +152,9 @@ Signed-off-by: Xavier Xia <xavier.qyxia@gmail.com>
 
 Index: common/arch/arm64/mm/contpte.c
 ===================================================================
---- common/arch/arm64/mm/contpte.c	2025-11-01 01:23:07.207136798 +1030
-+++ common/arch/arm64/mm/contpte.c	2025-11-01 01:23:07.207136798 +1030
-@@ -169,17 +169,47 @@
+--- common/arch/arm64/mm/contpte.c
++++ common/arch/arm64/mm/contpte.c
+@@ -169,17 +169,47 @@ pte_t contpte_ptep_get(pte_t *ptep, pte_
  	for (i = 0; i < CONT_PTES; i++, ptep++) {
  		pte = __ptep_get(ptep);
  
@@ -204,7 +204,7 @@ Index: common/arch/arm64/mm/contpte.c
  pte_t contpte_ptep_get_lockless(pte_t *orig_ptep)
  {
  	/*
-@@ -198,7 +228,6 @@
+@@ -198,7 +228,6 @@ pte_t contpte_ptep_get_lockless(pte_t *o
  	pgprot_t orig_prot;
  	unsigned long pfn;
  	pte_t orig_pte;
@@ -212,7 +212,7 @@ Index: common/arch/arm64/mm/contpte.c
  	pte_t *ptep;
  	pte_t pte;
  	int i;
-@@ -215,18 +244,44 @@
+@@ -215,18 +244,44 @@ retry:
  
  	for (i = 0; i < CONT_PTES; i++, ptep++, pfn++) {
  		pte = __ptep_get(ptep);

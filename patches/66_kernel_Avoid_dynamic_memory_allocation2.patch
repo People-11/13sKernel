@@ -16,9 +16,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/kernel/sys.c
 ===================================================================
---- common/kernel/sys.c	2025-11-01 01:23:08.513626628 +1030
-+++ common/kernel/sys.c	2025-11-01 01:23:08.513626628 +1030
-@@ -2321,6 +2321,7 @@
+--- common/kernel/sys.c
++++ common/kernel/sys.c
+@@ -2321,6 +2321,7 @@ static inline bool is_valid_name_char(ch
  static int prctl_set_vma(unsigned long opt, unsigned long addr,
  			 unsigned long size, unsigned long arg)
  {
@@ -26,7 +26,7 @@ Index: common/kernel/sys.c
  	struct mm_struct *mm = current->mm;
  	const char __user *uname;
  	struct anon_vma_name *anon_name = NULL;
-@@ -2331,21 +2332,27 @@
+@@ -2331,21 +2332,27 @@ static int prctl_set_vma(unsigned long o
  	case PR_SET_VMA_ANON_NAME:
  		uname = (const char __user *)arg;
  		if (uname) {

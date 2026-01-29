@@ -1,6 +1,8 @@
---- common/arch/arm64/configs/gki_defconfig	2025-11-03 13:14:58.436722200 +1030
-+++ common/arch/arm64/configs/gki_defconfig2	2025-11-03 13:16:05.663167242 +1030
-@@ -506,26 +506,7 @@
+Index: common/arch/arm64/configs/gki_defconfig
+===================================================================
+--- common/arch/arm64/configs/gki_defconfig
++++ common/arch/arm64/configs/gki_defconfig
+@@ -509,26 +509,7 @@ CONFIG_SND_SOC_UTILS_KUNIT_TEST=m
  CONFIG_HID_BATTERY_STRENGTH=y
  CONFIG_HIDRAW=y
  CONFIG_UHID=y

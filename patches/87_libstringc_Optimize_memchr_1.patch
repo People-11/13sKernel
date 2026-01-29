@@ -12,11 +12,11 @@ Signed-off-by: Samuel Pascua <pascua.samuel.14@gmail.com>
  lib/string.c | 34 ++++++++++++++++++++++++----------
  1 file changed, 24 insertions(+), 10 deletions(-)
 
-diff --git a/lib/string.c b/lib/string.c
-index ec39eee4b60b..ef07d7ef966d 100644
+Index: common/lib/string.c
+===================================================================
 --- common/lib/string.c
 +++ common/lib/string.c
-@@ -1149,6 +1149,29 @@ char *strnstr(const char *s1, const char *s2, size_t len)
+@@ -797,6 +797,29 @@ char *strnstr(const char *s1, const char
  EXPORT_SYMBOL(strnstr);
  #endif
  
@@ -46,7 +46,7 @@ index ec39eee4b60b..ef07d7ef966d 100644
  #ifndef __HAVE_ARCH_MEMCHR
  /**
   * memchr - Find a character in an area of memory.
-@@ -1202,16 +1225,7 @@ void *memchr_inv(const void *start, int c, size_t bytes)
+@@ -850,16 +873,7 @@ void *memchr_inv(const void *start, int
  		return check_bytes8(start, value, bytes);
  
  	value64 = value;

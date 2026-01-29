@@ -21,9 +21,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/drivers/dma-buf/sync_file.c
 ===================================================================
---- common/drivers/dma-buf/sync_file.c	2025-11-01 01:23:01.632523663 +1030
-+++ common/drivers/dma-buf/sync_file.c	2025-11-01 01:23:01.632523663 +1030
-@@ -117,36 +117,6 @@
+--- common/drivers/dma-buf/sync_file.c
++++ common/drivers/dma-buf/sync_file.c
+@@ -117,36 +117,6 @@ struct dma_fence *sync_file_get_fence(in
  EXPORT_SYMBOL(sync_file_get_fence);
  
  /**
@@ -60,7 +60,7 @@ Index: common/drivers/dma-buf/sync_file.c
   * sync_file_merge() - merge two sync_files
   * @name:	name of new fence
   * @a:		sync_file a
-@@ -156,7 +126,7 @@
+@@ -156,7 +126,7 @@ char *sync_file_get_name(struct sync_fil
   * @a and @b.  @a and @b remain valid, independent sync_file. Returns the
   * new merged sync_file or NULL in case of error.
   */
@@ -69,7 +69,7 @@ Index: common/drivers/dma-buf/sync_file.c
  					 struct sync_file *b)
  {
  	struct sync_file *sync_file;
-@@ -172,7 +142,6 @@
+@@ -172,7 +142,6 @@ static struct sync_file *sync_file_merge
  		return NULL;
  	}
  	sync_file->fence = fence;
@@ -77,7 +77,7 @@ Index: common/drivers/dma-buf/sync_file.c
  	return sync_file;
  }
  
-@@ -211,11 +180,14 @@
+@@ -211,11 +180,14 @@ static long sync_file_ioctl_merge(struct
  	int err;
  	struct sync_file *fence2, *fence3;
  	struct sync_merge_data data;
@@ -93,7 +93,7 @@ Index: common/drivers/dma-buf/sync_file.c
  		err = -EFAULT;
  		goto err_put_fd;
  	}
-@@ -231,15 +203,14 @@
+@@ -231,15 +203,14 @@ static long sync_file_ioctl_merge(struct
  		goto err_put_fd;
  	}
  
@@ -111,7 +111,7 @@ Index: common/drivers/dma-buf/sync_file.c
  		err = -EFAULT;
  		goto err_put_fence3;
  	}
-@@ -262,11 +233,6 @@
+@@ -262,11 +233,6 @@ err_put_fd:
  static int sync_fill_fence_info(struct dma_fence *fence,
  				 struct sync_fence_info *info)
  {
@@ -123,7 +123,7 @@ Index: common/drivers/dma-buf/sync_file.c
  	info->status = dma_fence_get_status(fence);
  	info->timestamp_ns =
  		dma_fence_is_signaled(fence) ?
-@@ -279,15 +245,15 @@
+@@ -279,15 +245,15 @@ static int sync_fill_fence_info(struct d
  static long sync_file_ioctl_fence_info(struct sync_file *sync_file,
  				       unsigned long arg)
  {
@@ -143,7 +143,7 @@ Index: common/drivers/dma-buf/sync_file.c
  		return -EFAULT;
  
  	if (info.flags || info.pad)
-@@ -313,38 +279,32 @@
+@@ -313,38 +279,32 @@ static long sync_file_ioctl_fence_info(s
  	if (info.num_fences < num_fences)
  		return -EINVAL;
  
@@ -202,9 +202,9 @@ Index: common/drivers/dma-buf/sync_file.c
  static long sync_file_ioctl(struct file *file, unsigned int cmd,
 Index: common/include/linux/sync_file.h
 ===================================================================
---- common/include/linux/sync_file.h	2025-11-01 01:23:01.632523663 +1030
-+++ common/include/linux/sync_file.h	2025-11-01 01:23:01.632523663 +1030
-@@ -57,6 +57,5 @@
+--- common/include/linux/sync_file.h
++++ common/include/linux/sync_file.h
+@@ -57,6 +57,5 @@ struct sync_file {
  
  struct sync_file *sync_file_create(struct dma_fence *fence);
  struct dma_fence *sync_file_get_fence(int fd);

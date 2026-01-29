@@ -15,9 +15,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/fs/kernfs/file.c
 ===================================================================
---- common/fs/kernfs/file.c	2025-11-01 01:23:08.601747642 +1030
-+++ common/fs/kernfs/file.c	2025-11-01 01:23:08.601747642 +1030
-@@ -295,6 +295,7 @@
+--- common/fs/kernfs/file.c
++++ common/fs/kernfs/file.c
+@@ -295,6 +295,7 @@ static ssize_t kernfs_fop_write_iter(str
  	struct kernfs_open_file *of = kernfs_of(iocb->ki_filp);
  	ssize_t len = iov_iter_count(iter);
  	const struct kernfs_ops *ops;
@@ -25,7 +25,7 @@ Index: common/fs/kernfs/file.c
  	char *buf;
  
  	if (of->atomic_write_len) {
-@@ -304,13 +305,17 @@
+@@ -304,13 +305,17 @@ static ssize_t kernfs_fop_write_iter(str
  		len = min_t(size_t, len, PAGE_SIZE);
  	}
  
@@ -50,7 +50,7 @@ Index: common/fs/kernfs/file.c
  
  	if (copy_from_iter(buf, len, iter) != len) {
  		len = -EFAULT;
-@@ -344,7 +349,7 @@
+@@ -344,7 +349,7 @@ static ssize_t kernfs_fop_write_iter(str
  out_free:
  	if (buf == of->prealloc_buf)
  		mutex_unlock(&of->prealloc_mutex);

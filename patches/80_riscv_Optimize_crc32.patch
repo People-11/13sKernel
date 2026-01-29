@@ -47,9 +47,9 @@ Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 
 Index: common/arch/riscv/Kconfig
 ===================================================================
---- common/arch/riscv/Kconfig	2025-11-01 01:23:11.500805392 +1030
-+++ common/arch/riscv/Kconfig	2025-11-01 01:23:11.496973886 +1030
-@@ -569,6 +569,29 @@
+--- common/arch/riscv/Kconfig
++++ common/arch/riscv/Kconfig
+@@ -569,6 +569,29 @@ config RISCV_ISA_ZBB
  
  	   If you don't know what to do here, say Y.
  
@@ -81,9 +81,9 @@ Index: common/arch/riscv/Kconfig
  	depends on MMU
 Index: common/arch/riscv/lib/Makefile
 ===================================================================
---- common/arch/riscv/lib/Makefile	2025-11-01 01:23:11.500805392 +1030
-+++ common/arch/riscv/lib/Makefile	2025-11-01 01:23:11.500805392 +1030
-@@ -9,6 +9,7 @@
+--- common/arch/riscv/lib/Makefile
++++ common/arch/riscv/lib/Makefile
+@@ -9,6 +9,7 @@ lib-y			+= strncmp.o
  lib-$(CONFIG_MMU)	+= uaccess.o
  lib-$(CONFIG_64BIT)	+= tishift.o
  lib-$(CONFIG_RISCV_ISA_ZICBOZ)	+= clear_page.o
@@ -93,7 +93,8 @@ Index: common/arch/riscv/lib/Makefile
  lib-$(CONFIG_RISCV_ISA_V)	+= xor.o
 Index: common/arch/riscv/lib/crc32.c
 ===================================================================
-+++ common/arch/riscv/lib/crc32.c	2025-11-01 01:23:11.500805392 +1030
+--- /dev/null
++++ common/arch/riscv/lib/crc32.c
 @@ -0,0 +1,294 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
@@ -391,8 +392,8 @@ Index: common/arch/riscv/lib/crc32.c
 +}
 Index: common/include/linux/crc32.h
 ===================================================================
---- common/include/linux/crc32.h	2025-11-01 01:23:11.500805392 +1030
-+++ common/include/linux/crc32.h	2025-11-01 01:23:11.500805392 +1030
+--- common/include/linux/crc32.h
++++ common/include/linux/crc32.h
 @@ -9,7 +9,9 @@
  #include <linux/bitrev.h>
  
@@ -403,7 +404,7 @@ Index: common/include/linux/crc32.h
  
  /**
   * crc32_le_combine - Combine two crc32 check values into one. For two
-@@ -37,6 +39,7 @@
+@@ -37,6 +39,7 @@ static inline u32 crc32_le_combine(u32 c
  }
  
  u32 __pure __crc32c_le(u32 crc, unsigned char const *p, size_t len);

@@ -15,9 +15,9 @@ Signed-off-by: Danny Lin <danny@kdrag0n.dev>
 
 Index: common/drivers/misc/Kconfig
 ===================================================================
---- common/drivers/misc/Kconfig	2025-11-01 01:23:07.866128735 +1030
-+++ common/drivers/misc/Kconfig	2025-11-01 01:23:07.866128735 +1030
-@@ -485,7 +485,7 @@
+--- common/drivers/misc/Kconfig
++++ common/drivers/misc/Kconfig
+@@ -485,7 +485,7 @@ config MISC_RTSX
  
  config UID_SYS_STATS
  	bool "Per-UID statistics"

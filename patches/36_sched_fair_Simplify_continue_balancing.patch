@@ -25,9 +25,9 @@ Link: https://lore.kernel.org/r/20240325153926.274284-1-sshegde@linux.ibm.com
 
 Index: common/kernel/sched/fair.c
 ===================================================================
---- common/kernel/sched/fair.c	2025-11-01 01:23:05.655440665 +1030
-+++ common/kernel/sched/fair.c	2025-11-01 01:23:05.651609317 +1030
-@@ -12386,6 +12386,7 @@
+--- common/kernel/sched/fair.c
++++ common/kernel/sched/fair.c
+@@ -12427,6 +12427,7 @@ static int newidle_balance(struct rq *th
  {
  	unsigned long next_balance = jiffies + HZ;
  	int this_cpu = this_rq->cpu;
@@ -35,7 +35,7 @@ Index: common/kernel/sched/fair.c
  	u64 t0, t1, curr_cost = 0;
  	struct sched_domain *sd;
  	int pulled_task = 0;
-@@ -12405,8 +12406,9 @@
+@@ -12446,8 +12447,9 @@ static int newidle_balance(struct rq *th
  		return 0;
  
  	/*
@@ -47,7 +47,7 @@ Index: common/kernel/sched/fair.c
  	 */
  	this_rq->idle_stamp = rq_clock(this_rq);
  
-@@ -12445,7 +12447,6 @@
+@@ -12486,7 +12488,6 @@ static int newidle_balance(struct rq *th
  
  	rcu_read_lock();
  	for_each_domain(this_cpu, sd) {
@@ -55,7 +55,7 @@ Index: common/kernel/sched/fair.c
  		u64 domain_cost;
  
  		update_next_balance(sd, &next_balance);
-@@ -12471,8 +12472,7 @@
+@@ -12512,8 +12513,7 @@ static int newidle_balance(struct rq *th
  		 * Stop searching for tasks to pull if there are
  		 * now runnable tasks on this rq.
  		 */

@@ -20,9 +20,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/drivers/irqchip/irq-gic-v3.c
 ===================================================================
---- common/drivers/irqchip/irq-gic-v3.c	2025-11-01 01:23:08.333553249 +1030
-+++ common/drivers/irqchip/irq-gic-v3.c	2025-11-01 01:23:08.329721901 +1030
-@@ -1359,7 +1359,6 @@
+--- common/drivers/irqchip/irq-gic-v3.c
++++ common/drivers/irqchip/irq-gic-v3.c
+@@ -1359,7 +1359,6 @@ static void gic_send_sgi(u64 cluster_id,
  	       MPIDR_TO_SGI_RS(cluster_id)		|
  	       tlist << ICC_SGI1R_TARGET_LIST_SHIFT);
  

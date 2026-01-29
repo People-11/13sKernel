@@ -27,9 +27,9 @@ Signed-off-by: Zlatan Radovanovic <zlatan.radovanovic@fet.ba>
 
 Index: common/kernel/time/alarmtimer.c
 ===================================================================
---- common/kernel/time/alarmtimer.c	2025-11-01 01:23:07.958081099 +1030
-+++ common/kernel/time/alarmtimer.c	2025-11-01 01:23:07.954249750 +1030
-@@ -280,7 +280,7 @@
+--- common/kernel/time/alarmtimer.c
++++ common/kernel/time/alarmtimer.c
+@@ -280,7 +280,7 @@ static int alarmtimer_suspend(struct dev
  		return 0;
  
  	if (ktime_to_ns(min) < 2 * NSEC_PER_SEC) {

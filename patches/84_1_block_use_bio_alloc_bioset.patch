@@ -12,11 +12,11 @@ Signed-off-by: Fengnan Chang <changfengnan@bytedance.com>
  drivers/nvme/host/ioctl.c |  2 +-
  2 files changed, 32 insertions(+), 52 deletions(-)
 
-diff --git a/block/blk-map.c b/block/blk-map.c
-index 1ac5c07c641c2..b9dd5af5fba08 100644
+Index: common/block/blk-map.c
+===================================================================
 --- common/block/blk-map.c
 +++ common/block/blk-map.c
-@@ -37,6 +37,25 @@ static struct bio_map_data *bio_alloc_map_data(struct iov_iter *data,
+@@ -37,6 +37,25 @@ static struct bio_map_data *bio_alloc_ma
  	return bmd;
  }
  
@@ -42,7 +42,7 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  /**
   * bio_copy_from_iter - copy all pages from iov_iter to bio
   * @bio: The &struct bio which describes the I/O as destination
-@@ -154,10 +173,9 @@ static int bio_copy_user_iov(struct request *rq, struct rq_map_data *map_data,
+@@ -154,10 +173,9 @@ static int bio_copy_user_iov(struct requ
  	nr_pages = bio_max_segs(DIV_ROUND_UP(offset + len, PAGE_SIZE));
  
  	ret = -ENOMEM;
@@ -54,7 +54,7 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  
  	if (map_data) {
  		nr_pages = 1U << map_data->page_order;
-@@ -233,42 +251,12 @@ static int bio_copy_user_iov(struct request *rq, struct rq_map_data *map_data,
+@@ -233,42 +251,12 @@ static int bio_copy_user_iov(struct requ
  cleanup:
  	if (!map_data)
  		bio_free_pages(bio);
@@ -98,7 +98,7 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  static int bio_map_user_iov(struct request *rq, struct iov_iter *iter,
  		gfp_t gfp_mask)
  {
-@@ -282,7 +270,7 @@ static int bio_map_user_iov(struct request *rq, struct iov_iter *iter,
+@@ -282,7 +270,7 @@ static int bio_map_user_iov(struct reque
  	if (!iov_iter_count(iter))
  		return -EINVAL;
  
@@ -107,7 +107,7 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  	if (bio == NULL)
  		return -ENOMEM;
  
-@@ -372,8 +360,7 @@ static void bio_invalidate_vmalloc_pages(struct bio *bio)
+@@ -372,8 +360,7 @@ static void bio_invalidate_vmalloc_pages
  static void bio_map_kern_endio(struct bio *bio)
  {
  	bio_invalidate_vmalloc_pages(bio);
@@ -117,7 +117,7 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  }
  
  /**
-@@ -398,10 +385,9 @@ static struct bio *bio_map_kern(struct request_queue *q, void *data,
+@@ -398,10 +385,9 @@ static struct bio *bio_map_kern(struct r
  	int offset, i;
  	struct bio *bio;
  
@@ -129,7 +129,7 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  
  	if (is_vmalloc) {
  		flush_kernel_vmap_range(data, len);
-@@ -425,8 +411,7 @@ static struct bio *bio_map_kern(struct request_queue *q, void *data,
+@@ -425,8 +411,7 @@ static struct bio *bio_map_kern(struct r
  		if (bio_add_pc_page(q, bio, page, bytes,
  				    offset) < bytes) {
  			/* we don't support partial mappings */
@@ -139,7 +139,7 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  			return ERR_PTR(-EINVAL);
  		}
  
-@@ -442,8 +427,7 @@ static struct bio *bio_map_kern(struct request_queue *q, void *data,
+@@ -442,8 +427,7 @@ static struct bio *bio_map_kern(struct r
  static void bio_copy_kern_endio(struct bio *bio)
  {
  	bio_free_pages(bio);
@@ -149,7 +149,7 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  }
  
  static void bio_copy_kern_endio_read(struct bio *bio)
-@@ -488,10 +472,9 @@ static struct bio *bio_copy_kern(struct request_queue *q, void *data,
+@@ -488,10 +472,9 @@ static struct bio *bio_copy_kern(struct
  		return ERR_PTR(-EINVAL);
  
  	nr_pages = end - start;
@@ -161,7 +161,7 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  
  	while (len) {
  		struct page *page;
-@@ -525,8 +508,7 @@ static struct bio *bio_copy_kern(struct request_queue *q, void *data,
+@@ -525,8 +508,7 @@ static struct bio *bio_copy_kern(struct
  
  cleanup:
  	bio_free_pages(bio);
@@ -171,7 +171,7 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  	return ERR_PTR(-ENOMEM);
  }
  
-@@ -576,7 +558,7 @@ static int blk_rq_map_user_bvec(struct request *rq, const struct iov_iter *iter)
+@@ -576,7 +558,7 @@ static int blk_rq_map_user_bvec(struct r
  		return -EINVAL;
  
  	/* no iovecs to alloc, as we already have a BVEC iterator */
@@ -180,7 +180,7 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  	if (bio == NULL)
  		return -ENOMEM;
  
-@@ -803,10 +785,8 @@ int blk_rq_map_kern(struct request_queue *q, struct request *rq, void *kbuf,
+@@ -803,10 +785,8 @@ int blk_rq_map_kern(struct request_queue
  	bio->bi_opf |= req_op(rq);
  
  	ret = blk_rq_append_bio(rq, bio);
@@ -193,11 +193,11 @@ index 1ac5c07c641c2..b9dd5af5fba08 100644
  	return ret;
  }
  EXPORT_SYMBOL(blk_rq_map_kern);
-diff --git a/drivers/nvme/host/ioctl.c b/drivers/nvme/host/ioctl.c
-index 5cf050e562b73..41385bd215446 100644
+Index: common/drivers/nvme/host/ioctl.c
+===================================================================
 --- common/drivers/nvme/host/ioctl.c
 +++ common/drivers/nvme/host/ioctl.c
-@@ -569,7 +569,7 @@ static int nvme_uring_cmd_io(struct nvme_ctrl *ctrl, struct nvme_ns *ns,
+@@ -571,7 +571,7 @@ static int nvme_uring_cmd_io(struct nvme
  	struct nvme_uring_data d;
  	struct nvme_command c;
  	struct request *req;

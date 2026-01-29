@@ -11,9 +11,9 @@ Signed-off-by: Kairui Song <ryncsn@gmail.com>
 
 Index: common/arch/arm64/configs/gki_defconfig
 ===================================================================
---- common/arch/arm64/configs/gki_defconfig	2025-11-01 01:23:01.444787043 +1030
-+++ common/arch/arm64/configs/gki_defconfig	2025-11-01 01:23:01.440955684 +1030
-@@ -22,7 +22,10 @@
+--- common/arch/arm64/configs/gki_defconfig
++++ common/arch/arm64/configs/gki_defconfig
+@@ -22,7 +22,10 @@ CONFIG_RCU_EXPERT=y
  CONFIG_RCU_BOOST=y
  CONFIG_RCU_NOCB_CPU=y
  CONFIG_RCU_LAZY=y

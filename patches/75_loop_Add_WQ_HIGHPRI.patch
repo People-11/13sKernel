@@ -14,9 +14,9 @@ Signed-off-by: brokestar233 <3765589194@qq.com>
 
 Index: common/drivers/block/loop.c
 ===================================================================
---- common/drivers/block/loop.c	2025-11-01 01:23:11.041041506 +1030
-+++ common/drivers/block/loop.c	2025-11-01 01:23:11.041041506 +1030
-@@ -1052,7 +1052,7 @@
+--- common/drivers/block/loop.c
++++ common/drivers/block/loop.c
+@@ -1052,7 +1052,7 @@ static int loop_configure(struct loop_de
  
  	if (!lo->workqueue) {
  		lo->workqueue = alloc_workqueue("loop%d",

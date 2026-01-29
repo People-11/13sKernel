@@ -17,9 +17,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/mm/vmpressure.c
 ===================================================================
---- common/mm/vmpressure.c	2025-11-01 01:23:07.027063420 +1030
-+++ common/mm/vmpressure.c	2025-11-01 01:23:07.027063420 +1030
-@@ -255,20 +255,6 @@
+--- common/mm/vmpressure.c
++++ common/mm/vmpressure.c
+@@ -255,20 +255,6 @@ void vmpressure(gfp_t gfp, struct mem_cg
  	vmpr = memcg_to_vmpressure(memcg);
  
  	/*

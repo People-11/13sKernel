@@ -23,9 +23,9 @@ Signed-off-by: Tashfin Shakeer Rhythm <tashfinshakeerrhythm@gmail.com>
 
 Index: common/kernel/sched/topology.c
 ===================================================================
---- common/kernel/sched/topology.c	2025-11-01 01:23:06.295275861 +1030
-+++ common/kernel/sched/topology.c	2025-11-01 01:23:06.291444512 +1030
-@@ -2319,7 +2319,7 @@
+--- common/kernel/sched/topology.c
++++ common/kernel/sched/topology.c
+@@ -2319,7 +2319,7 @@ static struct sched_domain *build_sched_
  static bool topology_span_sane(struct sched_domain_topology_level *tl,
  			      const struct cpumask *cpu_map, int cpu)
  {
@@ -34,7 +34,7 @@ Index: common/kernel/sched/topology.c
  
  	/* NUMA levels are allowed to overlap */
  	if (tl->flags & SDTL_OVERLAP)
-@@ -2331,9 +2331,7 @@
+@@ -2331,9 +2331,7 @@ static bool topology_span_sane(struct sc
  	 * breaking the sched_group lists - i.e. a later get_group() pass
  	 * breaks the linking done for an earlier span.
  	 */

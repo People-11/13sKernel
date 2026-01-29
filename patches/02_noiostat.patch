@@ -1,8 +1,8 @@
 Index: common/block/blk.h
 ===================================================================
---- common/block/blk.h	2025-11-01 01:23:01.241724985 +1030
-+++ common/block/blk.h	2025-11-01 01:23:01.241724985 +1030
-@@ -367,7 +367,7 @@
+--- common/block/blk.h
++++ common/block/blk.h
+@@ -367,7 +367,7 @@ int blk_dev_init(void);
   */
  static inline bool blk_do_io_stat(struct request *rq)
  {
@@ -13,9 +13,9 @@ Index: common/block/blk.h
  void update_io_ticks(struct block_device *part, unsigned long now, bool end);
 Index: common/include/linux/blkdev.h
 ===================================================================
---- common/include/linux/blkdev.h	2025-11-01 01:23:01.241724985 +1030
-+++ common/include/linux/blkdev.h	2025-11-01 01:23:01.241724985 +1030
-@@ -592,7 +592,7 @@
+--- common/include/linux/blkdev.h
++++ common/include/linux/blkdev.h
+@@ -592,7 +592,7 @@ struct request_queue {
  #define QUEUE_FLAG_SQ_SCHED     30	/* single queue style io dispatch */
  #define QUEUE_FLAG_SKIP_TAGSET_QUIESCE	31 /* quiesce_tagset skip the queue*/
  

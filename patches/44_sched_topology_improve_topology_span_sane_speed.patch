@@ -46,9 +46,9 @@ Signed-off-by: Tashfin Shakeer Rhythm <tashfinshakeerrhythm@gmail.com>
 
 Index: common/kernel/sched/topology.c
 ===================================================================
---- common/kernel/sched/topology.c	2025-11-01 01:23:06.379565527 +1030
-+++ common/kernel/sched/topology.c	2025-11-01 01:23:06.379565527 +1030
-@@ -2314,36 +2314,69 @@
+--- common/kernel/sched/topology.c
++++ common/kernel/sched/topology.c
+@@ -2314,36 +2314,69 @@ static struct sched_domain *build_sched_
  
  /*
   * Ensure topology masks are sane, i.e. there are no conflicts (overlaps) for
@@ -141,7 +141,7 @@ Index: common/kernel/sched/topology.c
  }
  
  /*
-@@ -2374,8 +2407,6 @@
+@@ -2374,8 +2407,6 @@ build_sched_domains(const struct cpumask
  		sd = NULL;
  		for_each_sd_topology(tl) {
  
@@ -150,7 +150,7 @@ Index: common/kernel/sched/topology.c
  
  			sd = build_sched_domain(tl, cpu_map, attr, sd, i);
  
-@@ -2390,6 +2421,9 @@
+@@ -2390,6 +2421,9 @@ build_sched_domains(const struct cpumask
  		}
  	}
  

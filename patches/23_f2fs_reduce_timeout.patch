@@ -22,9 +22,9 @@ Signed-off-by: Park Ju Hyung <qkrwngud825@gmail.com>
 
 Index: common/fs/f2fs/f2fs.h
 ===================================================================
---- common/fs/f2fs/f2fs.h	2025-11-01 01:23:03.486897428 +1030
-+++ common/fs/f2fs/f2fs.h	2025-11-01 01:23:03.486897428 +1030
-@@ -596,8 +596,8 @@
+--- common/fs/f2fs/f2fs.h
++++ common/fs/f2fs/f2fs.h
+@@ -596,8 +596,8 @@ enum {
  
  #define DEFAULT_RETRY_IO_COUNT	8	/* maximum retry read IO or flush count */
  

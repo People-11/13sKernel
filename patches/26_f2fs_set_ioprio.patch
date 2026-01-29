@@ -16,9 +16,9 @@ Signed-off-by: engstk <eng.stk@sapo.pt>
 
 Index: common/fs/f2fs/gc.c
 ===================================================================
---- common/fs/f2fs/gc.c	2025-11-01 01:23:03.789573957 +1030
-+++ common/fs/f2fs/gc.c	2025-11-01 01:23:03.785742609 +1030
-@@ -229,7 +229,8 @@
+--- common/fs/f2fs/gc.c
++++ common/fs/f2fs/gc.c
+@@ -229,7 +229,8 @@ int f2fs_start_gc_thread(struct f2fs_sb_
  		sbi->gc_thread = NULL;
  		return err;
  	}

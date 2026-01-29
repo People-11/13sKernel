@@ -16,9 +16,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/drivers/gpu/drm/drm_bridge.c
 ===================================================================
---- common/drivers/gpu/drm/drm_bridge.c	2025-11-01 01:23:08.145817174 +1030
-+++ common/drivers/gpu/drm/drm_bridge.c	2025-11-01 01:23:08.145817174 +1030
-@@ -1006,6 +1006,7 @@
+--- common/drivers/gpu/drm/drm_bridge.c
++++ common/drivers/gpu/drm/drm_bridge.c
+@@ -1006,6 +1006,7 @@ drm_atomic_bridge_chain_select_bus_fmts(
  	struct drm_bridge_state *last_bridge_state;
  	unsigned int i, num_out_bus_fmts = 0;
  	struct drm_bridge *last_bridge;
@@ -26,7 +26,7 @@ Index: common/drivers/gpu/drm/drm_bridge.c
  	u32 *out_bus_fmts;
  	int ret = 0;
  
-@@ -1035,9 +1036,7 @@
+@@ -1035,9 +1036,7 @@ drm_atomic_bridge_chain_select_bus_fmts(
  			return -ENOMEM;
  	} else {
  		num_out_bus_fmts = 1;
@@ -37,7 +37,7 @@ Index: common/drivers/gpu/drm/drm_bridge.c
  
  		if (conn->display_info.num_bus_formats &&
  		    conn->display_info.bus_formats)
-@@ -1053,7 +1052,8 @@
+@@ -1053,7 +1052,8 @@ drm_atomic_bridge_chain_select_bus_fmts(
  			break;
  	}
  

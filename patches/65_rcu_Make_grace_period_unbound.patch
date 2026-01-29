@@ -16,9 +16,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/kernel/rcu/tree.c
 ===================================================================
---- common/kernel/rcu/tree.c	2025-11-01 01:23:08.425505613 +1030
-+++ common/kernel/rcu/tree.c	2025-11-01 01:23:08.425505613 +1030
-@@ -4724,7 +4724,8 @@
+--- common/kernel/rcu/tree.c
++++ common/kernel/rcu/tree.c
+@@ -4724,7 +4724,8 @@ static void __init rcu_start_exp_gp_kwor
  
  static inline void rcu_alloc_par_gp_wq(void)
  {
@@ -28,7 +28,7 @@ Index: common/kernel/rcu/tree.c
  	WARN_ON(!rcu_par_gp_wq);
  }
  #endif /* CONFIG_RCU_EXP_KTHREAD */
-@@ -5094,7 +5095,7 @@
+@@ -5094,7 +5095,7 @@ void __init rcu_init(void)
  	rcutree_online_cpu(cpu);
  
  	/* Create workqueue for Tree SRCU and for expedited GPs. */

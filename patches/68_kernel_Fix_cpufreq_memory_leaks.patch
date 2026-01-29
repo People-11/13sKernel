@@ -62,9 +62,9 @@ Signed-off-by: dotkit <ewprjkt@proton.me>
 
 Index: common/drivers/cpufreq/cpufreq_times.c
 ===================================================================
---- common/drivers/cpufreq/cpufreq_times.c	2025-11-01 01:23:08.885267430 +1030
-+++ common/drivers/cpufreq/cpufreq_times.c	2025-11-01 01:23:08.881436081 +1030
-@@ -45,16 +45,6 @@
+--- common/drivers/cpufreq/cpufreq_times.c
++++ common/drivers/cpufreq/cpufreq_times.c
+@@ -45,16 +45,6 @@ static unsigned int next_offset;
  
  void cpufreq_task_times_init(struct task_struct *p)
  {
@@ -83,8 +83,8 @@ Index: common/drivers/cpufreq/cpufreq_times.c
  	unsigned int max_state = READ_ONCE(next_offset);
 Index: common/include/linux/cpufreq_times.h
 ===================================================================
---- common/include/linux/cpufreq_times.h	2025-11-01 01:23:08.885267430 +1030
-+++ common/include/linux/cpufreq_times.h	2025-11-01 01:23:08.881436081 +1030
+--- common/include/linux/cpufreq_times.h
++++ common/include/linux/cpufreq_times.h
 @@ -21,7 +21,6 @@
  
  #ifdef CONFIG_CPU_FREQ_TIMES
@@ -93,7 +93,7 @@ Index: common/include/linux/cpufreq_times.h
  void cpufreq_task_times_exit(struct task_struct *p);
  int proc_time_in_state_show(struct seq_file *m, struct pid_namespace *ns,
  			    struct pid *pid, struct task_struct *p);
-@@ -31,7 +30,6 @@
+@@ -31,7 +30,6 @@ void cpufreq_times_record_transition(str
                                       unsigned int new_freq);
  #else
  static inline void cpufreq_task_times_init(struct task_struct *p) {}
@@ -103,9 +103,9 @@ Index: common/include/linux/cpufreq_times.h
  					     u64 cputime) {}
 Index: common/kernel/fork.c
 ===================================================================
---- common/kernel/fork.c	2025-11-01 01:23:08.885267430 +1030
-+++ common/kernel/fork.c	2025-11-01 01:23:08.885267430 +1030
-@@ -2961,8 +2961,6 @@
+--- common/kernel/fork.c
++++ common/kernel/fork.c
+@@ -2961,8 +2961,6 @@ pid_t kernel_clone(struct kernel_clone_a
  	if (IS_ERR(p))
  		return PTR_ERR(p);
  

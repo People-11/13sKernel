@@ -32,9 +32,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/mm/page_alloc.c
 ===================================================================
---- common/mm/page_alloc.c	2025-11-01 01:23:06.843158693 +1030
-+++ common/mm/page_alloc.c	2025-11-01 01:23:06.839327344 +1030
-@@ -327,7 +327,7 @@
+--- common/mm/page_alloc.c
++++ common/mm/page_alloc.c
+@@ -327,7 +327,7 @@ unsigned long nr_free_highatomic[MAX_NR_
  
  int min_free_kbytes = 1024;
  int user_min_free_kbytes = -1;

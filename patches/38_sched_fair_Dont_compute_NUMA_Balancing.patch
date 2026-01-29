@@ -19,9 +19,9 @@ Link: https://lore.kernel.org/r/20241223043407.1611-7-kprateek.nayak@amd.com
 
 Index: common/kernel/sched/fair.c
 ===================================================================
---- common/kernel/sched/fair.c	2025-11-01 01:23:05.843176741 +1030
-+++ common/kernel/sched/fair.c	2025-11-01 01:23:05.839345392 +1030
-@@ -9993,7 +9993,7 @@
+--- common/kernel/sched/fair.c
++++ common/kernel/sched/fair.c
+@@ -9999,7 +9999,7 @@ static inline void update_sg_lb_stats(st
  				      struct sg_lb_stats *sgs,
  				      int *sg_status)
  {
@@ -30,7 +30,7 @@ Index: common/kernel/sched/fair.c
  
  	memset(sgs, 0, sizeof(*sgs));
  
-@@ -10017,10 +10017,6 @@
+@@ -10023,10 +10023,6 @@ static inline void update_sg_lb_stats(st
  		if (cpu_overutilized(i))
  			*sg_status |= SG_OVERUTILIZED;
  
@@ -41,7 +41,7 @@ Index: common/kernel/sched/fair.c
  		/*
  		 * No need to call idle_cpu() if nr_running is not 0
  		 */
-@@ -10030,10 +10026,17 @@
+@@ -10036,10 +10032,17 @@ static inline void update_sg_lb_stats(st
  			continue;
  		}
  

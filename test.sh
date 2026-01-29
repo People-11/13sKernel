@@ -14,6 +14,7 @@ patch -p0 -l < 03_polly.patch
 patch -p0 -l < 04_lazyRCU.patch
 patch -p0 -l < 05_nomitigate.patch
 patch -p0 -l < 06_spdup_ioctl.patch
+patch -p0 -l < 07_opt_cpuidle.patch
 patch -p0 -l < 12_menu_cleanup.patch
 patch -p0 -l < 13_menu_rm_iowait_influ.patch
 patch -p0 -l < 14_disable_KFENCE_UBSAN.patch
@@ -26,7 +27,10 @@ patch -p0 -l < 20_arm64_disable_self-hosted_debug.patch
 patch -p0 -l < 21_arm64_CRC32_1.patch
 patch -p0 -l < 21_arm64_CRC32_2.patch
 patch -p0 -l < 21_arm64_CRC32_3.patch
+patch -p0 -l < 22_f2fs_ATGC.patch
+patch -p0 -l < 23_f2fs_reduce_timeout.patch
 patch -p0 -l < 24_f2fs_Use_copy_page.patch
+patch -p0 -l < 25_f2fs_Reduce_GC_thread_sleep_time.patch
 patch -p0 -l < 26_f2fs_set_ioprio.patch
 patch -p0 -l < 27_f2fs_Demote_GC_thread.patch
 patch -p0 -l < 28_fs_Reduce_cache_pressure.patch
@@ -66,6 +70,7 @@ patch -p0 -l < 66_kernfs_Avoid_dynamic_memory_allocation1.patch
 patch -p0 -l < 67_kernel_IRQ_affinity_masks1.patch
 patch -p0 -l < 67_kernel_IRQ_affinity_masks2.patch
 patch -p0 -l < 68_kernel_Fix_cpufreq_memory_leaks.patch
+patch -p0 -l < 69_kernel_gotosleep.patch
 patch -p0 -l < 70_treewide_Optimize_page_clearing.patch
 patch -p0 -l < 71_drivers_O3.patch
 patch -p0 -l < 72_zsmalloc_use_copy_page.patch
@@ -74,7 +79,6 @@ patch -p0 -l < 74_Speedup_LZ4_Decompress.patch
 patch -p0 -l < 75_loop_Add_WQ_HIGHPRI.patch
 patch -p0 -l < 76_No_iosched.patch
 patch -p0 -l < 77_Reduce_vm_stat_interval.patch
-patch -p0 -l < 78_Debloat_some_vendor_modules.patch
 patch -p0 -l < 79_psi_disable_debug_output.patch
 patch -p0 -l < 80_riscv_Optimize_crc32.patch
 patch -p0 -l < 82_Remove_HID.patch
@@ -112,4 +116,4 @@ cd ~/ && git clone https://github.com/Kernel-SU/AnyKernel3.git --depth=1 && rm -
 
 cd ~/ && rm -rf 13sKernel AnyKernel3 kernel_workspace_16 && 7z x kernel_workspace_16.7z
 
-cd ~/13sKernel/patches && export QUILT_PATCHES=$(pwd)/patches QUILT_PATCH_OPTS="-l" && rm -rf patches && mkdir patches && cp *.patch patches/ && (cd patches && ls *.patch > series) && cd ~/kernel_workspace/kernel_platform/common && while quilt push; do quilt refresh; done && quilt pop -a
+cd ~/13sKernel/patches && export QUILT_PATCHES=$(pwd)/patches QUILT_PATCH_OPTS="-l" && rm -rf patches && mkdir patches && cp *.patch patches/ && (cd patches && ls *.patch > series) && cd ~/kernel_workspace_16/kernel_platform/common && while quilt push; do quilt refresh; done && quilt pop -a

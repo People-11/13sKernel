@@ -11,9 +11,9 @@ Signed-off-by: celtare21 <celtare21@gmail.com>
 
 Index: common/arch/arm64/kernel/debug-monitors.c
 ===================================================================
---- common/arch/arm64/kernel/debug-monitors.c	2025-11-01 01:23:03.007978869 +1030
-+++ common/arch/arm64/kernel/debug-monitors.c	2025-11-01 01:23:03.007978869 +1030
-@@ -53,7 +53,7 @@
+--- common/arch/arm64/kernel/debug-monitors.c
++++ common/arch/arm64/kernel/debug-monitors.c
+@@ -53,7 +53,7 @@ NOKPROBE_SYMBOL(mdscr_read);
   * Allow root to disable self-hosted debug from userspace.
   * This is useful if you want to connect an external JTAG debugger.
   */

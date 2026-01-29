@@ -29,8 +29,8 @@ Reviewed-by: Eric Biggers <ebiggers@google.com>
 
 Index: common/arch/arm64/lib/crc32-glue.c
 ===================================================================
---- common/arch/arm64/lib/crc32-glue.c	2025-11-01 01:23:03.299161353 +1030
-+++ common/arch/arm64/lib/crc32-glue.c	2025-11-01 01:23:03.299161353 +1030
+--- common/arch/arm64/lib/crc32-glue.c
++++ common/arch/arm64/lib/crc32-glue.c
 @@ -4,16 +4,40 @@
  #include <linux/linkage.h>
  
@@ -72,7 +72,7 @@ Index: common/arch/arm64/lib/crc32-glue.c
  	return crc32_le_arm64(crc, p, len);
  }
  
-@@ -22,6 +46,18 @@
+@@ -22,6 +46,18 @@ u32 __pure __crc32c_le(u32 crc, unsigned
  	if (!alternative_has_cap_likely(ARM64_HAS_CRC32))
  		return __crc32c_le_base(crc, p, len);
  
@@ -91,7 +91,7 @@ Index: common/arch/arm64/lib/crc32-glue.c
  	return crc32c_le_arm64(crc, p, len);
  }
  
-@@ -30,5 +66,17 @@
+@@ -30,5 +66,17 @@ u32 __pure crc32_be(u32 crc, unsigned ch
  	if (!alternative_has_cap_likely(ARM64_HAS_CRC32))
  		return crc32_be_base(crc, p, len);
  
@@ -111,8 +111,8 @@ Index: common/arch/arm64/lib/crc32-glue.c
  }
 Index: common/arch/arm64/lib/crc32.S
 ===================================================================
---- common/arch/arm64/lib/crc32.S	2025-11-01 01:23:03.299161353 +1030
-+++ common/arch/arm64/lib/crc32.S	2025-11-01 01:23:03.299161353 +1030
+--- common/arch/arm64/lib/crc32.S
++++ common/arch/arm64/lib/crc32.S
 @@ -1,14 +1,17 @@
  /* SPDX-License-Identifier: GPL-2.0-only */
  /*
@@ -134,7 +134,7 @@ Index: common/arch/arm64/lib/crc32.S
  
  	.macro		bitle, reg
  	.endm
-@@ -135,3 +138,225 @@
+@@ -135,3 +138,225 @@ SYM_FUNC_END(crc32c_le_arm64)
  SYM_FUNC_START(crc32_be_arm64)
  	__crc32		order=be
  SYM_FUNC_END(crc32_be_arm64)

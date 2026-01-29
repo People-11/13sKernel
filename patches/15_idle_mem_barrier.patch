@@ -36,9 +36,9 @@ Link: https://lkml.kernel.org/r/20241009093745.9504-1-quic_zhonhan@quicinc.com
 
 Index: common/kernel/sched/idle.c
 ===================================================================
---- common/kernel/sched/idle.c	2025-11-01 01:23:02.456264688 +1030
-+++ common/kernel/sched/idle.c	2025-11-01 01:23:02.452433340 +1030
-@@ -256,8 +256,6 @@
+--- common/kernel/sched/idle.c
++++ common/kernel/sched/idle.c
+@@ -256,8 +256,6 @@ static void do_idle(void)
  	tick_nohz_idle_enter();
  
  	while (!need_resched()) {

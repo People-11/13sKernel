@@ -18,9 +18,9 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 
 Index: common/kernel/irq/irqdesc.c
 ===================================================================
---- common/kernel/irq/irqdesc.c	2025-11-01 01:23:08.789483718 +1030
-+++ common/kernel/irq/irqdesc.c	2025-11-01 01:23:08.785652370 +1030
-@@ -42,7 +42,7 @@
+--- common/kernel/irq/irqdesc.c
++++ common/kernel/irq/irqdesc.c
+@@ -42,7 +42,7 @@ static void __init init_irq_default_affi
  	if (!cpumask_available(irq_default_affinity))
  		zalloc_cpumask_var(&irq_default_affinity, GFP_NOWAIT);
  	if (cpumask_empty(irq_default_affinity))
