@@ -1,0 +1,46 @@
+From 5e980b82cdef01e1ff1c99911ff14e7655bcd661 Mon Sep 17 00:00:00 2001
+From: Yafang Shao <laoar.shao@gmail.com>
+Date: Tue, 1 Apr 2025 15:30:46 +0800
+Subject: [PATCH] proc: Avoid costly high-order page allocations when reading
+ proc files
+
+While investigating a kcompactd 100% CPU utilization issue in production, I
+observed frequent costly high-order (order-6) page allocations triggered by
+proc file reads from monitoring tools. This can be reproduced with a simple
+test case:
+
+  fd = open(PROC_FILE, O_RDONLY);
+  size = read(fd, buff, 256KB);
+  close(fd);
+
+Although we should modify the monitoring tools to use smaller buffer sizes,
+we should also enhance the kernel to prevent these expensive high-order
+allocations.
+
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+Cc: Josef Bacik <josef@toxicpanda.com>
+---
+ fs/proc/proc_sysctl.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
+index 6a14ab9d3d0a2..da9bb3ba3a7de 100644
+--- common/fs/proc/proc_sysctl.c
++++ common/fs/proc/proc_sysctl.c
+@@ -579,7 +579,15 @@ static ssize_t proc_sys_call_handler(struct kiocb *iocb, struct iov_iter *iter,
+ 	error = -ENOMEM;
+ 	if (count >= KMALLOC_MAX_SIZE)
+ 		goto out;
+-	kbuf = kvzalloc(count + 1, GFP_KERNEL);
++
++	/*
++	 * Use vmalloc if the count is too large to avoid costly high-order page
++	 * allocations.
++	 */
++	if (count < (PAGE_SIZE << PAGE_ALLOC_COSTLY_ORDER))
++		kbuf = kvzalloc(count + 1, GFP_KERNEL);
++	else
++		kbuf = vmalloc(count + 1);
+ 	if (!kbuf)
+ 		goto out;
+ 

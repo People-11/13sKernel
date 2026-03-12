@@ -90,6 +90,9 @@ patch -p0 -l < 85_optprobes_3.patch
 patch -p0 -l < 86_mm_slab_common_Align_all_caches_to_hardware.patch
 patch -p0 -l < 87_libstringc_Optimize_memchr_1.patch
 patch -p0 -l < 87_libstringc_Optimize_memchr_2.patch
+patch -p0 -l < 88_mm_Lower_the_non-hugetlbpage_pageblock_size.patch
+patch -p0 -l < 89_mm_Micro-optimize_PID_maps.patch
+patch -p0 -l < 90_proc_Avoid_costly_high-order_page_allocations.patch
 
 echo 'CONFIG_AUTOFDO_CLANG=y' >> ./common/arch/arm64/configs/gki_defconfig
 echo 'CONFIG_LTO_CLANG_THIN=y' >> ./common/arch/arm64/configs/gki_defconfig
