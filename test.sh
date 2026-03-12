@@ -91,13 +91,13 @@ patch -p0 -l < 86_mm_slab_common_Align_all_caches_to_hardware.patch
 patch -p0 -l < 87_libstringc_Optimize_memchr_1.patch
 patch -p0 -l < 87_libstringc_Optimize_memchr_2.patch
 patch -p0 -l < 88_mm_Lower_the_non-hugetlbpage_pageblock_size.patch
-patch -p0 -l < 89_mm_Micro-optimize_PID_maps.patch
-patch -p0 -l < 90_proc_Avoid_costly_high-order_page_allocations.patch
+patch -p0 -l < 89_proc_Avoid_costly_high-order_page_allocations.patch
+patch -p0 -l < 91_mm_Micro-optimize_PID_maps_output_1.patch
+patch -p0 -l < 91_mm_Micro-optimize_PID_maps_output_2.patch
 
 echo 'CONFIG_AUTOFDO_CLANG=y' >> ./common/arch/arm64/configs/gki_defconfig
 echo 'CONFIG_LTO_CLANG_THIN=y' >> ./common/arch/arm64/configs/gki_defconfig
 echo '# CONFIG_TCP_CONG_CUBIC is not set' >> ./common/arch/arm64/configs/gki_defconfig && echo 'CONFIG_DEFAULT_BBR=y' >> ./common/arch/arm64/configs/gki_defconfig
-# echo 'CONFIG_WQ_POWER_EFFICIENT_DEFAULT=y' >> ./common/arch/arm64/configs/gki_defconfig
 echo 'CONFIG_SCHED_CLUSTER=y' >> ./common/arch/arm64/configs/gki_defconfig
 sed -i 's/^CONFIG_CPU_FREQ_GOV_POWERSAVE=.*/# CONFIG_CPU_FREQ_GOV_POWERSAVE is not set/' ./common/arch/arm64/configs/gki_defconfig
 sed -i 's/^CONFIG_CPU_FREQ_GOV_CONSERVATIVE=.*/# CONFIG_CPU_FREQ_GOV_CONSERVATIVE is not set/' ./common/arch/arm64/configs/gki_defconfig
