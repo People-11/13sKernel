@@ -22,7 +22,7 @@ Index: common/kernel/sched/fair.c
 ===================================================================
 --- common/kernel/sched/fair.c
 +++ common/kernel/sched/fair.c
-@@ -10000,6 +10000,7 @@ static inline void update_sg_lb_stats(st
+@@ -10006,6 +10006,7 @@ static inline void update_sg_lb_stats(st
  				      int *sg_status)
  {
  	int i, nr_running, local_group, sd_flags = env->sd->flags;
@@ -30,7 +30,7 @@ Index: common/kernel/sched/fair.c
  
  	memset(sgs, 0, sizeof(*sgs));
  
-@@ -10017,9 +10018,6 @@ static inline void update_sg_lb_stats(st
+@@ -10023,9 +10024,6 @@ static inline void update_sg_lb_stats(st
  		nr_running = rq->nr_running;
  		sgs->sum_nr_running += nr_running;
  
@@ -40,7 +40,7 @@ Index: common/kernel/sched/fair.c
  		if (cpu_overutilized(i))
  			*sg_status |= SG_OVERUTILIZED;
  
-@@ -10032,6 +10030,10 @@ static inline void update_sg_lb_stats(st
+@@ -10038,6 +10036,10 @@ static inline void update_sg_lb_stats(st
  			continue;
  		}
  

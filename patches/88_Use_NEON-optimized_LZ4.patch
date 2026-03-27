@@ -1,0 +1,77 @@
+From 0e17405cd65966d530fb7069a97f1b903037db76 Mon Sep 17 00:00:00 2001
+From: brokestar233 <3765589194@qq.com>
+Date: Sat, 13 Sep 2025 14:11:29 +0800
+Subject: [PATCH] lz4: Use ARM64 NEON-optimized decompression where available
+
+---
+ crypto/lz4.c            |  8 +++++++-
+ crypto/lz4hc.c          |  4 ++++
+ fs/erofs/decompressor.c | 16 +++++++++++++---
+ 3 files changed, 24 insertions(+), 4 deletions(-)
+
+diff --git a/crypto/lz4.c b/crypto/lz4.c
+index 0606f8862e787..650c2cefcbb93 100644
+--- common/crypto/lz4.c
++++ common/crypto/lz4.c
+@@ -81,7 +81,13 @@ static int lz4_compress_crypto(struct crypto_tfm *tfm, const u8 *src,
+ static int __lz4_decompress_crypto(const u8 *src, unsigned int slen,
+ 				   u8 *dst, unsigned int *dlen, void *ctx)
+ {
+-	int out_len = LZ4_decompress_safe(src, dst, slen, *dlen);
++	int out_len;
++
++#if defined(CONFIG_ARM64) && defined(CONFIG_KERNEL_MODE_NEON)
++	out_len = LZ4_arm64_decompress_safe(src, dst, slen, *dlen, false);
++#else
++	out_len = LZ4_decompress_safe(src, dst, slen, *dlen);
++#endif
+ 
+ 	if (out_len < 0)
+ 		return -EINVAL;
+diff --git a/crypto/lz4hc.c b/crypto/lz4hc.c
+index d7cc94aa2fcf4..69c06b783ed43 100644
+--- common/crypto/lz4hc.c
++++ common/crypto/lz4hc.c
+@@ -82,7 +82,11 @@ static int lz4hc_compress_crypto(struct crypto_tfm *tfm, const u8 *src,
+ static int __lz4hc_decompress_crypto(const u8 *src, unsigned int slen,
+ 				     u8 *dst, unsigned int *dlen, void *ctx)
+ {
++#if defined(CONFIG_ARM64) && defined(CONFIG_KERNEL_MODE_NEON)
++	int out_len = LZ4_arm64_decompress_safe(src, dst, slen, *dlen, false);
++#else
+ 	int out_len = LZ4_decompress_safe(src, dst, slen, *dlen);
++#endif
+ 
+ 	if (out_len < 0)
+ 		return -EINVAL;
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 4324dc776016f..c6ea8934324fe 100644
+--- common/fs/erofs/decompressor.c
++++ common/fs/erofs/decompressor.c
+@@ -248,13 +248,23 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_lz4_decompress_ctx *ctx,
+ 		goto bypass_decompression;
+ 
+ 	/* legacy format could compress extra data in a pcluster. */
+-	if (rq->partial_decoding || !support_0padding)
++	if (rq->partial_decoding || !support_0padding) {
++#if defined(CONFIG_ARM64) && defined(CONFIG_KERNEL_MODE_NEON)
++		ret = LZ4_arm64_decompress_safe_partial(src + inputmargin, out,
++					  rq->inputsize, rq->outputsize, false);
++#else
+ 		ret = LZ4_decompress_safe_partial(src + inputmargin, out,
+ 				rq->inputsize, rq->outputsize, rq->outputsize);
+-	else
++#endif
++	} else {
++#if defined(CONFIG_ARM64) && defined(CONFIG_KERNEL_MODE_NEON)
++		ret = LZ4_arm64_decompress_safe(src + inputmargin, out,
++					  rq->inputsize, rq->outputsize, false);
++#else
+ 		ret = LZ4_decompress_safe(src + inputmargin, out,
+ 					  rq->inputsize, rq->outputsize);
+-
++#endif
++	}
+ bypass_decompression:
+ 	if (ret != rq->outputsize) {
+ 		erofs_err(rq->sb, "failed to decompress %d in[%u, %u] out[%u]",

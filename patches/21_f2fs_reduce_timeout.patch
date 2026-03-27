@@ -24,7 +24,7 @@ Index: common/fs/f2fs/f2fs.h
 ===================================================================
 --- common/fs/f2fs/f2fs.h
 +++ common/fs/f2fs/f2fs.h
-@@ -596,8 +596,8 @@ enum {
+@@ -598,8 +598,8 @@ enum {
  
  #define DEFAULT_RETRY_IO_COUNT	8	/* maximum retry read IO or flush count */
  

@@ -32,7 +32,7 @@ Index: common/kernel/sched/fair.c
 ===================================================================
 --- common/kernel/sched/fair.c
 +++ common/kernel/sched/fair.c
-@@ -10128,9 +10128,7 @@ static bool update_sd_pick_busiest(struc
+@@ -10134,9 +10134,7 @@ static bool update_sd_pick_busiest(struc
  	switch (sgs->group_type) {
  	case group_overloaded:
  		/* Select the overloaded group with highest avg_load. */
@@ -43,7 +43,7 @@ Index: common/kernel/sched/fair.c
  
  	case group_imbalanced:
  		/*
-@@ -10141,18 +10139,14 @@ static bool update_sd_pick_busiest(struc
+@@ -10147,18 +10145,14 @@ static bool update_sd_pick_busiest(struc
  
  	case group_asym_packing:
  		/* Prefer to move from lowest priority CPU's work */

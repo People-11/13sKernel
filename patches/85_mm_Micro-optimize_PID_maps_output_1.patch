@@ -34,11 +34,11 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
  fs/proc/task_mmu.c | 194 +++++++++++++++++++++++++++++++++++++--------
  1 file changed, 159 insertions(+), 35 deletions(-)
 
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 881a6bcbb36c..c9483891bcab 100644
+Index: common/fs/proc/task_mmu.c
+===================================================================
 --- common/fs/proc/task_mmu.c
 +++ common/fs/proc/task_mmu.c
-@@ -368,24 +368,117 @@ static int do_maps_open(struct inode *inode, struct file *file,
+@@ -240,24 +240,117 @@ static int do_maps_open(struct inode *in
  				sizeof(struct proc_maps_private));
  }
  
@@ -46,20 +46,6 @@ index 881a6bcbb36c..c9483891bcab 100644
 -				   unsigned long start, unsigned long end,
 -				   vm_flags_t flags, unsigned long long pgoff,
 -				   dev_t dev, unsigned long ino)
--{
--	seq_setwidth(m, 25 + sizeof(void *) * 6 - 1);
--	seq_put_hex_ll(m, NULL, start, 8);
--	seq_put_hex_ll(m, "-", end, 8);
--	seq_putc(m, ' ');
--	seq_putc(m, flags & VM_READ ? 'r' : '-');
--	seq_putc(m, flags & VM_WRITE ? 'w' : '-');
--	seq_putc(m, flags & VM_EXEC ? 'x' : '-');
--	seq_putc(m, flags & VM_MAYSHARE ? 's' : 'p');
--	seq_put_hex_ll(m, " ", pgoff, 8);
--	seq_put_hex_ll(m, " ", MAJOR(dev), 2);
--	seq_put_hex_ll(m, ":", MINOR(dev), 2);
--	seq_put_decimal_ull(m, " ", ino);
--	seq_putc(m, ' ');
 +#define print_vma_hex10(out, val, clz_fn) \
 +({									\
 +	const typeof(val) __val = val;					\
@@ -127,7 +113,20 @@ index 881a6bcbb36c..c9483891bcab 100644
 +				unsigned long end, vm_flags_t flags,
 +				unsigned long long pgoff, dev_t dev,
 +				unsigned long ino)
-+{
+ {
+-	seq_setwidth(m, 25 + sizeof(void *) * 6 - 1);
+-	seq_put_hex_ll(m, NULL, start, 8);
+-	seq_put_hex_ll(m, "-", end, 8);
+-	seq_putc(m, ' ');
+-	seq_putc(m, flags & VM_READ ? 'r' : '-');
+-	seq_putc(m, flags & VM_WRITE ? 'w' : '-');
+-	seq_putc(m, flags & VM_EXEC ? 'x' : '-');
+-	seq_putc(m, flags & VM_MAYSHARE ? 's' : 'p');
+-	seq_put_hex_ll(m, " ", pgoff, 8);
+-	seq_put_hex_ll(m, " ", MAJOR(dev), 2);
+-	seq_put_hex_ll(m, ":", MINOR(dev), 2);
+-	seq_put_decimal_ull(m, " ", ino);
+-	seq_putc(m, ' ');
 +	size_t len;
 +	char *out;
 +
@@ -174,7 +173,7 @@ index 881a6bcbb36c..c9483891bcab 100644
  }
  
  static void
-@@ -432,7 +525,8 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma)
+@@ -285,7 +378,8 @@ show_map_vma(struct seq_file *m, struct
  
  	__fold_filemap_fixup_entry(&((struct proc_maps_private *)m->private)->iter, &end);
  
@@ -184,7 +183,7 @@ index 881a6bcbb36c..c9483891bcab 100644
  	if (mm)
  		anon_name = anon_vma_name(vma);
  
-@@ -441,16 +535,46 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma)
+@@ -294,16 +388,46 @@ show_map_vma(struct seq_file *m, struct
  	 * special [heap] marker for the heap:
  	 */
  	if (file) {
@@ -236,7 +235,7 @@ index 881a6bcbb36c..c9483891bcab 100644
  	}
  
  	if (vma->vm_ops && vma->vm_ops->name) {
-@@ -462,31 +586,31 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma)
+@@ -315,31 +439,31 @@ show_map_vma(struct seq_file *m, struct
  	name = arch_vma_name(vma);
  	if (!name) {
  		if (!mm) {

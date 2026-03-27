@@ -21,11 +21,11 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
  fs/proc/task_mmu.c | 64 +++++++++++++++++++++++++++++++++++++++++-----
  1 file changed, 57 insertions(+), 7 deletions(-)
 
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 9dbe6d756c562..0544c1f58633d 100644
+Index: common/fs/proc/task_mmu.c
+===================================================================
 --- common/fs/proc/task_mmu.c
 +++ common/fs/proc/task_mmu.c
-@@ -305,15 +305,65 @@ static int is_stack(struct vm_area_struct *vma)
+@@ -292,15 +292,65 @@ static int do_maps_open(struct inode *in
  	__len;								\
  })
  
@@ -35,7 +35,9 @@ index 9dbe6d756c562..0544c1f58633d 100644
  	const typeof(val) __val = val;					\
  	char *const __out = out;					\
 +	size_t __len;							\
-+									\
+ 									\
+-	__out[1] = hex_asc[(__val >>  0) & 0xf];			\
+-	__out[0] = hex_asc[(__val >>  4) & 0xf];			\
 +	if (__val) {							\
 +		__len = (sizeof(__val) * 8 - clz_fn(__val) + 3) / 4;	\
 +		switch (__len) {					\
@@ -67,7 +69,8 @@ index 9dbe6d756c562..0544c1f58633d 100644
 +		*(u16 *)__out = U16_C(0x3030);				\
 +		__len = 2;						\
 +	}								\
-+									\
+ 									\
+-	2;								\
 +	__len;								\
 +})
 +
@@ -76,9 +79,7 @@ index 9dbe6d756c562..0544c1f58633d 100644
 +	const typeof(val) __val = val;					\
 +	char *const __out = out;					\
 +	size_t __len;							\
- 									\
--	__out[1] = hex_asc[(__val >>  0) & 0xf];			\
--	__out[0] = hex_asc[(__val >>  4) & 0xf];			\
++									\
 +	if (__val & 0xf00) {						\
 +		__out[2] = hex_asc[(__val >> 0) & 0xf];			\
 +		__out[1] = hex_asc[(__val >> 4) & 0xf];			\
@@ -89,13 +90,12 @@ index 9dbe6d756c562..0544c1f58633d 100644
 +		__out[0] = hex_asc[(__val >> 4) & 0xf];			\
 +		__len = 2;						\
 +	}								\
- 									\
--	2;								\
++									\
 +	__len;								\
  })
  
  static int show_vma_header_prefix(struct seq_file *m, unsigned long start,
-@@ -325,7 +375,7 @@ static int show_vma_header_prefix(struct seq_file *m, unsigned long start,
+@@ -312,7 +362,7 @@ static int show_vma_header_prefix(struct
  	char *out;
  
  	/* Set the overflow status to get more memory if there's no space */
@@ -104,7 +104,7 @@ index 9dbe6d756c562..0544c1f58633d 100644
  		seq_commit(m, -1);
  		return -ENOMEM;
  	}
-@@ -350,11 +400,11 @@ static int show_vma_header_prefix(struct seq_file *m, unsigned long start,
+@@ -337,11 +387,11 @@ static int show_vma_header_prefix(struct
  
  	out[len++] = ' ';
  

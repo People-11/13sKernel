@@ -1,0 +1,28 @@
+From 8e4fb3f9bea0939a713e6592aedbb40d4fc76c6c Mon Sep 17 00:00:00 2001
+From: LibXZR <xzr467706992@163.com>
+Date: Sat, 14 Nov 2020 10:55:09 +0800
+Subject: [PATCH] binder_alloc: Disable debug logging by default
+
+* This is never useful to us
+
+Signed-off-by: LibXZR <xzr467706992@163.com>
+Signed-off-by: Adithya R <gh0strider.2k18.reborn@gmail.com>
+Signed-off-by: forenche <prahul2003@gmail.com>
+Signed-off-by: bachnxuan <bachnxuan@gmail.com>
+---
+ drivers/android/binder_alloc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
+index ff31bce3fd35..d0dd90963c6a 100644
+--- common/drivers/android/binder_alloc.c
++++ common/drivers/android/binder_alloc.c
+@@ -37,7 +37,7 @@ enum {
+ 	BINDER_DEBUG_BUFFER_ALLOC           = 1U << 2,
+ 	BINDER_DEBUG_BUFFER_ALLOC_ASYNC     = 1U << 3,
+ };
+-static uint32_t binder_alloc_debug_mask = BINDER_DEBUG_USER_ERROR;
++static uint32_t binder_alloc_debug_mask = 0;
+ 
+ module_param_named(debug_mask, binder_alloc_debug_mask,
+ 		   uint, 0644);

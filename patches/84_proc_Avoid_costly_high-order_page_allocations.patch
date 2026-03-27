@@ -23,11 +23,11 @@ Cc: Josef Bacik <josef@toxicpanda.com>
  fs/proc/proc_sysctl.c | 10 +++++++++-
  1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
-index 6a14ab9d3d0a2..da9bb3ba3a7de 100644
+Index: common/fs/proc/proc_sysctl.c
+===================================================================
 --- common/fs/proc/proc_sysctl.c
 +++ common/fs/proc/proc_sysctl.c
-@@ -579,7 +579,15 @@ static ssize_t proc_sys_call_handler(struct kiocb *iocb, struct iov_iter *iter,
+@@ -579,7 +579,15 @@ static ssize_t proc_sys_call_handler(str
  	error = -ENOMEM;
  	if (count >= KMALLOC_MAX_SIZE)
  		goto out;

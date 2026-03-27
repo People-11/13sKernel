@@ -33,7 +33,7 @@ Index: common/block/bio.c
 ===================================================================
 --- common/block/bio.c
 +++ common/block/bio.c
-@@ -505,20 +505,18 @@ struct bio *bio_alloc_bioset(struct bloc
+@@ -506,20 +506,18 @@ struct bio *bio_alloc_bioset(struct bloc
  	if (WARN_ON_ONCE(!mempool_initialized(&bs->bvec_pool) && nr_vecs > 0))
  		return NULL;
  

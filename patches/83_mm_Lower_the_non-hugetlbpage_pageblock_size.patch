@@ -30,12 +30,12 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
  include/linux/pageblock-flags.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/pageblock-flags.h b/include/linux/pageblock-flags.h
-index 16b1b29527311..b58c4e187977e 100644
+Index: common/include/linux/pageblock-flags.h
+===================================================================
 --- common/include/linux/pageblock-flags.h
 +++ common/include/linux/pageblock-flags.h
-@@ -52,7 +52,7 @@ extern unsigned int pageblock_order;
- #else /* CONFIG_TRANSPARENT_HUGEPAGE */
+@@ -48,7 +48,7 @@ extern unsigned int pageblock_order;
+ #else /* CONFIG_HUGETLB_PAGE */
  
  /* If huge pages are not used, group by MAX_ORDER_NR_PAGES */
 -#define pageblock_order		MAX_ORDER
