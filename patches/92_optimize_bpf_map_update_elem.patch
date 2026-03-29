@@ -1,0 +1,64 @@
+From f1a5fb26ae1b08513bd45284384757ed41ae990d Mon Sep 17 00:00:00 2001
+From: Ritesh Oedayrajsingh Varma <ritesh@superluminal.eu>
+Date: Fri, 28 Nov 2025 01:02:35 +0100
+Subject: [PATCH] bpf: optimize bpf_map_update_elem() for map-in-map types
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Updating a BPF_MAP_TYPE_HASH_OF_MAPS or BPF_MAP_TYPE_ARRAY_OF_MAPS via
+bpf_map_update_elem() is very expensive.
+
+In one of our workloads, we're inserting ~1400 maps of type
+BPF_MAP_TYPE_ARRAY into a BPF_MAP_TYPE_ARRAY_OF_MAPS. This takes ~21
+seconds on a single thread, with an average of ~15ms per call:
+
+Function Name:    map_update_elem
+Number of calls:  1369
+Total time:       21s 182ms 966µs
+Maximum:          47ms 937µs
+Average:          15ms 473µs
+Minimum:          7µs
+
+Profiling shows that nearly all of this time is going to synchronize_rcu(),
+via maybe_wait_bpf_programs() in map_update_elem().
+
+The call to synchronize_rcu() is done to ensure that after
+bpf_map_update_elem() returns, no BPF programs are still looking at the old
+value of the map, per commit 1ae80cf31938 ("bpf: wait for running BPF
+programs when updating map-in-map").
+
+As discussed on the bpf mailing list, replace synchronize_rcu() with
+synchronize_rcu_expedited(). This is 175x faster: it now takes an average
+of 88 microseconds per call, for a total of 127 milliseconds in the same
+benchmark:
+
+Function Name:    map_update_elem
+Number of calls:  1439
+Total time:       127ms 626µs
+Maximum:          445µs
+Average:          88µs
+Minimum:          10µs
+
+Link: https://lore.kernel.org/bpf/CAH6OuBR=w2kybK6u7aH_35B=Bo1PCukeMZefR=7V4Z2tJNK--Q@mail.gmail.com/
+
+Signed-off-by: Ritesh Oedayrajsingh Varma <ritesh@superluminal.eu>
+Link: https://lore.kernel.org/r/20251128000422.20462-1-ritesh@superluminal.eu
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+---
+ kernel/bpf/syscall.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index 0a8bf6596c45..6f03b746f630 100644
+--- common/kernel/bpf/syscall.c
++++ common/kernel/bpf/syscall.c
+@@ -149,7 +149,7 @@ static void maybe_wait_bpf_programs(struct bpf_map *map)
+ 	 */
+ 	if (map->map_type == BPF_MAP_TYPE_HASH_OF_MAPS ||
+ 	    map->map_type == BPF_MAP_TYPE_ARRAY_OF_MAPS)
+-		synchronize_rcu();
++		synchronize_rcu_expedited();
+ }
+ 
+ static int bpf_map_update_value(struct bpf_map *map, struct file *map_file,

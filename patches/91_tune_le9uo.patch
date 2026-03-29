@@ -1,0 +1,75 @@
+From 81efef07536f630b0002f6d111cc6d74dfe65165 Mon Sep 17 00:00:00 2001
+From: brokestar233 <3765589194@qq.com>
+Date: Mon, 7 Jul 2025 14:32:39 +0800
+Subject: [PATCH] mm: optimize working set protection with preset A
+ configuration
+
+Adjust default memory protection ratios to mitigate frequent OOM kills:
+1. Reduce vm.anon_min_ratio default from 15% to 1%
+2. Increase vm.clean_low_ratio default from 0% to 15%
+3. Lower vm.clean_min_ratio default from 15% to 4%
+
+This configuration (preset A) achieves:
+- Reduced reserved memory for anonymous pages (1% vs 15%)
+- Established baseline protection for clean pages (15% low threshold)
+- Lowered clean page protection threshold (4% vs 15%)
+
+Benefits:
+- Decreases memory pressure by freeing more pages for reclaim
+- Prevents premature OOM killer activation
+- Maintains essential working set protection
+- Improves system responsiveness under memory pressure
+
+Additionally updates identification string to:
+"le9 Unofficial (le9uo) working set protection 1.14a"
+
+Signed-off-by: brokestar233 <3765589194@qq.com>
+---
+ mm/Kconfig   | 6 +++---
+ mm/mm_init.c | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/mm/Kconfig b/mm/Kconfig
+index fe948e95c5094..7b3d3c26f7ecb 100644
+--- common/mm/Kconfig
++++ common/mm/Kconfig
+@@ -526,7 +526,7 @@ config ANON_MIN_RATIO
+ 	int "Default value for vm.anon_min_ratio"
+ 	depends on SYSCTL
+ 	range 0 100
+-	default 15
++	default 1
+ 	help
+ 	  This option sets the default value for vm.anon_min_ratio sysctl knob.
+ 
+@@ -544,7 +544,7 @@ config CLEAN_LOW_RATIO
+ 	int "Default value for vm.clean_low_ratio"
+ 	depends on SYSCTL
+ 	range 0 100
+-	default 0
++	default 15
+ 	help
+ 	  This option sets the default value for vm.clean_low_ratio sysctl knob.
+ 
+@@ -566,7 +566,7 @@ config CLEAN_MIN_RATIO
+ 	int "Default value for vm.clean_min_ratio"
+ 	depends on SYSCTL
+ 	range 0 100
+-	default 15
++	default 4
+ 	help
+ 	  This option sets the default value for vm.clean_min_ratio sysctl knob.
+ 
+diff --git a/mm/mm_init.c b/mm/mm_init.c
+index 4fbcee29ff6a6..373619203f3fd 100644
+--- common/mm/mm_init.c
++++ common/mm/mm_init.c
+@@ -2862,7 +2862,7 @@ static void __init mem_init_print_info(void)
+ 		, K(totalhigh_pages())
+ #endif
+ 		);
+-	printk(KERN_INFO "le9 Unofficial (le9uo) working set protection 1.14 by Masahito Suzuki (forked from hakavlad's original le9 patch)");
++	printk(KERN_INFO "le9 Unofficial (le9uo) working set protection 1.14a by Masahito Suzuki (forked from hakavlad's original le9 patch)");
+ }
+ 
+ /*

@@ -97,6 +97,10 @@ patch -p0 -l < 87_NEON-optimized_LZ4.patch
 patch -p0 -l < 87_update_lz4_to_v1.10.0.patch
 patch -p0 -l < 88_Use_NEON-optimized_LZ4.patch
 patch -p0 -l < 89_binder_alloc_Disable_debug_logging.patch
+patch -p0 -l < 90_sched_core_Use_SCHED_RR.patch
+patch -p0 -l < 91_mm_introduce_le9uo.patch
+patch -p0 -l < 91_tune_le9uo.patch
+patch -p0 -l < 92_optimize_bpf_map_update_elem.patch
 
 echo 'CONFIG_AUTOFDO_CLANG=y' >> ./common/arch/arm64/configs/gki_defconfig
 echo 'CONFIG_LTO_CLANG_THIN=y' >> ./common/arch/arm64/configs/gki_defconfig
@@ -111,6 +115,8 @@ sed -i 's/^CONFIG_PM_DEBUG=.*/# CONFIG_PM_DEBUG is not set/' ./common/arch/arm64
 sed -i 's/^CONFIG_CRYPTO_LZO=.*/# CONFIG_CRYPTO_LZO is not set/' ./common/arch/arm64/configs/gki_defconfig
 sed -i '/^CONFIG_NET_SCH_/d' ./common/arch/arm64/configs/gki_defconfig && echo -e 'CONFIG_NET_SCH_FQ=y\nCONFIG_DEFAULT_FQ=y' >> ./common/arch/arm64/configs/gki_defconfig
 sed -i 's/check_defconfig//' ./common/build.config.gki
+
+cd ~ && cp -f ./13sKernel/AFDO/* ./kernel_workspace_16/kernel_platform/common/android/gki/aarch64/afdo
 
 cd ~/kernel_workspace_16/kernel_platform && sed -i 's/${scm_version}//' ./common/scripts/setlocalversion && sed -i 's/-4k/-android16-Neko-Perf/g' ./common/arch/arm64/configs/gki_defconfig
 cd ~/kernel_workspace_16 && rm kernel_platform/common/android/abi_gki_protected_exports_* && rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_*
