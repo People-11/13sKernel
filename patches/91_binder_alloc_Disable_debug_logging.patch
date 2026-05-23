@@ -13,8 +13,8 @@ Signed-off-by: bachnxuan <bachnxuan@gmail.com>
  drivers/android/binder_alloc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-index ff31bce3fd35..d0dd90963c6a 100644
+Index: common/drivers/android/binder_alloc.c
+===================================================================
 --- common/drivers/android/binder_alloc.c
 +++ common/drivers/android/binder_alloc.c
 @@ -37,7 +37,7 @@ enum {

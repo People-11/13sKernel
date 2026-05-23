@@ -24,7 +24,7 @@ Index: common/kernel/sched/fair.c
 ===================================================================
 --- common/kernel/sched/fair.c
 +++ common/kernel/sched/fair.c
-@@ -10714,16 +10714,11 @@ static inline void update_sd_lb_stats(st
+@@ -10721,16 +10721,11 @@ static inline void update_sd_lb_stats(st
  
  		update_sg_lb_stats(env, sds, sg, sgs, &sg_status);
  

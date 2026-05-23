@@ -11,11 +11,11 @@ Signed-off-by: brokestar233 <3765589194@qq.com>
  lib/decompress_unlz4.c | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
-index e6327391b6b66..57bfe602b8c65 100644
+Index: common/lib/decompress_unlz4.c
+===================================================================
 --- common/lib/decompress_unlz4.c
 +++ common/lib/decompress_unlz4.c
-@@ -162,7 +162,11 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+@@ -162,7 +162,11 @@ STATIC inline int INIT unlz4(u8 *input,
  #else
  		dest_len = uncomp_chunksize;
  

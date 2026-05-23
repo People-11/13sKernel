@@ -12,8 +12,8 @@ Subject: [PATCH] Compress multiple commits into one
 Change-Id: I9f4f7e1d3b7b637f22e75e6f5189900e68219523
 ---
 
-diff --git a/include/linux/lz4.h b/include/linux/lz4.h
-index b16e15b9587a1..025b2a0cc125e 100644
+Index: common/include/linux/lz4.h
+===================================================================
 --- common/include/linux/lz4.h
 +++ common/include/linux/lz4.h
 @@ -1,648 +1,17 @@
@@ -676,8 +676,8 @@ index b16e15b9587a1..025b2a0cc125e 100644
 +#define LZ4HC_MAX_CLEVEL	LZ4HC_CLEVEL_MAX
  
  #endif
-diff --git a/lib/lz4/Makefile b/lib/lz4/Makefile
-index 5b42242afaa20..6ffc4ceb2e8eb 100644
+Index: common/lib/lz4/Makefile
+===================================================================
 --- common/lib/lz4/Makefile
 +++ common/lib/lz4/Makefile
 @@ -1,6 +1,7 @@
@@ -693,9 +693,8 @@ index 5b42242afaa20..6ffc4ceb2e8eb 100644
 +obj-y += lz4.o lz4hc.o
 +
 +obj-$(CONFIG_ARM64) += $(addprefix lz4armv8/, lz4accel.o lz4armv8.o)
-diff --git a/lib/lz4/lz4.c b/lib/lz4/lz4.c
-new file mode 100644
-index 0000000000000..112edb700469e
+Index: common/lib/lz4/lz4.c
+===================================================================
 --- /dev/null
 +++ common/lib/lz4/lz4.c
 @@ -0,0 +1,3484 @@
@@ -4183,9 +4182,8 @@ index 0000000000000..112edb700469e
 +}
 +
 +#endif /* LZ4_COMMONDEFS_ONLY */
-diff --git a/lib/lz4/lz4.h b/lib/lz4/lz4.h
-new file mode 100644
-index 0000000000000..580a2e3f6f37d
+Index: common/lib/lz4/lz4.h
+===================================================================
 --- /dev/null
 +++ common/lib/lz4/lz4.h
 @@ -0,0 +1,984 @@
@@ -5173,9 +5171,8 @@ index 0000000000000..580a2e3f6f37d
 +#if defined(__cplusplus)
 +}
 +#endif
-diff --git a/lib/lz4/lz4_compress.c b/lib/lz4/lz4_compress.c
-deleted file mode 100644
-index 90bb67994688d..0000000000000
+Index: common/lib/lz4/lz4_compress.c
+===================================================================
 --- common/lib/lz4/lz4_compress.c
 +++ /dev/null
 @@ -1,940 +0,0 @@
@@ -6119,9 +6116,8 @@ index 90bb67994688d..0000000000000
 -
 -MODULE_LICENSE("Dual BSD/GPL");
 -MODULE_DESCRIPTION("LZ4 compressor");
-diff --git a/lib/lz4/lz4_decompress.c b/lib/lz4/lz4_decompress.c
-deleted file mode 100644
-index 59fe69a638000..0000000000000
+Index: common/lib/lz4/lz4_decompress.c
+===================================================================
 --- common/lib/lz4/lz4_decompress.c
 +++ /dev/null
 @@ -1,720 +0,0 @@
@@ -6845,9 +6841,8 @@ index 59fe69a638000..0000000000000
 -MODULE_LICENSE("Dual BSD/GPL");
 -MODULE_DESCRIPTION("LZ4 decompressor");
 -#endif
-diff --git a/lib/lz4/lz4armv8/lz4accel.c b/lib/lz4/lz4armv8/lz4accel.c
-new file mode 100644
-index 0000000000000..e7144b4a22955
+Index: common/lib/lz4/lz4armv8/lz4accel.c
+===================================================================
 --- /dev/null
 +++ common/lib/lz4/lz4armv8/lz4accel.c
 @@ -0,0 +1,48 @@
@@ -6899,9 +6894,8 @@ index 0000000000000..e7144b4a22955
 +__read_mostly = {
 +	[0 ... NR_CPUS-1]  = lz4_decompress_asm_select,
 +};
-diff --git a/lib/lz4/lz4armv8/lz4accel.h b/lib/lz4/lz4armv8/lz4accel.h
-new file mode 100644
-index 0000000000000..a8862c44a1d88
+Index: common/lib/lz4/lz4armv8/lz4accel.h
+===================================================================
 --- /dev/null
 +++ common/lib/lz4/lz4armv8/lz4accel.h
 @@ -0,0 +1,56 @@
@@ -6961,9 +6955,8 @@ index 0000000000000..a8862c44a1d88
 +	return 0;
 +}
 +#endif
-diff --git a/lib/lz4/lz4armv8/lz4armv8.S b/lib/lz4/lz4armv8/lz4armv8.S
-new file mode 100644
-index 0000000000000..1d836f686dd9e
+Index: common/lib/lz4/lz4armv8/lz4armv8.S
+===================================================================
 --- /dev/null
 +++ common/lib/lz4/lz4armv8/lz4armv8.S
 @@ -0,0 +1,312 @@
@@ -7279,9 +7272,8 @@ index 0000000000000..1d836f686dd9e
 +SYM_FUNC_START(_lz4_decompress_asm_noprfm)
 +	lz4_decompress_asm_generic	0
 +SYM_FUNC_END(_lz4_decompress_asm_noprfm)
-diff --git a/lib/lz4/lz4defs.h b/lib/lz4/lz4defs.h
-deleted file mode 100644
-index 330aa539b46e6..0000000000000
+Index: common/lib/lz4/lz4defs.h
+===================================================================
 --- common/lib/lz4/lz4defs.h
 +++ /dev/null
 @@ -1,247 +0,0 @@
@@ -7532,9 +7524,8 @@ index 330aa539b46e6..0000000000000
 -#define LZ4_STATIC_ASSERT(c)	BUILD_BUG_ON(!(c))
 -
 -#endif
-diff --git a/lib/lz4/lz4hc.c b/lib/lz4/lz4hc.c
-new file mode 100644
-index 0000000000000..cccd7b7d0ab93
+Index: common/lib/lz4/lz4hc.c
+===================================================================
 --- /dev/null
 +++ common/lib/lz4/lz4hc.c
 @@ -0,0 +1,2805 @@
@@ -10343,9 +10334,8 @@ index 0000000000000..cccd7b7d0ab93
 +	/* ugly conversion trick, required to evade (const char*) -> (char*) cast-qual warning :( */
 +	return (char *)(uptrval)bufferStart;
 +}
-diff --git a/lib/lz4/lz4hc.h b/lib/lz4/lz4hc.h
-new file mode 100644
-index 0000000000000..92d2aef17b6f0
+Index: common/lib/lz4/lz4hc.h
+===================================================================
 --- /dev/null
 +++ common/lib/lz4/lz4hc.h
 @@ -0,0 +1,451 @@

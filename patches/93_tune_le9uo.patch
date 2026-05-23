@@ -29,8 +29,8 @@ Signed-off-by: brokestar233 <3765589194@qq.com>
  mm/mm_init.c | 2 +-
  2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/mm/Kconfig b/mm/Kconfig
-index fe948e95c5094..7b3d3c26f7ecb 100644
+Index: common/mm/Kconfig
+===================================================================
 --- common/mm/Kconfig
 +++ common/mm/Kconfig
 @@ -526,7 +526,7 @@ config ANON_MIN_RATIO
@@ -60,11 +60,11 @@ index fe948e95c5094..7b3d3c26f7ecb 100644
  	help
  	  This option sets the default value for vm.clean_min_ratio sysctl knob.
  
-diff --git a/mm/mm_init.c b/mm/mm_init.c
-index 4fbcee29ff6a6..373619203f3fd 100644
+Index: common/mm/mm_init.c
+===================================================================
 --- common/mm/mm_init.c
 +++ common/mm/mm_init.c
-@@ -2862,7 +2862,7 @@ static void __init mem_init_print_info(void)
+@@ -2858,7 +2858,7 @@ static void __init mem_init_print_info(v
  		, K(totalhigh_pages())
  #endif
  		);

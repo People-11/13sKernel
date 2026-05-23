@@ -16,7 +16,7 @@ Index: common/drivers/block/loop.c
 ===================================================================
 --- common/drivers/block/loop.c
 +++ common/drivers/block/loop.c
-@@ -1052,7 +1052,7 @@ static int loop_configure(struct loop_de
+@@ -1058,7 +1058,7 @@ static int loop_configure(struct loop_de
  
  	if (!lo->workqueue) {
  		lo->workqueue = alloc_workqueue("loop%d",

@@ -49,11 +49,11 @@ Signed-off-by: Alexei Starovoitov <ast@kernel.org>
  kernel/bpf/syscall.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 0a8bf6596c45..6f03b746f630 100644
+Index: common/kernel/bpf/syscall.c
+===================================================================
 --- common/kernel/bpf/syscall.c
 +++ common/kernel/bpf/syscall.c
-@@ -149,7 +149,7 @@ static void maybe_wait_bpf_programs(struct bpf_map *map)
+@@ -149,7 +149,7 @@ static void maybe_wait_bpf_programs(stru
  	 */
  	if (map->map_type == BPF_MAP_TYPE_HASH_OF_MAPS ||
  	    map->map_type == BPF_MAP_TYPE_ARRAY_OF_MAPS)
