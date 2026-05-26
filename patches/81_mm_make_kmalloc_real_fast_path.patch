@@ -1,0 +1,62 @@
+From a8093f3b7a15ede7b262bb7a13995d2372e3fa0b Mon Sep 17 00:00:00 2001
+From: Michal Hocko <mhocko@suse.com>
+Date: Thu, 3 Apr 2025 09:43:39 +0200
+Subject: [PATCH] mm: kvmalloc: make kmalloc fast path real fast path
+
+There are users like xfs which need larger allocations with NOFAIL
+sementic. They are not using kvmalloc currently because the current
+implementation tries too hard to allocate through the kmalloc path
+which causes a lot of direct reclaim and compaction and that hurts
+performance a lot (see 8dc9384b7d75 ("xfs: reduce kvmalloc overhead for
+CIL shadow buffers") for more details).
+
+kvmalloc does support __GFP_RETRY_MAYFAIL semantic to express that
+kmalloc (physically contiguous) allocation is preferred and we should go
+more aggressive to make it happen. There is currently no way to express
+that kmalloc should be very lightweight and as it has been argued [1]
+this mode should be default to support kvmalloc(NOFAIL) with a
+lightweight kmalloc path which is currently impossible to express as
+__GFP_NOFAIL cannot be combined by any other reclaim modifiers.
+
+This patch makes all kmalloc allocations GFP_NOWAIT unless
+__GFP_RETRY_MAYFAIL is provided to kvmalloc. This allows to support both
+fail fast and retry hard on physically contiguous memory with vmalloc
+fallback.
+
+There is a potential downside that relatively small allocations (smaller
+than PAGE_ALLOC_COSTLY_ORDER) could fallback to vmalloc too easily and
+cause page block fragmentation. We cannot really rule that out but it
+seems that xlog_cil_kvmalloc use doesn't indicate this to be happening.
+
+[1] https://lore.kernel.org/all/Z-3i1wATGh6vI8x8@dread.disaster.area/T/#u
+
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Shakeel Butt <shakeel.butt@linux.dev>
+---
+ mm/util.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/mm/util.c b/mm/util.c
+index 9a8cb5e30c9ba..909c4bc15cd55 100644
+--- common/mm/util.c
++++ common/mm/util.c
+@@ -612,14 +612,16 @@ void *kvmalloc_node(size_t size, gfp_t flags, int node)
+ 	 * We want to attempt a large physically contiguous block first because
+ 	 * it is less likely to fragment multiple larger blocks and therefore
+ 	 * contribute to a long term fragmentation less than vmalloc fallback.
+-	 * However make sure that larger requests are not too disruptive - no
+-	 * OOM killer and no allocation failure warnings as we have a fallback.
++	 * However make sure that larger requests are not too disruptive - i.e.
++	 * do not direct reclaim unless physically continuous memory is preferred
++	 * (__GFP_RETRY_MAYFAIL mode). We still kick in kswapd/kcompactd to start
++	 * working in the background but the allocation itself.
+ 	 */
+ 	if (size > PAGE_SIZE) {
+ 		kmalloc_flags |= __GFP_NOWARN;
+ 
+ 		if (!(kmalloc_flags & __GFP_RETRY_MAYFAIL))
+-			kmalloc_flags |= __GFP_NORETRY;
++			kmalloc_flags &= ~__GFP_DIRECT_RECLAIM;
+ 
+ 		/* nofail semantic is implemented by the vmalloc fallback */
+ 		kmalloc_flags &= ~__GFP_NOFAIL;

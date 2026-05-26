@@ -45,6 +45,7 @@ patch -p0 -l < 31_sched_fair_Simplify_continue_balancing.patch
 patch -p0 -l < 32_sched_fair_Simplify_update_sd_pick_busiest.patch
 patch -p0 -l < 33_sched_fair_Dont_compute_NUMA_Balancing.patch
 patch -p0 -l < 34_sched_fair_Dont_compute_overloaded.patch
+patch -p0 -l < 34_sched_fair_Relax_overutilized_detection.patch
 patch -p0 -l < 35_sched_Skip_barrier_in_ttwu.patch
 patch -p0 -l < 36_sched_topology_Optimize_topology_span_sane.patch
 patch -p0 -l < 36_sched_topology_improve_topology_span_sane_speed.patch
@@ -108,6 +109,7 @@ patch -p0 -l < 80_mm_vmalloc_1.patch
 patch -p0 -l < 80_mm_vmalloc_2.patch
 patch -p0 -l < 80_mm_vmalloc_3.patch
 patch -p0 -l < 80_mm_vmalloc_4.patch
+patch -p0 -l < 81_mm_make_kmalloc_real_fast_path.patch
 
 echo 'CONFIG_AUTOFDO_CLANG=y' >> ./common/arch/arm64/configs/gki_defconfig
 echo 'CONFIG_LTO_CLANG_THIN=y' >> ./common/arch/arm64/configs/gki_defconfig
