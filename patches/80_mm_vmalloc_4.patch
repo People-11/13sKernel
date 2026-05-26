@@ -1,0 +1,73 @@
+From d7035b1c12fb6f2a197f71d87f4c896263266923 Mon Sep 17 00:00:00 2001
+From: brokestar233 <3765589194@qq.com>
+Date: Fri, 15 May 2026 08:21:32 +0800
+Subject: [PATCH] mm/vmalloc: fix build error
+
+Change-Id: I8d43a02d17a535860e474d0f67a156cfed07f04a
+Signed-off-by: brokestar233 <3765589194@qq.com>
+---
+ mm/page_alloc.c | 10 +++++-----
+ mm/vmalloc.c    |  6 +++---
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+Index: common/mm/page_alloc.c
+===================================================================
+--- common/mm/page_alloc.c
++++ common/mm/page_alloc.c
+@@ -6667,10 +6667,10 @@ static void free_prepared_contig_range(s
+ 		unsigned int order;
+ 
+ 		/* We are limited by the largest buddy order. */
+-		order = pfn ? __ffs(pfn) : MAX_PAGE_ORDER;
++		order = pfn ? __ffs(pfn) : MAX_ORDER - 1;
+ 		/* Don't exceed the number of pages to free. */
+ 		order = min_t(unsigned int, order, ilog2(nr_pages));
+-		order = min_t(unsigned int, order, MAX_PAGE_ORDER);
++		order = min_t(unsigned int, order, MAX_ORDER - 1);
+ 
+ 		/*
+ 		 * Our caller has already called free_pages_prepare() for each
+@@ -6714,15 +6714,15 @@ static void __free_contig_range_common(u
+ 			continue;
+ 		}
+ 
+-		if (start && page_to_section(page) != start_sec) {
++		if (start && pfn_to_section_nr(page_to_pfn(page)) != start_sec) {
+ 			free_prepared_contig_range(start, i - nr_start);
+ 			start = page;
+ 			nr_start = i;
+-			start_sec = page_to_section(page);
++			start_sec = pfn_to_section_nr(page_to_pfn(page));
+ 		} else if (!start) {
+ 			start = page;
+ 			nr_start = i;
+-			start_sec = page_to_section(page);
++			start_sec = pfn_to_section_nr(page_to_pfn(page));
+ 		}
+ 	}
+ 
+Index: common/mm/vmalloc.c
+===================================================================
+--- common/mm/vmalloc.c
++++ common/mm/vmalloc.c
+@@ -3022,7 +3022,7 @@ vm_area_alloc_pages(gfp_t gfp, int nid,
+ {
+ 	unsigned int nr_allocated = 0;
+ 	unsigned int nr_remaining = nr_pages;
+-	unsigned int max_attempt_order = MAX_PAGE_ORDER;
++	unsigned int max_attempt_order = MAX_ORDER - 1;
+ 	gfp_t alloc_gfp = gfp;
+ 	bool nofail = gfp & __GFP_NOFAIL;
+ 	struct page *page;
+@@ -3042,9 +3042,9 @@ vm_area_alloc_pages(gfp_t gfp, int nid,
+ 	 */
+ 	while (large_order > order && nr_remaining) {
+ 		if (nid == NUMA_NO_NODE)
+-			page = alloc_pages_noprof(large_gfp, large_order);
++			page = alloc_pages(large_gfp, large_order);
+ 		else
+-			page = alloc_pages_node_noprof(nid, large_gfp, large_order);
++			page = alloc_pages_node(nid, large_gfp, large_order);
+ 
+ 		if (unlikely(!page)) {
+ 			max_attempt_order = --large_order;
