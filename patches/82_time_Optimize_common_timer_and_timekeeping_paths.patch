@@ -1,0 +1,228 @@
+From cf882063658623805c47dce60fdddecfa7269d54 Mon Sep 17 00:00:00 2001
+From: wuluoy-creator <wuluoy@gmail.com>
+Date: Mon, 27 Apr 2026 09:27:55 +0800
+Subject: [PATCH] Add files via upload
+
+---
+ kernel/time/clockevents.c |  8 ++++----
+ kernel/time/hrtimer.c     |  2 +-
+ kernel/time/timekeeping.c | 31 ++++++++++++++++++----------
+ kernel/time/timer.c       | 43 ++++++++++++++-------------------------
+ 4 files changed, 40 insertions(+), 44 deletions(-)
+
+Index: common/kernel/time/clockevents.c
+===================================================================
+--- common/kernel/time/clockevents.c
++++ common/kernel/time/clockevents.c
+@@ -240,7 +240,7 @@ static int clockevents_program_min_delta
+ 		delta = dev->min_delta_ns;
+ 		dev->next_event = ktime_add_ns(ktime_get(), delta);
+ 
+-		if (clockevent_state_shutdown(dev))
++		if (unlikely(clockevent_state_shutdown(dev)))
+ 			return 0;
+ 
+ 		dev->retries++;
+@@ -279,7 +279,7 @@ static int clockevents_program_min_delta
+ 		delta += dev->min_delta_ns;
+ 		dev->next_event = ktime_add_ns(ktime_get(), delta);
+ 
+-		if (clockevent_state_shutdown(dev))
++		if (unlikely(clockevent_state_shutdown(dev)))
+ 			return 0;
+ 
+ 		dev->retries++;
+@@ -312,7 +312,7 @@ int clockevents_program_event(struct clo
+ 
+ 	dev->next_event = expires;
+ 
+-	if (clockevent_state_shutdown(dev))
++	if (unlikely(clockevent_state_shutdown(dev)))
+ 		return 0;
+ 
+ 	/* We must be in ONESHOT state here */
+@@ -324,7 +324,7 @@ int clockevents_program_event(struct clo
+ 		return dev->set_next_ktime(expires, dev);
+ 
+ 	delta = ktime_to_ns(ktime_sub(expires, ktime_get()));
+-	if (delta <= 0)
++	if (unlikely(delta <= 0))
+ 		return force ? clockevents_program_min_delta(dev) : -ETIME;
+ 
+ 	delta = min(delta, (int64_t) dev->max_delta_ns);
+Index: common/kernel/time/hrtimer.c
+===================================================================
+--- common/kernel/time/hrtimer.c
++++ common/kernel/time/hrtimer.c
+@@ -853,7 +853,7 @@ static void hrtimer_reprogram(struct hrt
+ 	 * CLOCK_REALTIME timer might be requested with an absolute
+ 	 * expiry time which is less than base->offset. Set it to 0.
+ 	 */
+-	if (expires < 0)
++	if (unlikely(expires < 0))
+ 		expires = 0;
+ 
+ 	if (timer->is_soft) {
+Index: common/kernel/time/timekeeping.c
+===================================================================
+--- common/kernel/time/timekeeping.c
++++ common/kernel/time/timekeeping.c
+@@ -870,24 +870,33 @@ u32 ktime_get_resolution_ns(void)
+ }
+ EXPORT_SYMBOL_GPL(ktime_get_resolution_ns);
+ 
+-static ktime_t *offsets[TK_OFFS_MAX] = {
+-	[TK_OFFS_REAL]	= &tk_core.timekeeper.offs_real,
+-	[TK_OFFS_BOOT]	= &tk_core.timekeeper.offs_boot,
+-	[TK_OFFS_TAI]	= &tk_core.timekeeper.offs_tai,
+-};
++static inline ktime_t tk_offset(const struct timekeeper *tk, enum tk_offsets offs)
++{
++	switch (offs) {
++	case TK_OFFS_REAL:
++		return tk->offs_real;
++	case TK_OFFS_BOOT:
++		return tk->offs_boot;
++	case TK_OFFS_TAI:
++		return tk->offs_tai;
++	default:
++		WARN_ON_ONCE(1);
++		return 0;
++	}
++}
+ 
+ ktime_t ktime_get_with_offset(enum tk_offsets offs)
+ {
+ 	struct timekeeper *tk = &tk_core.timekeeper;
+ 	unsigned int seq;
+-	ktime_t base, *offset = offsets[offs];
++	ktime_t base;
+ 	u64 nsecs;
+ 
+ 	WARN_ON(timekeeping_suspended);
+ 
+ 	do {
+ 		seq = read_seqcount_begin(&tk_core.seq);
+-		base = ktime_add(tk->tkr_mono.base, *offset);
++		base = ktime_add(tk->tkr_mono.base, tk_offset(tk, offs));
+ 		nsecs = timekeeping_get_ns(&tk->tkr_mono);
+ 
+ 	} while (read_seqcount_retry(&tk_core.seq, seq));
+@@ -901,14 +910,14 @@ ktime_t ktime_get_coarse_with_offset(enu
+ {
+ 	struct timekeeper *tk = &tk_core.timekeeper;
+ 	unsigned int seq;
+-	ktime_t base, *offset = offsets[offs];
++	ktime_t base;
+ 	u64 nsecs;
+ 
+ 	WARN_ON(timekeeping_suspended);
+ 
+ 	do {
+ 		seq = read_seqcount_begin(&tk_core.seq);
+-		base = ktime_add(tk->tkr_mono.base, *offset);
++		base = ktime_add(tk->tkr_mono.base, tk_offset(tk, offs));
+ 		nsecs = tk->tkr_mono.xtime_nsec >> tk->tkr_mono.shift;
+ 
+ 	} while (read_seqcount_retry(&tk_core.seq, seq));
+@@ -924,13 +933,13 @@ EXPORT_SYMBOL_GPL(ktime_get_coarse_with_
+  */
+ ktime_t ktime_mono_to_any(ktime_t tmono, enum tk_offsets offs)
+ {
+-	ktime_t *offset = offsets[offs];
++	struct timekeeper *tk = &tk_core.timekeeper;
+ 	unsigned int seq;
+ 	ktime_t tconv;
+ 
+ 	do {
+ 		seq = read_seqcount_begin(&tk_core.seq);
+-		tconv = ktime_add(tmono, *offset);
++		tconv = ktime_add(tmono, tk_offset(tk, offs));
+ 	} while (read_seqcount_retry(&tk_core.seq, seq));
+ 
+ 	return tconv;
+Index: common/kernel/time/timer.c
+===================================================================
+--- common/kernel/time/timer.c
++++ common/kernel/time/timer.c
+@@ -1018,6 +1018,7 @@ __mod_timer(struct timer_list *timer, un
+ 	unsigned long clk = 0, flags, bucket_expiry;
+ 	struct timer_base *base, *new_base;
+ 	unsigned int idx = UINT_MAX;
++	bool pending;
+ 	int ret = 0;
+ 
+ 	debug_assert_init(timer);
+@@ -1027,7 +1028,8 @@ __mod_timer(struct timer_list *timer, un
+ 	 * the timer is re-modified to have the same timeout or ends up in the
+ 	 * same array bucket then just return:
+ 	 */
+-	if (!(options & MOD_TIMER_NOTPENDING) && timer_pending(timer)) {
++	pending = !(options & MOD_TIMER_NOTPENDING) && timer_pending(timer);
++	if (pending) {
+ 		/*
+ 		 * The downside of this optimization is that it can result in
+ 		 * larger granularity than you would get from adding a new
+@@ -1039,24 +1041,20 @@ __mod_timer(struct timer_list *timer, un
+ 			return 1;
+ 		if (options & MOD_TIMER_REDUCE && diff <= 0)
+ 			return 1;
++	}
+ 
+-		/*
+-		 * We lock timer base and calculate the bucket index right
+-		 * here. If the timer ends up in the same bucket, then we
+-		 * just update the expiry time and avoid the whole
+-		 * dequeue/enqueue dance.
+-		 */
+-		base = lock_timer_base(timer, &flags);
+-		/*
+-		 * Has @timer been shutdown? This needs to be evaluated
+-		 * while holding base lock to prevent a race against the
+-		 * shutdown code.
+-		 */
+-		if (!timer->function)
+-			goto out_unlock;
++	base = lock_timer_base(timer, &flags);
+ 
+-		forward_timer_base(base);
++	/*
++	 * Has @timer been shutdown? This needs to be evaluated while holding
++	 * base lock to prevent a race against the shutdown code.
++	 */
++	if (!timer->function)
++		goto out_unlock;
+ 
++	forward_timer_base(base);
++
++	if (pending) {
+ 		if (timer_pending(timer) && (options & MOD_TIMER_REDUCE) &&
+ 		    time_before_eq(timer->expires, expires)) {
+ 			ret = 1;
+@@ -1079,17 +1077,6 @@ __mod_timer(struct timer_list *timer, un
+ 			ret = 1;
+ 			goto out_unlock;
+ 		}
+-	} else {
+-		base = lock_timer_base(timer, &flags);
+-		/*
+-		 * Has @timer been shutdown? This needs to be evaluated
+-		 * while holding base lock to prevent a race against the
+-		 * shutdown code.
+-		 */
+-		if (!timer->function)
+-			goto out_unlock;
+-
+-		forward_timer_base(base);
+ 	}
+ 
+ 	ret = detach_if_pending(timer, base, false);
+@@ -1738,7 +1725,7 @@ static void expire_timers(struct timer_b
+ 
+ 		fn = timer->function;
+ 
+-		if (WARN_ON_ONCE(!fn)) {
++		if (unlikely(WARN_ON_ONCE(!fn))) {
+ 			/* Should never happen. Emphasis on should! */
+ 			base->running_timer = NULL;
+ 			continue;

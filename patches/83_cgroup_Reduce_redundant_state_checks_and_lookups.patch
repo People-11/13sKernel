@@ -1,0 +1,121 @@
+From a24e4f3fc51ee277dc556de03dc0b5280275508e Mon Sep 17 00:00:00 2001
+From: wuluoy-creator <wuluoy@gmail.com>
+Date: Mon, 27 Apr 2026 09:46:24 +0800
+Subject: [PATCH] Add files via upload
+
+---
+ kernel/cgroup/cgroup.c | 10 ++++++----
+ kernel/cgroup/cpuset.c |  6 ++----
+ kernel/cgroup/rstat.c  | 12 +++++++-----
+ 3 files changed, 15 insertions(+), 13 deletions(-)
+
+Index: common/kernel/cgroup/cgroup.c
+===================================================================
+--- common/kernel/cgroup/cgroup.c
++++ common/kernel/cgroup/cgroup.c
+@@ -4279,6 +4279,8 @@ static int cgroup_addrm_files(struct cgr
+ 			      bool is_add)
+ {
+ 	struct cftype *cft, *cft_end = NULL;
++	bool is_root = !cgroup_parent(cgrp);
++	bool on_dfl = cgroup_on_dfl(cgrp);
+ 	int ret = 0;
+ 
+ 	lockdep_assert_held(&cgroup_mutex);
+@@ -4286,13 +4288,13 @@ static int cgroup_addrm_files(struct cgr
+ restart:
+ 	for (cft = cfts; cft != cft_end && cft->name[0] != '\0'; cft++) {
+ 		/* does cft->flags tell us to skip this file on @cgrp? */
+-		if ((cft->flags & __CFTYPE_ONLY_ON_DFL) && !cgroup_on_dfl(cgrp))
++		if ((cft->flags & __CFTYPE_ONLY_ON_DFL) && !on_dfl)
+ 			continue;
+-		if ((cft->flags & __CFTYPE_NOT_ON_DFL) && cgroup_on_dfl(cgrp))
++		if ((cft->flags & __CFTYPE_NOT_ON_DFL) && on_dfl)
+ 			continue;
+-		if ((cft->flags & CFTYPE_NOT_ON_ROOT) && !cgroup_parent(cgrp))
++		if ((cft->flags & CFTYPE_NOT_ON_ROOT) && is_root)
+ 			continue;
+-		if ((cft->flags & CFTYPE_ONLY_ON_ROOT) && cgroup_parent(cgrp))
++		if ((cft->flags & CFTYPE_ONLY_ON_ROOT) && !is_root)
+ 			continue;
+ 		if ((cft->flags & CFTYPE_DEBUG) && !cgroup_debug)
+ 			continue;
+Index: common/kernel/cgroup/cpuset.c
+===================================================================
+--- common/kernel/cgroup/cpuset.c
++++ common/kernel/cgroup/cpuset.c
+@@ -1283,7 +1283,7 @@ static void compute_effective_cpumask(st
+ 		cpumask_and(new_cpus, new_cpus, cs->cpus_requested);
+ 		cpumask_and(new_cpus, new_cpus, cpu_active_mask);
+ 	} else {
+-		cpumask_and(new_cpus, cs->cpus_requested, parent_cs(cs)->effective_cpus);
++		cpumask_and(new_cpus, cs->cpus_requested, parent->effective_cpus);
+ 	}
+ }
+ 
+@@ -2068,6 +2068,7 @@ static void update_tasks_nodemask(struct
+ 	static nodemask_t newmems;	/* protected by cpuset_mutex */
+ 	struct css_task_iter it;
+ 	struct task_struct *task;
++	bool migrate = is_memory_migrate(cs);
+ 
+ 	cpuset_being_rebound = cs;		/* causes mpol_dup() rebind */
+ 
+@@ -2086,7 +2087,6 @@ static void update_tasks_nodemask(struct
+ 	css_task_iter_start(&cs->css, 0, &it);
+ 	while ((task = css_task_iter_next(&it))) {
+ 		struct mm_struct *mm;
+-		bool migrate;
+ 
+ 		cpuset_change_task_nodemask(task, &newmems);
+ 
+@@ -2094,8 +2094,6 @@ static void update_tasks_nodemask(struct
+ 		if (!mm)
+ 			continue;
+ 
+-		migrate = is_memory_migrate(cs);
+-
+ 		mpol_rebind_mm(mm, &cs->mems_allowed);
+ 		if (migrate)
+ 			cpuset_migrate_mm(mm, &cs->old_mems_allowed, &newmems);
+Index: common/kernel/cgroup/rstat.c
+===================================================================
+--- common/kernel/cgroup/rstat.c
++++ common/kernel/cgroup/rstat.c
+@@ -10,7 +10,8 @@
+ static DEFINE_SPINLOCK(cgroup_rstat_lock);
+ static DEFINE_PER_CPU(raw_spinlock_t, cgroup_rstat_cpu_lock);
+ 
+-static void cgroup_base_stat_flush(struct cgroup *cgrp, int cpu);
++static void cgroup_base_stat_flush(struct cgroup *cgrp,
++				   struct cgroup *parent, int cpu);
+ 
+ static struct cgroup_rstat_cpu *cgroup_rstat_cpu(struct cgroup *cgrp, int cpu)
+ {
+@@ -237,10 +238,11 @@ static void cgroup_rstat_flush_locked(st
+ 		struct cgroup *pos = cgroup_rstat_updated_list(cgrp, cpu);
+ 
+ 		for (; pos; pos = pos->rstat_flush_next) {
++			struct cgroup *parent = cgroup_parent(pos);
+ 			struct cgroup_subsys_state *css;
+ 
+-			cgroup_base_stat_flush(pos, cpu);
+-			bpf_rstat_flush(pos, cgroup_parent(pos), cpu);
++			cgroup_base_stat_flush(pos, parent, cpu);
++			bpf_rstat_flush(pos, parent, cpu);
+ 
+ 			rcu_read_lock();
+ 			list_for_each_entry_rcu(css, &pos->rstat_css_list,
+@@ -382,10 +384,10 @@ static void cgroup_base_stat_sub(struct
+ #endif
+ }
+ 
+-static void cgroup_base_stat_flush(struct cgroup *cgrp, int cpu)
++static void cgroup_base_stat_flush(struct cgroup *cgrp,
++				   struct cgroup *parent, int cpu)
+ {
+ 	struct cgroup_rstat_cpu *rstatc = cgroup_rstat_cpu(cgrp, cpu);
+-	struct cgroup *parent = cgroup_parent(cgrp);
+ 	struct cgroup_rstat_cpu *prstatc;
+ 	struct cgroup_base_stat delta;
+ 	unsigned seq;

@@ -41,11 +41,11 @@ Signed-off-by: brokestar233 <3765589194@qq.com>
  kernel/sched/fair.c | 36 +++++++++++++-----------------------
  1 file changed, 13 insertions(+), 23 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index bd9851b9fc84..5286bf65574f 100644
+Index: common/kernel/sched/fair.c
+===================================================================
 --- common/kernel/sched/fair.c
 +++ common/kernel/sched/fair.c
-@@ -6746,21 +6746,6 @@ static inline void set_rd_overutilized_status(struct root_domain *rd,
+@@ -6733,21 +6733,6 @@ static inline void set_rd_overutilized_s
  	WRITE_ONCE(rd->overutilized, status);
  	trace_sched_overutilized_tp(rd, !!status);
  }
@@ -67,7 +67,7 @@ index bd9851b9fc84..5286bf65574f 100644
  #endif
  
  /* Runqueue only has SCHED_IDLE tasks enqueued */
-@@ -6788,7 +6773,6 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
+@@ -6775,7 +6760,6 @@ enqueue_task_fair(struct rq *rq, struct
  	struct cfs_rq *cfs_rq;
  	struct sched_entity *se = &p->se;
  	int idle_h_nr_running = task_has_idle_policy(p);
@@ -75,7 +75,7 @@ index bd9851b9fc84..5286bf65574f 100644
  	int should_iowait_boost;
  
  	/*
-@@ -6864,8 +6848,6 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
+@@ -6851,8 +6835,6 @@ enqueue_task_fair(struct rq *rq, struct
  	 * into account, but that is not straightforward to implement,
  	 * and the following generally works well enough in practice.
  	 */
@@ -84,7 +84,7 @@ index bd9851b9fc84..5286bf65574f 100644
  
  enqueue_throttle:
  	assert_list_leaf_cfs_rq(rq);
-@@ -9659,6 +9641,7 @@ struct sg_lb_stats {
+@@ -9579,6 +9561,7 @@ struct sg_lb_stats {
  	unsigned int nr_numa_running;
  	unsigned int nr_preferred_running;
  #endif
@@ -92,7 +92,7 @@ index bd9851b9fc84..5286bf65574f 100644
  };
  
  /*
-@@ -10111,8 +10094,10 @@ static inline void update_sg_lb_stats(struct lb_env *env,
+@@ -10031,8 +10014,10 @@ static inline void update_sg_lb_stats(st
  		nr_running = rq->nr_running;
  		sgs->sum_nr_running += nr_running;
  
@@ -104,7 +104,7 @@ index bd9851b9fc84..5286bf65574f 100644
  
  		/*
  		 * No need to call idle_cpu() if nr_running is not 0
-@@ -10782,6 +10767,7 @@ static inline void update_sd_lb_stats(struct lb_env *env, struct sd_lb_stats *sd
+@@ -10702,6 +10687,7 @@ static inline void update_sd_lb_stats(st
  	struct sg_lb_stats *local = &sds->local_stat;
  	struct sg_lb_stats tmp_sgs;
  	unsigned long sum_util = 0;
@@ -112,7 +112,7 @@ index bd9851b9fc84..5286bf65574f 100644
  	int sg_status = 0;
  
  	do {
-@@ -10800,6 +10786,8 @@ static inline void update_sd_lb_stats(struct lb_env *env, struct sd_lb_stats *sd
+@@ -10720,6 +10706,8 @@ static inline void update_sd_lb_stats(st
  
  		update_sg_lb_stats(env, sds, sg, sgs, &sg_status);
  
@@ -121,7 +121,7 @@ index bd9851b9fc84..5286bf65574f 100644
  		if (!local_group && update_sd_pick_busiest(env, sds, sg, sgs)) {
  			sds->busiest = sg;
  			sds->busiest_stat = *sgs;
-@@ -10828,10 +10816,13 @@ static inline void update_sd_lb_stats(struct lb_env *env, struct sd_lb_stats *sd
+@@ -10748,10 +10736,13 @@ static inline void update_sd_lb_stats(st
  	if (!env->sd->parent) {
  		/* update overload indicator if we are at root domain */
  		WRITE_ONCE(env->dst_rq->rd->overload, sg_status & SG_OVERLOAD);
@@ -138,7 +138,7 @@ index bd9851b9fc84..5286bf65574f 100644
  	} else if (sg_status & SG_OVERUTILIZED) {
  		set_rd_overutilized_status(env->dst_rq->rd, SG_OVERUTILIZED);
  	}
-@@ -12835,7 +12826,6 @@ static void task_tick_fair(struct rq *rq, struct task_struct *curr, int queued)
+@@ -12750,7 +12741,6 @@ static void task_tick_fair(struct rq *rq
  		task_tick_numa(rq, curr);
  
  	update_misfit_status(curr, rq);

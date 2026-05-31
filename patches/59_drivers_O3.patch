@@ -60,7 +60,7 @@ Index: common/arch/arm64/Makefile
 ===================================================================
 --- common/arch/arm64/Makefile
 +++ common/arch/arm64/Makefile
-@@ -100,7 +100,18 @@ ifdef asm-arch
+@@ -100,7 +100,15 @@ ifdef asm-arch
  KBUILD_CFLAGS	+= -Wa,-march=$(asm-arch) \
  		   -DARM64_ASM_ARCH='"$(asm-arch)"'
  endif
@@ -68,12 +68,9 @@ Index: common/arch/arm64/Makefile
 +KBUILD_CFLAGS   += $(call cc-option,-frename-registers)
 +KBUILD_CFLAGS   += $(call cc-option,-fsched-interblock)
 +KBUILD_CFLAGS   += $(call cc-option,-fgcse-after-reload)
-+KBUILD_CFLAGS   += $(call cc-option,-fuse-ld=lld)
 +KBUILD_CFLAGS   += $(call cc-disable-warning,maybe-uninitialized)
-+KBUILD_CFLAGS   += -ffp-contract=fast -g0
-+KBUILD_CFLAGS += $(call cc-option,-floop-unroll-and-jam)
++KBUILD_CFLAGS   += -g0
 +KBUILD_CFLAGS += $(call cc-option,-fpeel-loops)
-+KBUILD_CFLAGS += $(call cc-option,-fprefetch-loop-arrays)
 +KBUILD_CFLAGS += $(call cc-option,-fno-semantic-interposition)
 +KBUILD_CFLAGS += $(call cc-option,-fno-math-errno)
 +KBUILD_CFLAGS += $(call cc-option,-fschedule-insns2)
@@ -89,7 +86,7 @@ Index: common/arch/arm64/kernel/Makefile
  # Makefile for the linux kernel.
  #
 -
-+ccflags-y += -O3 -ffast-math
++ccflags-y += -O3
  CFLAGS_armv8_deprecated.o := -I$(src)
  
  CFLAGS_REMOVE_ftrace.o = $(CC_FLAGS_FTRACE)
@@ -99,7 +96,7 @@ Index: common/arch/arm64/lib/Makefile
 +++ common/arch/arm64/lib/Makefile
 @@ -1,4 +1,5 @@
  # SPDX-License-Identifier: GPL-2.0
-+ccflags-y += -O3 -ffast-math
++ccflags-y += -O3
  lib-y		:= clear_user.o delay.o copy_from_user.o		\
  		   copy_to_user.o copy_page.o				\
  		   clear_page.o csum.o insn.o memchr.o memcpy.o		\
@@ -112,7 +109,7 @@ Index: common/block/Makefile
  # Makefile for the kernel block layer
  #
 -
-+ccflags-y += -O3 -ffast-math
++ccflags-y += -O3
  obj-y		:= bdev.o fops.o bio.o elevator.o blk-core.o blk-sysfs.o \
  			blk-flush.o blk-settings.o blk-ioc.o blk-map.o \
  			blk-merge.o blk-timeout.o \
@@ -137,7 +134,7 @@ Index: common/drivers/Makefile
  #
  
  # Some driver Makefiles miss $(srctree)/ for include directive.
-+ccflags-y += -O3 -ffast-math
++ccflags-y += -O3
  ifdef building_out_of_srctree
  MAKEFLAGS += --include-dir=$(srctree)
  endif
@@ -150,7 +147,7 @@ Index: common/fs/Makefile
  # Rewritten to use lists instead of if-statements.
  # 
 -
-+ccflags-y += -O3 -ffast-math
++ccflags-y += -O3
  ifdef CONFIG_GKI_HACKS_TO_FIX
  subdir-ccflags-y += -DANDROID_GKI_VFS_EXPORT_ONLY=VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver
  else
@@ -163,7 +160,7 @@ Index: common/lib/Makefile
  # Makefile for some libs needed in the kernel.
  #
 -
-+ccflags-y += -O3 -ffast-math
++ccflags-y += -O3
  ccflags-remove-$(CONFIG_FUNCTION_TRACER) += $(CC_FLAGS_FTRACE)
  
  # These files are disabled because they produce lots of non-interesting and/or
@@ -176,7 +173,7 @@ Index: common/mm/Makefile
  # Makefile for the linux memory manager.
  #
 -
-+ccflags-y += -O3 -ffast-math
++ccflags-y += -O3
  KASAN_SANITIZE_slab_common.o := n
  KASAN_SANITIZE_slab.o := n
  KASAN_SANITIZE_slub.o := n
@@ -189,7 +186,7 @@ Index: common/net/Makefile
  # Rewritten to use lists instead of if-statements.
  #
 -
-+ccflags-y += -O3 -ffast-math
++ccflags-y += -O3
  obj-y				:= devres.o socket.o core/
  
  obj-$(CONFIG_COMPAT)		+= compat.o

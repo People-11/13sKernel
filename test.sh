@@ -45,13 +45,15 @@ patch -p0 -l < 31_sched_fair_Simplify_continue_balancing.patch
 patch -p0 -l < 32_sched_fair_Simplify_update_sd_pick_busiest.patch
 patch -p0 -l < 33_sched_fair_Dont_compute_NUMA_Balancing.patch
 patch -p0 -l < 34_sched_fair_Dont_compute_overloaded.patch
+patch -p0 -l < 34_sched_fair_Dont_needlessly_migrate_a_lone_task.patch
+patch -p0 -l < 34_sched_fair_Iterate_in_ascending_CPU_order.patch
+patch -p0 -l < 34_sched_fair_Optimize_EAS_energy_calculation_complexity.patch
 patch -p0 -l < 34_sched_fair_Relax_overutilized_detection.patch
 patch -p0 -l < 35_sched_Skip_barrier_in_ttwu.patch
-patch -p0 -l < 36_sched_topology_Optimize_topology_span_sane.patch
-patch -p0 -l < 36_sched_topology_improve_topology_span_sane_speed.patch
+patch -p0 -l < 35_sched_topology_Optimize_topology_span_sane.patch
+patch -p0 -l < 36_sched_topology_Improve_topology_span_sane_speed.patch
 patch -p0 -l < 36_sched_topology_Refine_topology_span_sane_speedup.patch
 patch -p0 -l < 37_sched_core_Prioritize_migrating.patch
-patch -p0 -l < 38_Disable_CACHE_HOT_BUDDY.patch
 patch -p0 -l < 39_mm_Omit_RCU_read_lock.patch
 patch -p0 -l < 40_mm_Disable_watermark_boosting.patch
 patch -p0 -l < 41_mm_Disable_proactive_compaction.patch
@@ -80,7 +82,7 @@ patch -p0 -l < 60_zsmalloc_use_copy_page.patch
 patch -p0 -l < 61_media_synchronized_wake.patch
 patch -p0 -l < 62_loop_Add_WQ_HIGHPRI.patch
 patch -p0 -l < 63_No_iosched.patch
-patch -p0 -l < 64_Reduce_vm_stat_interval.patch
+patch -p0 -l < 64_Reduce_vm_stat_freq.patch
 patch -p0 -l < 65_psi_disable_debug_output.patch
 patch -p0 -l < 66_riscv_Optimize_crc32.patch
 patch -p0 -l < 67_Remove_HID.patch
@@ -110,6 +112,8 @@ patch -p0 -l < 80_mm_vmalloc_2.patch
 patch -p0 -l < 80_mm_vmalloc_3.patch
 patch -p0 -l < 80_mm_vmalloc_4.patch
 patch -p0 -l < 81_mm_make_kmalloc_real_fast_path.patch
+patch -p0 -l < 82_time_Optimize_common_timer_and_timekeeping_paths.patch
+patch -p0 -l < 83_cgroup_Reduce_redundant_state_checks_and_lookups.patch
 
 echo 'CONFIG_AUTOFDO_CLANG=y' >> ./common/arch/arm64/configs/gki_defconfig
 echo 'CONFIG_LTO_CLANG_THIN=y' >> ./common/arch/arm64/configs/gki_defconfig
@@ -138,3 +142,5 @@ cd ~/ && git clone https://github.com/Kernel-SU/AnyKernel3.git --depth=1 && rm -
 cd ~/ && rm -rf 13sKernel AnyKernel3 kernel_workspace_16 && 7z x kernel_workspace_16.7z
 
 cd ~/13sKernel/patches && export QUILT_PATCHES="$(pwd)/patches" QUILT_PATCH_OPTS="-l" && rm -rf patches && mkdir patches && cp *.patch patches/ && (cd patches && find . -maxdepth 1 -name '*.patch' -printf '%f\n' | sort -V > series) && cd ~/kernel_workspace_16/kernel_platform/common && while quilt push; do quilt refresh; done && quilt pop -a
+
+sudo sh -c 'sync; echo 3 > /proc/sys/vm/drop_caches'
