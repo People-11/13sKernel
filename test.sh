@@ -19,7 +19,6 @@ patch -p0 -l < 08_menu_cleanup.patch
 patch -p0 -l < 08_menu_rm_iowait_influ.patch
 patch -p0 -l < 09_disable_KFENCE_UBSAN.patch
 patch -p0 -l < 10_idle_mem_barrier.patch
-patch -p0 -l < 11_PM_Reduce_freeze_timeout_to_1.patch
 patch -p0 -l < 12_mbcache_Speedup_cache_entry_creation.patch
 patch -p0 -l < 13_arm64_lib_Optimize_memcmp.patch
 patch -p0 -l < 14_arm64_clear_page_ali_16b.patch
@@ -39,7 +38,6 @@ patch -p0 -l < 25_workqueue_Reduce_expensive_locks.patch
 patch -p0 -l < 26_sched_fair_Fix_initial_util_avg.patch
 patch -p0 -l < 27_sched_fair_Dont_double_balance_interval_for_migrate_misfit.patch
 patch -p0 -l < 28_sched_fair_Compile_out_NUMA_when_disabled.patch
-patch -p0 -l < 29_sched_fair_Set_asym_priority.patch
 patch -p0 -l < 30_sched_fair_Remove_unnecessary_goto.patch
 patch -p0 -l < 31_sched_fair_Simplify_continue_balancing.patch
 patch -p0 -l < 32_sched_fair_Simplify_update_sd_pick_busiest.patch
@@ -47,8 +45,6 @@ patch -p0 -l < 33_sched_fair_Dont_compute_NUMA_Balancing.patch
 patch -p0 -l < 34_sched_fair_Dont_compute_overloaded.patch
 patch -p0 -l < 34_sched_fair_Dont_needlessly_migrate_a_lone_task.patch
 patch -p0 -l < 34_sched_fair_Iterate_in_ascending_CPU_order.patch
-patch -p0 -l < 34_sched_fair_Optimize_EAS_energy_calculation_complexity.patch
-patch -p0 -l < 34_sched_fair_Relax_overutilized_detection.patch
 patch -p0 -l < 35_sched_Skip_barrier_in_ttwu.patch
 patch -p0 -l < 35_sched_topology_Optimize_topology_span_sane.patch
 patch -p0 -l < 36_sched_topology_Improve_topology_span_sane_speed.patch
@@ -81,7 +77,7 @@ patch -p0 -l < 59_drivers_O3.patch
 patch -p0 -l < 60_zsmalloc_use_copy_page.patch
 patch -p0 -l < 61_media_synchronized_wake.patch
 patch -p0 -l < 62_loop_Add_WQ_HIGHPRI.patch
-patch -p0 -l < 63_No_iosched.patch
+patch -p0 -l < 63_ADIOS.patch
 patch -p0 -l < 64_Reduce_vm_stat_freq.patch
 patch -p0 -l < 65_psi_disable_debug_output.patch
 patch -p0 -l < 66_riscv_Optimize_crc32.patch
@@ -114,6 +110,7 @@ patch -p0 -l < 80_mm_vmalloc_4.patch
 patch -p0 -l < 81_mm_make_kmalloc_real_fast_path.patch
 patch -p0 -l < 82_time_Optimize_common_timer_and_timekeeping_paths.patch
 patch -p0 -l < 83_cgroup_Reduce_redundant_state_checks_and_lookups.patch
+patch -p0 -l < 84_PM_wakeup_Avoid_excessive_s2idle_wake.patch
 
 echo 'CONFIG_AUTOFDO_CLANG=y' >> ./common/arch/arm64/configs/gki_defconfig
 echo 'CONFIG_LTO_CLANG_THIN=y' >> ./common/arch/arm64/configs/gki_defconfig
@@ -135,7 +132,7 @@ cd ~/kernel_workspace_16/kernel_platform && sed -i 's/${scm_version}//' ./common
 cd ~/kernel_workspace_16 && rm kernel_platform/common/android/abi_gki_protected_exports_* && rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_*
 
 cd ~/kernel_workspace_16/kernel_platform/common
-make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out gki_defconfig all
+make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out CLANG_AUTOFDO_PROFILE="$(pwd)/android/gki/aarch64/afdo/kernel.afdo" gki_defconfig all
 
 cd ~/ && git clone https://github.com/Kernel-SU/AnyKernel3.git --depth=1 && rm -rf ./AnyKernel3/.git && cp -f kernel_workspace_16/kernel_platform/common/out/arch/arm64/boot/Image ./AnyKernel3/
 

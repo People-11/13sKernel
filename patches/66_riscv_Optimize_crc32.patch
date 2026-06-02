@@ -1,3 +1,7 @@
+# NOTE (audit 2026-06): arch/riscv/* is NEVER compiled in this arm64 build, so
+# this patch is inert/dead code with zero runtime effect on the SM8750 (8 Elite).
+# It is kept ONLY because removing it triggers spurious build errors. Do not
+# expect any performance impact from it. -- People-11
 From cc57a95ea817ff5b5bf9b03d6e30ca963ea4d20e Mon Sep 17 00:00:00 2001
 From: Xiao Wang <xiao.w.wang@intel.com>
 Date: Fri, 21 Jun 2024 13:47:07 +0800
