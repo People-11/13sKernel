@@ -1,0 +1,40 @@
+From 1b75fdc0c41c8358a7f347762da6977643b5c9e1 Mon Sep 17 00:00:00 2001
+From: Sultan Alsawaf <sultan@kerneltoast.com>
+Date: Wed, 9 Jul 2025 22:23:36 -0700
+Subject: [PATCH] kbuild: Define __ANDROID_COMMON_KERNEL__ and enable armv8.2-a
+
+The __ANDROID_COMMON_KERNEL__ flag is set globally via build.config.common
+in Google's build system. Set it globally in the root Makefile so it's
+present when building directly with `make`.
+
+Also set -march=armv8.2-a unconditionally to enable ARMv8.2 ISA
+optimizations across the full kernel build, overriding the default per-CPU
+march set in arch/arm64/Makefile.
+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ Makefile | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+Index: common/Makefile
+===================================================================
+--- common/Makefile
++++ common/Makefile
+@@ -5,6 +5,8 @@ SUBLEVEL = 89
+ EXTRAVERSION =
+ NAME = Pinguïn Aangedreven
+
++KCFLAGS += -D__ANDROID_COMMON_KERNEL__
++
+ # *DOCUMENTATION*
+ # To see a list of typical targets execute "make help"
+ # More info can be located in ./README
+@@ -849,6 +851,8 @@ endif
+ KBUILD_RUSTFLAGS += -Cdebug-assertions=$(if $(CONFIG_RUST_DEBUG_ASSERTIONS),y,n)
+ KBUILD_RUSTFLAGS += -Coverflow-checks=$(if $(CONFIG_RUST_OVERFLOW_CHECKS),y,n)
+
++KBUILD_CFLAGS += -march=armv8.2-a
++
+ # Tell gcc to never replace conditional load with a non-conditional one
+ ifdef CONFIG_CC_IS_GCC
+ # gcc-10 renamed --param=allow-store-data-races=0 to

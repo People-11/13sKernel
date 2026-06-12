@@ -22,8 +22,8 @@ Signed-off-by: brokestar233 <3765589194@qq.com>
  lib/math/int_sqrt.c | 180 +++++++++++++++++++++++++++++++++-----------
  1 file changed, 138 insertions(+), 42 deletions(-)
 
-diff --git a/lib/math/int_sqrt.c b/lib/math/int_sqrt.c
-index cead8de06c38b..4daa591f982be 100644
+Index: common/lib/math/int_sqrt.c
+===================================================================
 --- common/lib/math/int_sqrt.c
 +++ common/lib/math/int_sqrt.c
 @@ -2,8 +2,21 @@
@@ -186,15 +186,11 @@ index cead8de06c38b..4daa591f982be 100644
 -	do{
 -		place >>= 2;
 -	}while(place > x);
-+	if (x <= U16_MAX)
-+		return int_sqrt_oryon16(x);
- 
+-
 -	do {
 -		tmp = root + place;
 -		root >>= 1;
-+	if (x <= U32_MAX)
-+		return int_sqrt_oryon32(x);
- 
+-
 -		if (x >= tmp)
 -		{
 -			x -= tmp;
@@ -202,8 +198,13 @@ index cead8de06c38b..4daa591f982be 100644
 -		}
 -		place >>= 2;
 -	}while (place != 0);
--
++	if (x <= U16_MAX)
++		return int_sqrt_oryon16(x);
+ 
 -	return root;
++	if (x <= U32_MAX)
++		return int_sqrt_oryon32(x);
++
 +	return int_sqrt_oryon64(x);
  }
  EXPORT_SYMBOL(int_sqrt);
@@ -223,16 +224,16 @@ index cead8de06c38b..4daa591f982be 100644
 -	while (m != 0) {
 -		b = y + m;
 -		y >>= 1;
-+	if (x <= U32_MAX)
-+		return int_sqrt_oryon32(x);
- 
+-
 -		if (x >= b) {
 -			x -= b;
 -			y += m;
 -		}
 -		m >>= 2;
 -	}
--
++	if (x <= U32_MAX)
++		return int_sqrt_oryon32(x);
+ 
 -	return y;
 +	return int_sqrt_oryon64(x);
  }

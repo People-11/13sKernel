@@ -36,11 +36,11 @@ Acked-by: Shakeel Butt <shakeel.butt@linux.dev>
  mm/util.c | 8 +++++---
  1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/mm/util.c b/mm/util.c
-index 9a8cb5e30c9ba..909c4bc15cd55 100644
+Index: common/mm/util.c
+===================================================================
 --- common/mm/util.c
 +++ common/mm/util.c
-@@ -612,14 +612,16 @@ void *kvmalloc_node(size_t size, gfp_t flags, int node)
+@@ -612,14 +612,16 @@ void *kvmalloc_node(size_t size, gfp_t f
  	 * We want to attempt a large physically contiguous block first because
  	 * it is less likely to fragment multiple larger blocks and therefore
  	 * contribute to a long term fragmentation less than vmalloc fallback.

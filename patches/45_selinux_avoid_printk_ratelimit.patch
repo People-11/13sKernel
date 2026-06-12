@@ -1,0 +1,35 @@
+﻿From 415ba126dd9849c2a2e88a6250568b3f453e2d7d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Fri, 5 Apr 2024 17:15:23 +0200
+Subject: [PATCH] selinux: avoid printk_ratelimit()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The usage of printk_ratelimit() is discouraged, see
+include/linux/printk.h, thus use pr_warn_ratelimited().
+
+While editing this line address the following checkpatch warning:
+
+    WARNING: Integer promotion: Using 'h' in '%hu' is unnecessary
+
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/ss/services.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+Index: common/security/selinux/ss/services.c
+===================================================================
+--- common/security/selinux/ss/services.c
++++ common/security/selinux/ss/services.c
+@@ -635,8 +635,7 @@ static void context_struct_compute_av(st
+ 	}
+ 
+ 	if (unlikely(!tclass || tclass > policydb->p_classes.nprim)) {
+-		if (printk_ratelimit())
+-			pr_warn("SELinux:  Invalid class %hu\n", tclass);
++		pr_warn_ratelimited("SELinux:  Invalid class %u\n", tclass);
+ 		return;
+ 	}
+ 

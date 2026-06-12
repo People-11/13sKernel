@@ -1,0 +1,46 @@
+﻿From e53b16159c05008c7857f777afcfb9feb235299a Mon Sep 17 00:00:00 2001
+From: Zhen Lei <thunder.leizhen@huawei.com>
+Date: Thu, 22 Aug 2024 22:08:58 +0800
+Subject: [PATCH] selinux: simplify avc_xperms_audit_required()
+
+By associative and commutative laws, the result of the two 'audited' is
+zero. Take the second 'audited' as an example:
+  1) audited = requested & avd->auditallow;
+  2) audited &= ~requested;
+  ==> audited = ~requested & (requested & avd->auditallow);
+  ==> audited = (~requested & requested) & avd->auditallow;
+  ==> audited = 0 & avd->auditallow;
+  ==> audited = 0;
+
+In fact, it is more readable to directly write zero. The value of the
+first 'audited' is 0 because AUDIT is not allowed. The second 'audited'
+is zero because there is no AUDITALLOW permission.
+
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/avc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: common/security/selinux/avc.c
+===================================================================
+--- common/security/selinux/avc.c
++++ common/security/selinux/avc.c
+@@ -399,7 +399,7 @@ static inline u32 avc_xperms_audit_requi
+ 		audited = denied & avd->auditdeny;
+ 		if (audited && xpd) {
+ 			if (avc_xperms_has_perm(xpd, perm, XPERMS_DONTAUDIT))
+-				audited &= ~requested;
++				audited = 0;
+ 		}
+ 	} else if (result) {
+ 		audited = denied = requested;
+@@ -407,7 +407,7 @@ static inline u32 avc_xperms_audit_requi
+ 		audited = requested & avd->auditallow;
+ 		if (audited && xpd) {
+ 			if (!avc_xperms_has_perm(xpd, perm, XPERMS_AUDITALLOW))
+-				audited &= ~requested;
++				audited = 0;
+ 		}
+ 	}
+ 

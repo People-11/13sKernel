@@ -26,8 +26,8 @@ Signed-off-by: brokestar233 <3765589194@qq.com>
  5 files changed, 2116 insertions(+), 5 deletions(-)
  create mode 100644 block/adios.c
 
-diff --git a/block/Kconfig.iosched b/block/Kconfig.iosched
-index 27f11320b8d12..dcbcf7c8a3b22 100644
+Index: common/block/Kconfig.iosched
+===================================================================
 --- common/block/Kconfig.iosched
 +++ common/block/Kconfig.iosched
 @@ -16,6 +16,20 @@ config MQ_IOSCHED_KYBER
@@ -51,11 +51,13 @@ index 27f11320b8d12..dcbcf7c8a3b22 100644
  config IOSCHED_BFQ
  	tristate "BFQ I/O scheduler"
  	select BLK_ICQ
-diff --git a/block/Makefile b/block/Makefile
-index cc33d6617623e..93bf40b5c95d6 100644
+Index: common/block/Makefile
+===================================================================
 --- common/block/Makefile
 +++ common/block/Makefile
-@@ -23,6 +23,3 @@ obj-$(CONFIG_BLK_CGROUP_IOLATENCY)	+= blk-iolatency.o
+@@ -21,10 +21,7 @@ obj-$(CONFIG_BLK_DEV_THROTTLING)	+= blk-
+ obj-$(CONFIG_BLK_CGROUP_IOPRIO)	+= blk-ioprio.o
+ obj-$(CONFIG_BLK_CGROUP_IOLATENCY)	+= blk-iolatency.o
  obj-$(CONFIG_BLK_CGROUP_IOCOST)	+= blk-iocost.o
 -obj-$(CONFIG_MQ_IOSCHED_DEADLINE)	+= mq-deadline.o
 -obj-$(CONFIG_MQ_IOSCHED_KYBER)	+= kyber-iosched.o
@@ -63,9 +65,10 @@ index cc33d6617623e..93bf40b5c95d6 100644
 -obj-$(CONFIG_IOSCHED_BFQ)	+= bfq.o
 +obj-$(CONFIG_MQ_IOSCHED_ADIOS)  += adios.o
  
-diff --git a/block/adios.c b/block/adios.c
-new file mode 100644
-index 0000000000000..65db80f107faf
+ obj-$(CONFIG_BLK_DEV_INTEGRITY) += bio-integrity.o blk-integrity.o
+ obj-$(CONFIG_BLK_DEV_INTEGRITY_T10)	+= t10-pi.o
+Index: common/block/adios.c
+===================================================================
 --- /dev/null
 +++ common/block/adios.c
 @@ -0,0 +1,2076 @@
@@ -2146,11 +2149,11 @@ index 0000000000000..65db80f107faf
 +MODULE_LICENSE("GPL");
 +MODULE_DESCRIPTION(ADIOS_PROGNAME);
 \ No newline at end of file
-diff --git a/block/elevator.c b/block/elevator.c
-index ba072d8f660e6..2bdb986a2dfd4 100644
+Index: common/block/elevator.c
+===================================================================
 --- common/block/elevator.c
 +++ common/block/elevator.c
-@@ -572,11 +572,15 @@ static struct elevator_type *elevator_get_default(struct request_queue *q)
+@@ -572,11 +572,15 @@ static struct elevator_type *elevator_ge
  	if (q->tag_set->flags & BLK_MQ_F_NO_SCHED_BY_DEFAULT)
  		return NULL;
  

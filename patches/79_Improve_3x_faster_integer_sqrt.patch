@@ -23,8 +23,8 @@ Change-Id: Id63e22132df2576389ca1589ea69a7cc90696abd
  lib/math/int_sqrt.c | 32 ++++++++++++++++++++------------
  1 file changed, 20 insertions(+), 12 deletions(-)
 
-diff --git a/lib/math/int_sqrt.c b/lib/math/int_sqrt.c
-index a8170bb9142f3..cead8de06c38b 100644
+Index: common/lib/math/int_sqrt.c
+===================================================================
 --- common/lib/math/int_sqrt.c
 +++ common/lib/math/int_sqrt.c
 @@ -17,26 +17,34 @@
@@ -46,11 +46,12 @@ index a8170bb9142f3..cead8de06c38b 100644
 -	while (m != 0) {
 -		b = y + m;
 -		y >>= 1;
-+	place = 1UL << (BITS_PER_LONG - 2);
- 
+-
 -		if (x >= b) {
 -			x -= b;
 -			y += m;
++	place = 1UL << (BITS_PER_LONG - 2);
++
 +	do{
 +		place >>= 2;
 +	}while(place > x);

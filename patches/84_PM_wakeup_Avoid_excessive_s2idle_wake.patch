@@ -16,11 +16,11 @@ Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
  drivers/base/power/wakeup.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/power/wakeup.c b/drivers/base/power/wakeup.c
-index b57509b1705d..6625fed8cbab 100644
+Index: common/drivers/base/power/wakeup.c
+===================================================================
 --- common/drivers/base/power/wakeup.c
 +++ common/drivers/base/power/wakeup.c
-@@ -1009,8 +1009,9 @@ EXPORT_SYMBOL_GPL(pm_wakeup_pending);
+@@ -938,8 +938,9 @@ EXPORT_SYMBOL_GPL(pm_wakeup_pending);
  
  void pm_system_wakeup(void)
  {

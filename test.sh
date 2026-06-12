@@ -8,7 +8,7 @@ repo sync -c --no-tags
 
 cd ~ && git clone -b 16 https://github.com/People-11/13sKernel.git --depth=1
 cp -f ./13sKernel/patches/*.patch ./kernel_workspace_16/kernel_platform/ && cd ~/kernel_workspace_16/kernel_platform/
-patch -p0 -l < 01_armv8.7-a.patch
+patch -p0 -l < 01_kbuild_android_flags.patch
 patch -p0 -l < 02_noiostat.patch
 patch -p0 -l < 03_polly.patch
 patch -p0 -l < 04_lazyRCU.patch
@@ -59,6 +59,8 @@ patch -p0 -l < 44_mm_Optimize_loop_reduce_redundant.patch
 patch -p0 -l < 45_selinux_Remove_audit_dependency.patch
 patch -p0 -l < 45_selinux_Avoid_dynamic_memory_allocation1.patch
 patch -p0 -l < 45_selinux_Avoid_dynamic_memory_allocation2.patch
+patch -p0 -l < 45_selinux_avoid_printk_ratelimit.patch
+patch -p0 -l < 45_selinux_simplify_avc_xperms.patch
 patch -p0 -l < 46_bpf_Avoid_allocating_small_buffers.patch
 patch -p0 -l < 47_profiling_disable_unnecessary_profiling.patch
 patch -p0 -l < 48_uid_sys_stats_stutter_fix.patch
@@ -111,6 +113,8 @@ patch -p0 -l < 81_mm_make_kmalloc_real_fast_path.patch
 patch -p0 -l < 82_time_Optimize_common_timer_and_timekeeping_paths.patch
 patch -p0 -l < 83_cgroup_Reduce_redundant_state_checks_and_lookups.patch
 patch -p0 -l < 84_PM_wakeup_Avoid_excessive_s2idle_wake.patch
+patch -p0 -l < 85_mm_mglru_Use_folio_mark_accessed.patch
+patch -p0 -l < 86_f2fs_Improve_GC_and_segment_balance.patch
 
 echo 'CONFIG_AUTOFDO_CLANG=y' >> ./common/arch/arm64/configs/gki_defconfig
 echo 'CONFIG_LTO_CLANG_THIN=y' >> ./common/arch/arm64/configs/gki_defconfig
